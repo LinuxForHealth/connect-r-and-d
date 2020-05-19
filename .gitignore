@@ -29,3 +29,6 @@ build
 
 # VCS
 .gitattributes
+
+# OS X
+.DS_Store
