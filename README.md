@@ -3,20 +3,35 @@ iDAAS Connectors for Inboud Data Processing
 
 Powered by [Apache Camel](https://camel.apache.org/)
 
+## Overview
+iDAAS Connect provides an opinionated implementation of [Camel Routing](https://camel.apache.org/manual/latest/routes.html), focused
+on standard data and messaging formats. iDAAS Connect data processing routes are dynamically built from [application properties](src/main/resources/application.properties)
+configurations.
+
+An iDAAS Connect data processing route consists of:
+- A consumer endpoint which receives inbound data
+- Optional "components" used to transform, filter, or route data
+- Error handling and auditing 
+- A Kafka based producer endpoint, used to store data messages
+- Additional optional producer endpoints to support "multi-cast" routes when needed
+
+For additional information on iDAAS Connect route configuration, please refer to the [Route Configuration README](ROUTE-CONFIGURATION.md)
+
 ## Pre-requisites
 - Java 1.8
 - [Gradle](https://gradle.org/) 6.x
 
-## MVP Features
-- Consolidate inbound processing routes aka "connectors" defined in [iDAAS Connect Clinical Third Party](https://github.com/RedHat-Healthcare/iDAAS-Connect-Clinical-ThirdParty), [iDAAS Connect Clinical Industry Standards](https://github.com/RedHat-Healthcare/iDAAS-Connect-Clinical-IndustryStandards), [iDAAS Connect Finanacial Industry Standards](https://github.com/RedHat-Healthcare/iDAAS-Connect-Financial-IndustryStandards), and [iDAAS Connect Financial Third Party](https://github.com/RedHat-Healthcare/iDAAS-Connect-Financial-ThirdParty).
-- Configuration based features to support route declaration and deployment.
-- Minimal dependency build using build properties.
-- Container build support targeting [Red Hat Universal Base Image](https://developers.redhat.com/products/rhel/ubi/)
-- Build plugin support for K8s, OpenShift, Azure, and AWS deployments.
+## Getting Started 
+Clone the repo and build the project (including tests)
+```sh
+# clone the repo and confirm the build
+git clone https://github.com/idaas-connect/idaas-connect
+cd idaas-connect
+./gradlew build
+```
+The Test Summary is available within the project's [build directory](./build/reports/tests/test/index.html)
 
-MVP features are tracked using a `mvp` branch which is updated as feature branches are merged. Please refer to the `mvp` branch's README for updated information on available features and testing.
-
-## Starting the Development Environment
+## The Development Environment
 The development environment provides additional systems and integration targets via a [Docker Compose configuration](docker-compose.yml).
 
 Systems include:
@@ -37,9 +52,14 @@ docker-compose logs -f
 
 For additional Docker Compose commands, please refer to the [Official Documentation](https://docs.docker.com/compose/reference/overview/)
 
-To access Kafdrop, the Kafka Cluster View, browser to http://localhost:9000
+To access Kafdrop, the Kafka Cluster View, browse to http://localhost:9000
 
 To start the iDAAS Connect application
 ```
-./gradlew clean run
+./gradlew run
+```
+
+To list all available Gradle tasks
+```
+./gradlew tasks
 ```
