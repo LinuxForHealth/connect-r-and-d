@@ -2,9 +2,13 @@ package com.redhat.idaas.connect.configuration;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.model.RouteDefinition;
+import org.apache.camel.model.RoutesDefinition;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -64,5 +68,15 @@ public class PropertyParserTest {
 
         expectedValue = "org.apache.camel.component.hl7.HL7MLLPNettyEncoderFactory";
         Assertions.assertEquals(expectedValue, actualComponents.get("hl7encoder"));
+    }
+
+    /**
+     * Tests {@link PropertyParser#PropertyParser(Properties)} and validates route generation
+     * TODO: more comprehensive testing in a separate test class with camel-test
+     */
+    @Test
+    public void testPropertyParserRoutes() {
+        List<RouteBuilder> actualRoutes = propertyParser.getIdaasRouteDefinitions();
+        Assertions.assertEquals(1, actualRoutes.size());
     }
 }
