@@ -1,5 +1,6 @@
 package com.redhat.idaas.connect.configuration;
 
+import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.RouteDefinition;
 
@@ -119,17 +120,18 @@ public final class PropertyParser {
      * Sets a {@link CamelEndpoint} field
      * @param camelEndpoint The target CamelEndpoint
      * @param endpointField The field to set
-     * @param endpointValue The field value
+     * @param fieldValue The field value
      */
-    private void setEndpointField(CamelEndpoint camelEndpoint, String endpointField, String endpointValue) {
+    private void setEndpointField(CamelEndpoint camelEndpoint, String endpointField, String fieldValue) {
 
         if (endpointField.equalsIgnoreCase("scheme")) {
-            camelEndpoint.setScheme(endpointValue);
+            camelEndpoint.setScheme(fieldValue);
         } else if (endpointField.equalsIgnoreCase("context")) {
-            camelEndpoint.setContextPath(endpointValue);
+            camelEndpoint.setContextPath(fieldValue);
         } else if (endpointField.equalsIgnoreCase("options")) {
+
             // options are comma delimited
-            for (String option : endpointValue.split(",")) {
+            for (String option : fieldValue.split("&")) {
                 // each option is formatted as key=value
                 String[] optionTokens = option.split("=");
                 camelEndpoint.addOption(optionTokens[0], optionTokens[1]);
@@ -168,13 +170,13 @@ public final class PropertyParser {
                 .concat(".")
                 .concat(IDAAS_PRODUCER_NAMESPACE);
 
-        String[] consumerFields = propertyName
+        String[] producerFields = propertyName
                 .substring(producerNamespace.length() + 1)
                 .split("\\.");
 
-        String routeId = consumerFields[0];
-        int producerIndex = Integer.parseInt(consumerFields[1]);
-        String producerField = consumerFields[2];
+        String routeId = producerFields[0];
+        int producerIndex = Integer.parseInt(producerFields[1]);
+        String producerField = producerFields[2];
 
         List<CamelEndpoint> producers = idaasRoutes.get(routeId).getProducers();
         CamelEndpoint producer;
@@ -200,19 +202,21 @@ public final class PropertyParser {
                 @Override
                 public void configure() {
                     CamelEndpoint consumer = camelRoute.getConsumer();
-                    RouteDefinition fromDefinition = from(consumer.toString());
 
                     if (camelRoute.getProducers().size() == 1) {
                         CamelEndpoint producer = camelRoute.getProducers().get(0);
-                        fromDefinition
+                        from(consumer.toString())
+                                .routeId(camelRoute.getRouteId())
+                                .log(LoggingLevel.INFO, "${body}")
                                 .to(producer.toString());
                     } else {
                         String producerUris = camelRoute.getProducers()
                                 .stream()
                                 .map(CamelEndpoint::toString)
                                 .collect(Collectors.joining(","));
-
-                        fromDefinition
+                        from(consumer.toString())
+                                .routeId(camelRoute.getRouteId())
+                                .log(LoggingLevel.INFO, "${body}")
                                 .multicast()
                                 .to(producerUris);
                     }
