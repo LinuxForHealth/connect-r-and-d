@@ -20,14 +20,14 @@ public class CamelRouteTest {
         camelRoute.setRouteId("myRoute");
 
         CamelEndpoint consumer = new CamelEndpoint();
-        consumer.setScheme("ftp");
+        consumer.setScheme("ftp://");
         consumer.setContextPath("myftp.com:22/dropbox");
         camelRoute.setConsumer(consumer);
 
         CamelEndpoint producer = new CamelEndpoint();
-        producer.setScheme("file");
+        producer.setScheme("file://");
         producer.setContextPath("home/serviceuser/documents");
-        producer.addOption("fileExist", "FAIL");
+        producer.setOptions("fileExist=FAIL");
         camelRoute.addProducer(producer);
     }
 
@@ -110,7 +110,7 @@ public class CamelRouteTest {
                 .concat(".to(file://home/serviceuser/documents?fileExist=FAIL,file://home/otheruser)\n");
 
         CamelEndpoint producer = new CamelEndpoint();
-        producer.setScheme("file");
+        producer.setScheme("file://");
         producer.setContextPath("home/otheruser");
         camelRoute.addProducer(producer);
 

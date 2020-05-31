@@ -19,7 +19,7 @@ public class CamelEndpointTest {
     @BeforeEach
     public void beforeEach() {
         camelEndpoint = new CamelEndpoint();
-        camelEndpoint.setScheme("ftp");
+        camelEndpoint.setScheme("ftp://");
         camelEndpoint.setContextPath("myftp.com:21/dropbox");
     }
 
@@ -108,20 +108,10 @@ public class CamelEndpointTest {
      */
     @Test
     public void testToStringWithOptions() {
-        camelEndpoint.addOption("binary", "true");
-        camelEndpoint.addOption("disconnect", "true");
-        camelEndpoint.addOption("transferLoggingLevel", "ERROR");
+        camelEndpoint.setOptions("binary=true&disconnect=true&transferLoggingLevel=ERROR");
 
-        // order of parameters is not deterministic
-        String actual = camelEndpoint.toString();
-        String[] options = actual.split("\\?");
-        Assertions.assertEquals(2, options.length);
-
-        options = actual.split("\\?")[1].split("&");
-        Assertions.assertEquals(3, options.length);
-
-        Arrays.sort(options);
-        String[] expectedOptions = {"binary=true", "disconnect=true", "transferLoggingLevel=ERROR"};
-        Assertions.assertArrayEquals(expectedOptions, options);
+        String expectedUri = "ftp://myftp.com:21/dropbox?binary=true&disconnect=true&transferLoggingLevel=ERROR";
+        String actualUri = camelEndpoint.toString();
+        Assertions.assertEquals(expectedUri, actualUri);
     }
 }
