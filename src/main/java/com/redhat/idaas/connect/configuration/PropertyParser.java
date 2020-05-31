@@ -129,13 +129,7 @@ public final class PropertyParser {
         } else if (endpointField.equalsIgnoreCase("context")) {
             camelEndpoint.setContextPath(fieldValue);
         } else if (endpointField.equalsIgnoreCase("options")) {
-
-            // options are comma delimited
-            for (String option : fieldValue.split("&")) {
-                // each option is formatted as key=value
-                String[] optionTokens = option.split("=");
-                camelEndpoint.addOption(optionTokens[0], optionTokens[1]);
-            }
+            camelEndpoint.setOptions(fieldValue);
         }
     }
 

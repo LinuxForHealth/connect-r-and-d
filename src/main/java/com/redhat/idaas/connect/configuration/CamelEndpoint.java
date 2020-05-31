@@ -17,7 +17,7 @@ final class CamelEndpoint {
 
     private String contextPath;
 
-    private final Map<String, String> options = new HashMap<>();
+    private String options;
 
     String getScheme() {
         return scheme;
@@ -35,14 +35,9 @@ final class CamelEndpoint {
         this.contextPath = contextPath;
     }
 
-    /**
-     * Adds an endpoint option
-     * @param optionName The option name
-     * @param optionValue The option value
-     */
-    void addOption(String optionName, String optionValue) {
-        options.put(optionName, optionValue);
-    }
+    String getOptions() { return options; }
+
+    void setOptions(String options) { this.options = options; }
 
     /**
      * Determines if this CamelEndpoint instance is equal to another object.
@@ -74,37 +69,21 @@ final class CamelEndpoint {
     }
 
     /**
-     * @return the string representation for this endpoint
+     * @return the URI string representation for this endpoint
      */
     @Override
     public String toString() {
-        StringBuilder endpoint = new StringBuilder();
+        StringBuilder endpointUri = new StringBuilder();
         String scheme = getScheme() == null ? "" : getScheme();
-        String uri = getContextPath() == null ? "" : getContextPath();
+        String context = getContextPath() == null ? "" : getContextPath();
 
-        if (!scheme.endsWith(":")) {
-            scheme += ":";
+        endpointUri.append(scheme)
+            .append(context);
+
+        if (options != null && options.length()  > 1) {
+            endpointUri.append("?");
+            endpointUri.append(options);
         }
-
-        endpoint.append(scheme);
-
-        if (!uri.startsWith("//")) {
-            uri = "//" + uri;
-        }
-
-        endpoint.append(uri);
-
-        if (options.size() > 0) {
-            endpoint.append("?");
-
-            for (Entry<String, String> optionEntry : options.entrySet()) {
-                endpoint.append(optionEntry.getKey());
-                endpoint.append("=");
-                endpoint.append(optionEntry.getValue());
-                endpoint.append("&");
-            }
-            endpoint.setLength(endpoint.length() - 1);
-        }
-        return endpoint.toString();
+        return endpointUri.toString();
     }
 }
