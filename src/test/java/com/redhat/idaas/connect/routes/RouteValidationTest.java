@@ -109,6 +109,8 @@ public class RouteValidationTest extends CamelTestSupport {
 
     /**
      * Validates that property based routes are generated without issue and with the expected configurations
+     * The route's property file path is generated from:
+     * {@link RouteValidationTest#PROPERTY_FILE_DIRECTORY}/[routeId].properties
      *
      * @param routeId            The expected route id
      * @param hasRegisteredBeans true if the route is expected to have registered beans
