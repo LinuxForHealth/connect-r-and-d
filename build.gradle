@@ -44,7 +44,9 @@ dependencies {
     implementation group: 'ca.uhn.hapi', name: 'hapi-structures-v281', version: project.hapiHl7Version
 
     // testing
+    testImplementation group: 'org.apache.camel', name: 'camel-test-junit5', version: project.camelVersion
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.junitVersion
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: project.junitVersion
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.junitVersion
 }
 
