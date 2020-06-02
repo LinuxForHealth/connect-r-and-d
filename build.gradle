@@ -20,10 +20,14 @@ dependencies {
 
     implementation group: 'org.apache.camel', name: 'camel-core', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-main', version: project.camelVersion
+    implementation group: 'org.apache.camel', name: 'camel-nats', version: project.camelVersion
 
     implementation group: 'org.slf4j', name: 'slf4j-api', version: project.slfjVersion
     implementation group: 'org.slf4j', name: 'slf4j-simple', version: project.slfjVersion
 
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: project.log4jVersion
+    implementation group: 'commons-logging', name: 'commons-logging', version: project.commonsVersion
+    
     // HL7-MLLP
     implementation group: 'org.apache.camel', name: 'camel-netty', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-hl7', version: project.camelVersion
