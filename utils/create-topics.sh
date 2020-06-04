@@ -1,7 +1,7 @@
 #!/bin/sh
 
 while read p; do
-  topic=HL7_$p
+  topic=HL7v2_$p
   echo $topic
   ./kafka-topics.sh --create \
     --bootstrap-server localhost:9092 \
