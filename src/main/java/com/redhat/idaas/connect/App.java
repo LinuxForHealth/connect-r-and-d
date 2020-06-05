@@ -105,7 +105,7 @@ public final class App {
     }
 
     /**
-     * Entry-ooint for iDAAS Connection Application.
+     * Entry-point for iDAAS Connection Application.
      *
      * @param args command line arguments
      */
