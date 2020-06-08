@@ -17,13 +17,13 @@ import java.util.stream.Collectors;
  * Apache Camel is use to provide routing, mediation, and processing services for data integrations.
  *
  * Application settings are stored in an application.properties file, located on the classpath.
- * Camel Routes are defined within the {@link App#IDAAS_ROUTES_PACKAGE} which is scanned on application startup.
+ * Camel Routes are defined within the {@link App#IDAAS_ROUTE_BUILDER_PACKAGE} which is scanned on application startup.
  */
 public final class App {
 
     private final static String APPLICATION_PROPERTIES_FILE_NAME = "application.properties";
     private final static String COMPONENT_PROPERTY_NAMESPACE = "idaas.connect.component";
-    private final static String IDAAS_ROUTES_PACKAGE = "com.redhat.idaas.connect.routes";
+    private final static String IDAAS_ROUTE_BUILDER_PACKAGE = "com.redhat.idaas.connect.builder";
 
     private final Logger logger = LoggerFactory.getLogger(App.class);
 
@@ -81,7 +81,7 @@ public final class App {
      */
     private void configure() throws IOException, ReflectiveOperationException {
         bindBeans();
-        camelMain.configure().withPackageScanRouteBuilders(IDAAS_ROUTES_PACKAGE);
+        camelMain.configure().withPackageScanRouteBuilders(IDAAS_ROUTE_BUILDER_PACKAGE);
     }
 
     /**

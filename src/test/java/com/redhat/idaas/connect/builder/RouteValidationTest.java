@@ -1,4 +1,4 @@
-package com.redhat.idaas.connect.routes;
+package com.redhat.idaas.connect.builder;
 
 import org.apache.camel.test.junit5.CamelTestSupport;
 
