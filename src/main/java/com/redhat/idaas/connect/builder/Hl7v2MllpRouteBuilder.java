@@ -10,9 +10,10 @@ import org.apache.camel.component.kafka.KafkaConstants;
 public class Hl7v2MllpRouteBuilder extends IdaasRouteBuilder {
     @Override
     public void configure() {
+        String consumerUri = getHl7V2MllpUri();
         String producerUri = getDataStoreUri("HL7v2_${headers[CamelHL7MessageType]}");
 
-        from(getHl7V2MllpUri())
+        from(consumerUri)
                 .routeId("hl7-v2-mllp")
                 .unmarshal().hl7()
                 .log(LoggingLevel.INFO, producerUri)
