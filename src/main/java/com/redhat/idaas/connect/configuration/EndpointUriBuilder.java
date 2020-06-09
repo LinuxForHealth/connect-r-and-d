@@ -19,6 +19,8 @@ public final class EndpointUriBuilder {
     private static final String DATA_STORE_BASE_URI_PROP_KEY = "idaas.connect.endpoint.datastore.baseUri";
     private static final String DATA_STORE_OPTIONS_PROP_KEY = "idaas.connect.endpoint.datastore.options";
 
+    private static final String MESSAGING_BASE_URI_PROP_KEY = "idaas.connect.endpoint.messaging.baseUri";
+
     private final Properties appProperties;
 
     /**
@@ -83,7 +85,19 @@ public final class EndpointUriBuilder {
                 .concat(appProperties.getProperty(DATA_STORE_OPTIONS_PROP_KEY));
     }
 
+    /**
+     * Builds a messaging URI
+     * @return the messaging URI
+     */
+    public String getMessagingUri() {
+        return appProperties.getProperty(MESSAGING_BASE_URI_PROP_KEY);
+    }
+
     public EndpointUriBuilder(Properties appProperties) {
         this.appProperties = appProperties;
     }
+
+            String messagingUri = "{{idaas.connect.endpoint.messaging.baseUri}}"
+                .concat("?")
+                .concat("{{idaas.connect.endpoint.messaging.options}}");
 }
