@@ -25,3 +25,11 @@ services:
       KAFKA_RESTART_ATTEMPTS: "10"
       KAFKA_RESTART_DELAY: "5"
       ZOOKEEPER_AUTOPURGE_PURGE_INTERVAL: "0"
+  nats-server:
+    image: nats:latest
+    container_name: nats-server
+    ports:
+      - 4222:4222
+      - 6222:6222
+      - 8222:8222
+      

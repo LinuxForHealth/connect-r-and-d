@@ -2,6 +2,9 @@ package com.redhat.idaas.connect.builder;
 
 import com.redhat.idaas.connect.configuration.EndpointUriBuilder;
 import org.apache.camel.LoggingLevel;
+import org.apache.camel.Processor;
+import org.apache.camel.component.kafka.KafkaConstants;
+import com.redhat.idaas.connect.processor.KafkaToNATS;
 
 import java.net.URI;
 
@@ -15,6 +18,8 @@ public class FhirR4RestRouteBuilder extends IdaasRouteBuilder {
         EndpointUriBuilder uriBuilder = getEndpointUriBuilder();
         URI fhirBaseUri = URI.create(uriBuilder.getFhirR4RestUri());
         String kafkaDataStoreUri = uriBuilder.getDataStoreUri("FHIR_R4_${headers.resourceType.toUpperCase()}");
+        String messagingUri = uriBuilder.getMessagingUri();
+        Processor kafkaToNATS = new KafkaToNATS();
 
         restConfiguration()
                 .host(fhirBaseUri.getHost())
@@ -28,6 +33,14 @@ public class FhirR4RestRouteBuilder extends IdaasRouteBuilder {
                 .setHeader("resourceType",simple("${body.resourceType.toString()}"))
                 .marshal().fhirJson("R4")
                 .log(LoggingLevel.INFO, "${body}")
-                .toD(kafkaDataStoreUri);
+                .setHeader(KafkaConstants.KEY, constant("Camel"))
+                .doTry()
+                    .toD(kafkaDataStoreUri)
+                    .process(kafkaToNATS)
+                    .to(messagingUri)
+                .doCatch(Exception.class)
+                   .setBody(exceptionMessage())
+                   .log(LoggingLevel.ERROR, "${body}")
+                .end();
     }
 }
