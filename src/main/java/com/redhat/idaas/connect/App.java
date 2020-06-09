@@ -1,5 +1,6 @@
 package com.redhat.idaas.connect;
 
+import com.redhat.idaas.connect.configuration.EndpointUriBuilder;
 import org.apache.camel.main.Main;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,14 +32,12 @@ public final class App {
 
     /**
      * Binds Camel components, or beans, to Camel's registry
-     *
+     * @param appProperties The application properties
      * @throws ReflectiveOperationException if an error occurs creating new component instances
      */
-    private void bindBeans() throws IOException, ReflectiveOperationException {
+    private void bindBeans(Properties appProperties) throws ReflectiveOperationException {
 
-        Properties properties = loadProperties();
-
-        Set<String> componentPropertyKeys = properties
+        Set<String> componentPropertyKeys = appProperties
                 .stringPropertyNames()
                 .stream()
                 .filter(prop -> prop.startsWith(App.COMPONENT_PROPERTY_NAMESPACE))
@@ -46,13 +45,16 @@ public final class App {
 
         for (String componentKey : componentPropertyKeys) {
             String componentName = componentKey.replace(App.COMPONENT_PROPERTY_NAMESPACE.concat("."), "");
-            String componentClass = properties.getProperty(componentKey);
+            String componentClass = appProperties.getProperty(componentKey);
 
-            logger.debug("adding component name = {} value = {}", componentName, componentClass);
+            logger.debug("adding component name = {} value = {} to registry", componentName, componentClass);
 
             Constructor<?> componentConstructor = Class.forName(componentClass).getConstructor();
             camelMain.bind(componentName, componentConstructor.newInstance());
         }
+
+        logger.debug("adding endpoint uri builder to registry");
+        camelMain.bind(EndpointUriBuilder.BEAN_NAME, new EndpointUriBuilder(appProperties));
     }
 
     /**
@@ -71,16 +73,15 @@ public final class App {
     }
 
     /**
-     * Configures the application prior to starting Camel services
+     * Configures the application prior to starting Camel services.
      * <ol>
      *     <li>Binds components to the Camel Registry</li>
      *     <li>Adds routes to the Camel Application</li>
      * </ol>
-     * @throws IOException if an error occurs reading application.properties
      * @throws ReflectiveOperationException if an error occurs creating Camel component instances
      */
-    private void configure() throws IOException, ReflectiveOperationException {
-        bindBeans();
+    private void configure(Properties appProperties) throws ReflectiveOperationException {
+        bindBeans(appProperties);
         camelMain.configure().withPackageScanRouteBuilders(IDAAS_ROUTE_BUILDER_PACKAGE);
     }
 
@@ -89,9 +90,9 @@ public final class App {
      */
     private void start()  {
         try {
-
+            Properties appProperties = loadProperties();
             logger.info("configuring camel context");
-            configure();
+            configure(appProperties);
             logger.info("starting camel context");
             camelMain.start();
 
