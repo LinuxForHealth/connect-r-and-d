@@ -1,6 +1,5 @@
 version: "3.7"
 services:
-  # kafdrop and kafka images provided by https://github.com/obsidiandynamics/kafdrop  
   kafdrop:
     image: obsidiandynamics/kafdrop
     restart: "no"
