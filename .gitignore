@@ -1,6 +1,5 @@
 # Compiled class file
 *.class
-.classpath
 
 # Log file
 *.log
@@ -22,10 +21,17 @@ hs_err_pid*
 build
 bin
 
-# IDE
+# VSCode
 .vscode
-.idea
+
+#Intellij
+.idea/
+*.iml
+*.iws
+
+# Eclipse
 .settings
+.classpath
 .project
 
 # VCS
