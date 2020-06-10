@@ -66,7 +66,6 @@ class RouteGenerationTest extends CamelTestSupport {
      *     <li>The route's supporting property file</li>
      *     <li>The expected consumer URI</li>
      *     <li>The expected producer URIs</li>
-     *     <li>The expected headers generated during message processing</li>
      * </ul>
      *
      * @return {@link Stream} of arguments
