@@ -1,8 +1,6 @@
 package com.redhat.idaas.connect.processor;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.component.kafka.KafkaConstants;
@@ -15,15 +13,14 @@ import org.json.JSONObject;
  */
 public class KafkaToNATS implements Processor {
 
-    public void process(Exchange exchange) throws Exception {
-        ArrayList<RecordMetadata> meta = exchange.getIn().getHeader(KafkaConstants.KAFKA_RECORDMETA, ArrayList.class);
+    public void process(Exchange exchange)  {
+        ArrayList<RecordMetadata> metaRecords = exchange.getIn().getHeader(KafkaConstants.KAFKA_RECORDMETA, ArrayList.class);
+
         JSONArray results = new JSONArray();
         JSONObject topObj = new JSONObject();
         JSONArray metaJson  = new JSONArray();
-        ListIterator itr = meta.listIterator();
 
-        while(itr.hasNext()) {
-            RecordMetadata m = (RecordMetadata) itr.next();
+        for (RecordMetadata m: metaRecords) {
             JSONObject jsonObj = new JSONObject();
             if (m.hasTimestamp()) {
                 jsonObj.put("timestamp", m.timestamp());

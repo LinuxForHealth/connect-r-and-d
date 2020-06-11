@@ -82,6 +82,7 @@ public final class App {
      */
     private void configure(Properties appProperties) throws ReflectiveOperationException {
         bindBeans(appProperties);
+        logger.debug("scanning and discovering routes in {}", IDAAS_ROUTE_BUILDER_PACKAGE);
         camelMain.configure().withPackageScanRouteBuilders(IDAAS_ROUTE_BUILDER_PACKAGE);
     }
 
@@ -100,6 +101,7 @@ public final class App {
             logger.error("an error occurred starting idaas-connect", ex);
 
             if (camelMain.isStarted()) {
+                logger.error("shutting down camel context");
                 camelMain.shutdown();
             }
         }

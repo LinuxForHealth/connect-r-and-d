@@ -5,6 +5,8 @@ import org.apache.camel.LoggingLevel;
 import org.apache.camel.Processor;
 import org.apache.camel.component.kafka.KafkaConstants;
 import com.redhat.idaas.connect.processor.KafkaToNATS;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 
@@ -12,6 +14,8 @@ import java.net.URI;
  * Defines a FHIR R4 REST Processing route
  */
 public class FhirR4RestRouteBuilder extends IdaasRouteBuilder {
+
+    private final Logger logger = LoggerFactory.getLogger(FhirR4RestRouteBuilder.class);
 
     @Override
     public void configure() {
@@ -32,7 +36,6 @@ public class FhirR4RestRouteBuilder extends IdaasRouteBuilder {
                 .unmarshal().fhirJson("R4")
                 .setHeader("resourceType",simple("${body.resourceType.toString()}"))
                 .marshal().fhirJson("R4")
-                .log(LoggingLevel.INFO, "${body}")
                 .setHeader(KafkaConstants.KEY, constant("Camel"))
                 .doTry()
                     .toD(kafkaDataStoreUri)
@@ -40,7 +43,7 @@ public class FhirR4RestRouteBuilder extends IdaasRouteBuilder {
                     .to(messagingUri)
                 .doCatch(Exception.class)
                    .setBody(exceptionMessage())
-                   .log(LoggingLevel.ERROR, "${body}")
+                   .log(LoggingLevel.ERROR, logger, "${body}")
                 .end();
     }
 }

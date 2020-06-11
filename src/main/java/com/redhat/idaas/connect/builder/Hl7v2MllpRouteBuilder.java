@@ -5,11 +5,15 @@ import org.apache.camel.LoggingLevel;
 import org.apache.camel.Processor;
 import org.apache.camel.component.kafka.KafkaConstants;
 import com.redhat.idaas.connect.processor.KafkaToNATS;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Defines a HL7 V2 MLLP processing route
  */
 public class Hl7v2MllpRouteBuilder extends IdaasRouteBuilder {
+
+    private final Logger logger = LoggerFactory.getLogger(Hl7v2MllpRouteBuilder.class);
 
     @Override
     public void configure() {
@@ -22,7 +26,6 @@ public class Hl7v2MllpRouteBuilder extends IdaasRouteBuilder {
         from(consumerUri)
                 .routeId("hl7-v2-mllp")
                 .unmarshal().hl7()
-                .log(LoggingLevel.INFO, "${body}")
                 .setHeader(KafkaConstants.KEY, constant("Camel"))
                 .doTry()
                     .toD(producerUri)
@@ -30,7 +33,7 @@ public class Hl7v2MllpRouteBuilder extends IdaasRouteBuilder {
                     .to(messagingUri)
                 .doCatch(Exception.class)
                    .setBody(exceptionMessage())
-                   .log(LoggingLevel.ERROR, "${body}")
+                   .log(LoggingLevel.ERROR, logger, "${body}")
                 .end();
     }
 }

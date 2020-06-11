@@ -96,8 +96,4 @@ public final class EndpointUriBuilder {
     public EndpointUriBuilder(Properties appProperties) {
         this.appProperties = appProperties;
     }
-
-            String messagingUri = "{{idaas.connect.endpoint.messaging.baseUri}}"
-                .concat("?")
-                .concat("{{idaas.connect.endpoint.messaging.options}}");
 }
