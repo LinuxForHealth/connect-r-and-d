@@ -1,6 +1,6 @@
-package com.redhat.idaas.connect.builder;
+package com.linuxforhealth.connect.builder;
 
-import com.redhat.idaas.connect.configuration.EndpointUriBuilder;
+import com.linuxforhealth.connect.configuration.EndpointUriBuilder;
 import org.apache.camel.component.hl7.HL7MLLPNettyDecoderFactory;
 import org.apache.camel.component.hl7.HL7MLLPNettyEncoderFactory;
 import org.apache.camel.component.kafka.KafkaComponent;
@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 /**
- * Parametrized Test cases for iDAAS-Connect generated routes.
+ * Parametrized Test cases for Linux For Health Connect generated routes.
  */
 class RouteGenerationTest extends CamelTestSupport {
 
@@ -62,7 +62,7 @@ class RouteGenerationTest extends CamelTestSupport {
      * Provides arguments to {@link RouteGenerationTest#testRouteGeneration}
      * Arguments include:
      * <ul>
-     *     <li>The iDaas Connect Route test subject</li>
+     *     <li>The Linux for Health's Connect Route test subject</li>
      *     <li>The route's supporting property file</li>
      *     <li>The expected consumer URI</li>
      *     <li>The expected producer URIs</li>
@@ -95,7 +95,7 @@ class RouteGenerationTest extends CamelTestSupport {
     }
 
     /**
-     * Parameterized test used to validate iDaas Processing Routes
+     * Parameterized test used to validate Linux for Health Connect Processing Routes
      *
      * @param routeBuilder         The idaas connect {@link org.apache.camel.builder.RouteBuilder} instance
      * @param propertyFileName     The name of the route's supporting property file.
@@ -105,7 +105,7 @@ class RouteGenerationTest extends CamelTestSupport {
      */
     @ParameterizedTest
     @MethodSource("routeGenerationProvider")
-    void testRouteGeneration(IdaasRouteBuilder routeBuilder,
+    void testRouteGeneration(LinuxForHealthRouteBuilder routeBuilder,
                              String propertyFileName,
                              String expectedConsumerUri,
                              String[] expectedProducerUris) throws Exception {

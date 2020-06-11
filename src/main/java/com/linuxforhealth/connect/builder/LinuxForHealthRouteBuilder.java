@@ -1,14 +1,14 @@
-package com.redhat.idaas.connect.builder;
+package com.linuxforhealth.connect.builder;
 
-import com.redhat.idaas.connect.configuration.EndpointUriBuilder;
+import com.linuxforhealth.connect.configuration.EndpointUriBuilder;
 import org.apache.camel.builder.RouteBuilder;
 
 /**
- * Base class for iDAAS Route Builder implementations.
+ * Base class for Linux for Health Route Builder implementations.
  * Provides convenience methods for resolving application property values and route generation.
  * This class is concrete rather than abstract due to Camel's route scanning mechanism.
  */
-public class IdaasRouteBuilder extends RouteBuilder {
+public class LinuxForHealthRouteBuilder extends RouteBuilder {
 
     /**
      * @return {@link EndpointUriBuilder} used to build endpoint uris for consumers and producers

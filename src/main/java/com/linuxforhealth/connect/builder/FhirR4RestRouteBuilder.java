@@ -1,10 +1,10 @@
-package com.redhat.idaas.connect.builder;
+package com.linuxforhealth.connect.builder;
 
-import com.redhat.idaas.connect.configuration.EndpointUriBuilder;
+import com.linuxforhealth.connect.configuration.EndpointUriBuilder;
+import com.linuxforhealth.connect.processor.KafkaToNATS;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.Processor;
 import org.apache.camel.component.kafka.KafkaConstants;
-import com.redhat.idaas.connect.processor.KafkaToNATS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +13,7 @@ import java.net.URI;
 /**
  * Defines a FHIR R4 REST Processing route
  */
-public class FhirR4RestRouteBuilder extends IdaasRouteBuilder {
+public class FhirR4RestRouteBuilder extends LinuxForHealthRouteBuilder {
 
     private final Logger logger = LoggerFactory.getLogger(FhirR4RestRouteBuilder.class);
 

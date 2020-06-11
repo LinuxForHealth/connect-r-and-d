@@ -1,4 +1,4 @@
-package com.redhat.idaas.connect.processor;
+package com.linuxforhealth.connect.processor;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.component.kafka.KafkaConstants;

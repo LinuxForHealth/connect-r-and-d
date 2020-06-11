@@ -1,4 +1,4 @@
-package com.redhat.idaas.connect.processor;
+package com.linuxforhealth.connect.processor;
 
 import java.util.ArrayList;
 import org.apache.camel.Exchange;

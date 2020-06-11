@@ -1,4 +1,4 @@
-package com.redhat.idaas.connect.configuration;
+package com.linuxforhealth.connect.configuration;
 
 
 import org.junit.jupiter.api.Assertions;
@@ -64,8 +64,8 @@ class EndpointUriBuilderTest {
     @Test
     void testGetExternalFhirR4RestUri() {
 
-        testProperties.put("idaas.connect.endpoint.external_fhir_r4_rest.baseUri", "https://fhir.md.com/api/fhir/v4");
-        testProperties.put("idaas.connect.endpoint.external_fhir_r4_rest.options", "foo=bar");
+        testProperties.put("linuxforhealth.connect.endpoint.external_fhir_r4_rest.baseUri", "https://fhir.md.com/api/fhir/v4");
+        testProperties.put("linuxforhealth.connect.endpoint.external_fhir_r4_rest.options", "foo=bar");
         uriBuilder = new EndpointUriBuilder(testProperties);
 
         String expectedUri = "https://fhir.md.com/api/fhir/v4/patient?foo=bar";

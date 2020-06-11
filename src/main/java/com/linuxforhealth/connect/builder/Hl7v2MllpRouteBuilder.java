@@ -1,17 +1,17 @@
-package com.redhat.idaas.connect.builder;
+package com.linuxforhealth.connect.builder;
 
-import com.redhat.idaas.connect.configuration.EndpointUriBuilder;
+import com.linuxforhealth.connect.configuration.EndpointUriBuilder;
+import com.linuxforhealth.connect.processor.KafkaToNATS;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.Processor;
 import org.apache.camel.component.kafka.KafkaConstants;
-import com.redhat.idaas.connect.processor.KafkaToNATS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Defines a HL7 V2 MLLP processing route
  */
-public class Hl7v2MllpRouteBuilder extends IdaasRouteBuilder {
+public class Hl7v2MllpRouteBuilder extends LinuxForHealthRouteBuilder {
 
     private final Logger logger = LoggerFactory.getLogger(Hl7v2MllpRouteBuilder.class);
 

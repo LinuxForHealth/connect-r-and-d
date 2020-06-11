@@ -5,7 +5,7 @@
         </encoder>
     </appender>
 
-    <property name="LOG_FILE" value="idaas-connect" />
+    <property name="LOG_FILE" value="linux-for-health-connect" />
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_FILE}.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -23,7 +23,7 @@
     <!--
     Adjust the loggers below for the desired granularity
     -->
-    <logger name="com.redhat.idaas.connect" level="debug" />
+    <logger name="com.linuxforhealth.connect" level="debug" />
     <logger name="org.apache.camel.main" level="info" />
     <logger name="org.apache.kafka.consumer" level="warn" />
 

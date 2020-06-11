@@ -13,7 +13,7 @@ repositories {
 }
 
 application {
-    mainClassName = 'com.redhat.idaas.connect.IdassConnectApp'
+    mainClassName = 'com.linuxforhealth.connect.App'
 }
 
 dependencies {
@@ -64,10 +64,6 @@ dependencies {
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.junitVersion
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: project.junitVersion
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.junitVersion
-}
-
-application {
-    mainClassName = 'com.redhat.idaas.connect.App'
 }
 
 test {

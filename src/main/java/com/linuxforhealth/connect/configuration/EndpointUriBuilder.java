@@ -1,4 +1,4 @@
-package com.redhat.idaas.connect.configuration;
+package com.linuxforhealth.connect.configuration;
 
 import java.util.Properties;
 
@@ -8,26 +8,26 @@ import java.util.Properties;
 public final class EndpointUriBuilder {
     public static final String BEAN_NAME = "endpointUriBuilder";
 
-    private static final String HL7_V2_MLLP_BASE_URI_PROP_KEY = "idaas.connect.endpoint.hl7_v2_mllp.baseUri";
-    private static final String HL7_V2_MLLP_OPTIONS_PROP_KEY = "idaas.connect.endpoint.hl7_v2_mllp.options";
+    private static final String HL7_V2_MLLP_BASE_URI_PROP_KEY = "linuxforhealth.connect.endpoint.hl7_v2_mllp.baseUri";
+    private static final String HL7_V2_MLLP_OPTIONS_PROP_KEY = "linuxforhealth.connect.endpoint.hl7_v2_mllp.options";
 
-    private static final String FHIR_R4_REST_BASE_URI_PROP_KEY = "idaas.connect.endpoint.fhir_r4_rest.baseUri";
+    private static final String FHIR_R4_REST_BASE_URI_PROP_KEY = "linuxforhealth.connect.endpoint.fhir_r4_rest.baseUri";
 
-    private static final String FHIR_R4_EXTERNAL_REST_BASE_URI_PROP_KEY = "idaas.connect.endpoint.external_fhir_r4_rest.baseUri";
-    private static final String FHIR_R4_EXTERNAL_REST_OPTIONS_PROP_KEY = "idaas.connect.endpoint.external_fhir_r4_rest.options";
+    private static final String FHIR_R4_EXTERNAL_REST_BASE_URI_PROP_KEY = "linuxforhealth.connect.endpoint.external_fhir_r4_rest.baseUri";
+    private static final String FHIR_R4_EXTERNAL_REST_OPTIONS_PROP_KEY = "linuxforhealth.connect.endpoint.external_fhir_r4_rest.options";
 
-    private static final String DATA_STORE_BASE_URI_PROP_KEY = "idaas.connect.endpoint.datastore.baseUri";
-    private static final String DATA_STORE_OPTIONS_PROP_KEY = "idaas.connect.endpoint.datastore.options";
+    private static final String DATA_STORE_BASE_URI_PROP_KEY = "linuxforhealth.connect.endpoint.datastore.baseUri";
+    private static final String DATA_STORE_OPTIONS_PROP_KEY = "linuxforhealth.connect.endpoint.datastore.options";
 
-    private static final String MESSAGING_BASE_URI_PROP_KEY = "idaas.connect.endpoint.messaging.baseUri";
+    private static final String MESSAGING_BASE_URI_PROP_KEY = "linuxforhealth.connect.endpoint.messaging.baseUri";
 
     private final Properties appProperties;
 
     /**
      * Builds the HL7 V2 MLLP URI using the following properties:
      * <ul>
-     *     <li>idaas.connect.endpoint.hl7_v2_mllp.baseUri</li>
-     *     <li>idaas.connect.endpoint.hl7_v2_mllp.options</li>
+     *     <li>linuxforhealth.connect.endpoint.hl7_v2_mllp.baseUri</li>
+     *     <li>linuxforhealth.connect.endpoint.hl7_v2_mllp.options</li>
      * </ul>
      * @return the HL7 V2 MLLP URI
      */
@@ -40,8 +40,8 @@ public final class EndpointUriBuilder {
     /**
      * Builds the FHIR R4 Rest URI using the following properties:
      * <ul>
-     *     <li>idaas.connect.endpoint.fhir_r4_rest.baseUri</li>
-     *     <li>idaas.connect.endpoint.fhir_r4_rest.options</li>
+     *     <li>linuxforhealth.connect.endpoint.fhir_r4_rest.baseUri</li>
+     *     <li>linuxforhealth.connect.endpoint.fhir_r4_rest.options</li>
      * </ul>
      * @return the FHIR R4 Rest URI
      */
@@ -52,8 +52,8 @@ public final class EndpointUriBuilder {
     /**
      * Builds the external FHIR R4 Rest URI for a resource using the following properties:
      * <ul>
-     *     <li>idaas.connect.endpoint.external_fhir_r4_rest.baseUri</li>
-     *     <li>idaas.connect.endpoint.external_fhir_r4_rest.options</li>
+     *     <li>linuxforhealth.connect.endpoint.external_fhir_r4_rest.baseUri</li>
+     *     <li>linuxforhealth.connect.endpoint.external_fhir_r4_rest.options</li>
      * </ul>
      * @param resourceType the FHIR resource type
      * @return the FHIR R4 Rest URI

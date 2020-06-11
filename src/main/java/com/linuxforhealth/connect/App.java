@@ -1,6 +1,6 @@
-package com.redhat.idaas.connect;
+package com.linuxforhealth.connect;
 
-import com.redhat.idaas.connect.configuration.EndpointUriBuilder;
+import com.linuxforhealth.connect.configuration.EndpointUriBuilder;
 import org.apache.camel.main.Main;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,18 +13,18 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * The iDAAS Connect application.
- * iDAAS Connect provides data integration and processing routes for application integration.
+ * The Linux For Health Connect application.
+ * Linux For Health Connect provides data integration and processing routes for application integration.
  * Apache Camel is use to provide routing, mediation, and processing services for data integrations.
  *
  * Application settings are stored in an application.properties file, located on the classpath.
- * Camel Routes are defined within the {@link App#IDAAS_ROUTE_BUILDER_PACKAGE} which is scanned on application startup.
+ * Camel Routes are defined within the {@link App#ROUTE_BUILDER_PACKAGE} which is scanned on application startup.
  */
 public final class App {
 
     private final static String APPLICATION_PROPERTIES_FILE_NAME = "application.properties";
-    private final static String COMPONENT_PROPERTY_NAMESPACE = "idaas.connect.component";
-    private final static String IDAAS_ROUTE_BUILDER_PACKAGE = "com.redhat.idaas.connect.builder";
+    private final static String COMPONENT_PROPERTY_NAMESPACE = "linuxforhealth.connect.component";
+    private final static String ROUTE_BUILDER_PACKAGE = "com.linuxforhealth.connect.builder";
 
     private final Logger logger = LoggerFactory.getLogger(App.class);
 
@@ -82,12 +82,12 @@ public final class App {
      */
     private void configure(Properties appProperties) throws ReflectiveOperationException {
         bindBeans(appProperties);
-        logger.debug("scanning and discovering routes in {}", IDAAS_ROUTE_BUILDER_PACKAGE);
-        camelMain.configure().withPackageScanRouteBuilders(IDAAS_ROUTE_BUILDER_PACKAGE);
+        logger.debug("scanning and discovering routes in {}", ROUTE_BUILDER_PACKAGE);
+        camelMain.configure().withPackageScanRouteBuilders(ROUTE_BUILDER_PACKAGE);
     }
 
     /**
-     * Starts the iDAAS Connect application
+     * Starts the Linux for Health Connect application
      */
     private void start()  {
         try {
@@ -98,7 +98,7 @@ public final class App {
             camelMain.start();
 
         } catch (Exception ex) {
-            logger.error("an error occurred starting idaas-connect", ex);
+            logger.error("an error occurred starting linux for health connect", ex);
 
             if (camelMain.isStarted()) {
                 logger.error("shutting down camel context");
@@ -108,7 +108,7 @@ public final class App {
     }
 
     /**
-     * Entry-point for iDAAS Connection Application.
+     * Entry-point for Linux For Health Connection Application.
      *
      * @param args command line arguments
      */
