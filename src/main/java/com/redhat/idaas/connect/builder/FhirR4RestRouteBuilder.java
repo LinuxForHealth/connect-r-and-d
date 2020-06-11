@@ -4,7 +4,7 @@ import com.redhat.idaas.connect.configuration.EndpointUriBuilder;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.Processor;
 import org.apache.camel.component.kafka.KafkaConstants;
-import com.redhat.idaas.connect.processor.KafkaToNATSProcessor;
+import com.redhat.idaas.connect.processor.KafkaToNATS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +23,7 @@ public class FhirR4RestRouteBuilder extends IdaasRouteBuilder {
         URI fhirBaseUri = URI.create(uriBuilder.getFhirR4RestUri());
         String kafkaDataStoreUri = uriBuilder.getDataStoreUri("FHIR_R4_${headers.resourceType.toUpperCase()}");
         String messagingUri = uriBuilder.getMessagingUri();
-        Processor kafkaToNATS = new KafkaToNATSProcessor();
+        Processor kafkaToNATS = new KafkaToNATS();
 
         restConfiguration()
                 .host(fhirBaseUri.getHost())

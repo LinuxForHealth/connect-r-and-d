@@ -14,12 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Tests {@link KafkaToNATSProcessor} processor
+ * Tests {@link KafkaToNATS} processor
  */
 public class KafkaToNatsTest extends CamelTestSupport {
 
     private Exchange mockedExchange;
-    private KafkaToNATSProcessor kafkaToNatsProcessor;
+    private KafkaToNATS kafkaToNats;
 
     private Exchange createMockExchange() {
         TopicPartition mockedTopicPartition = new TopicPartition("HL7v2_ADT", 0);
@@ -39,15 +39,15 @@ public class KafkaToNatsTest extends CamelTestSupport {
     @BeforeEach
     public void beforeEach() {
         mockedExchange = createMockExchange();
-        kafkaToNatsProcessor = new KafkaToNATSProcessor();
+        kafkaToNats = new KafkaToNATS();
     }
 
     /**
-     * Tests {@link KafkaToNATSProcessor#process(Exchange)} to validate that the message body matches an expected result
+     * Tests {@link KafkaToNATS#process(Exchange)} to validate that the message body matches an expected result
      */
     @Test
     public void testProcess() {
-        kafkaToNatsProcessor.process(mockedExchange);
+        kafkaToNats.process(mockedExchange);
         String expectedBody = "{\"metadata\":[\"HL7v2_ADT-0@0\"],"+
             "\"results\":[{" +
             "\"partition\":0,\"offset\":0,\"topic\":\"HL7v2_ADT\",\"timestamp\":1591732928186}]}";

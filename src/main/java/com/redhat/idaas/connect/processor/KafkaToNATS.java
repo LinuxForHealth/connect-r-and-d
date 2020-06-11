@@ -12,27 +12,25 @@ import org.json.JSONObject;
 /**
  * Creates the NATS message for a message stored in Kafka
  */
-public class KafkaToNATSProcessor implements Processor {
+public class KafkaToNATS implements Processor {
 
     public void process(Exchange exchange)  {
-        List<RecordMetadata> metaRecords = exchange
-                        .getIn()
-                        .getHeader(KafkaConstants.KAFKA_RECORDMETA, ArrayList.class);
+        List<RecordMetadata> metaRecords = exchange.getIn().getHeader(KafkaConstants.KAFKA_RECORDMETA, ArrayList.class);
 
         JSONArray results = new JSONArray();
         JSONObject topObj = new JSONObject();
         JSONArray metaJson  = new JSONArray();
 
-        for (RecordMetadata metaRecord: metaRecords) {
+        for (RecordMetadata m: metaRecords) {
             JSONObject jsonObj = new JSONObject();
-            if (metaRecord.hasTimestamp()) {
-                jsonObj.put("timestamp", metaRecord.timestamp());
+            if (m.hasTimestamp()) {
+                jsonObj.put("timestamp", m.timestamp());
             }
-            jsonObj.put("topic", metaRecord.topic());
-            jsonObj.put("partition", metaRecord.partition());
-            jsonObj.put("offset", metaRecord.offset());
+            jsonObj.put("topic", m.topic());
+            jsonObj.put("partition", m.partition());
+            jsonObj.put("offset", m.offset());
             results.put(jsonObj);
-            metaJson.put(metaRecord);
+            metaJson.put(m);
         }
 
         topObj.put("results", results);
