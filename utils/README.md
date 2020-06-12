@@ -1,12 +1,12 @@
 ## Create Kafka Topics
 
-1. Start iDAAS:  
+1. Start Linux for Health connect:  
 
 ```
 ./gradlew start
 ```
 
-2. In the idaas-connect/utils directory, run:  
+2. In the connect/utils directory, run:  
 
 ```
 ./cp-docker.sh
