@@ -19,12 +19,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Tests {@link KafkaToNATS} processor
+ * Tests {@link FormatNotification} processor
  */
-public class KafkaToNatsTest extends CamelTestSupport {
+public class FormatNotificationTest extends CamelTestSupport {
 
     private Exchange mockedExchange;
-    private KafkaToNATS kafkaToNats;
+    private FormatNotificationProcessor formatNotification;
 
     private Exchange createMockExchange() {
         TopicPartition mockedTopicPartition = new TopicPartition("HL7v2_ADT", 0);
@@ -34,6 +34,10 @@ public class KafkaToNatsTest extends CamelTestSupport {
         List<RecordMetadata> metaRecords = new ArrayList<>();
         metaRecords.add(mockedRecordMetadata);
         mockedExchange.getIn().setHeader(KafkaConstants.KAFKA_RECORDMETA, metaRecords);
+        mockedExchange.getIn().setHeader("routeUrl", "netty:tcp://localhost:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder");
+        mockedExchange.getIn().setHeader("dataStoreUrl", "kafka:HL7v2_ADT?brokers=localhost:9092");
+        mockedExchange.getIn().setHeader("dataFormat", "hl7-v2");
+        mockedExchange.getIn().setHeader("uuid", "ID-MBP-2-attlocal-net-1592229483323-2-1");
 
         return mockedExchange;
     }
@@ -44,7 +48,7 @@ public class KafkaToNatsTest extends CamelTestSupport {
     @BeforeEach
     public void beforeEach() {
         mockedExchange = createMockExchange();
-        kafkaToNats = new KafkaToNATS();
+        formatNotification = new FormatNotificationProcessor();
     }
 
     /**
@@ -52,12 +56,13 @@ public class KafkaToNatsTest extends CamelTestSupport {
      */
     @Test
     public void testProcess() {
-        kafkaToNats.process(mockedExchange);
-        String expectedBody = "{\"metadata\":[\"HL7v2_ADT-0@0\"],"+
-            "\"results\":[{" +
-            "\"partition\":0,\"offset\":0,\"topic\":\"HL7v2_ADT\",\"timestamp\":1591732928186}]}";
+        formatNotification.process(mockedExchange);
+        String expectedBody = "{\"meta\":{"+
+        "\"routeUrl\":\"netty:tcp://localhost:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder\","+
+        "\"dataFormat\":\"hl7-v2\",\"dataRecordLocation\":[\"HL7v2_ADT-0@0\"],"+
+        "\"uuid\":\"ID-MBP-2-attlocal-net-1592229483323-2-1\","+
+        "\"dataStoreUrl\":\"kafka:HL7v2_ADT?brokers=localhost:9092\",\"status\":\"success\"}}";
         String actualBody = mockedExchange.getIn().getBody(String.class);
-
         Assertions.assertEquals(expectedBody, actualBody);
     }
 }
