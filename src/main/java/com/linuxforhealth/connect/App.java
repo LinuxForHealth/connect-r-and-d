@@ -10,9 +10,15 @@ import org.apache.camel.main.Main;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,6 +34,7 @@ import java.util.stream.Collectors;
 public final class App {
 
     private final static String APPLICATION_PROPERTIES_FILE_NAME = "application.properties";
+    private final static String EXTERNAL_PROPERTY_FILE_PATH = "config/application.properties";
     private final static String COMPONENT_PROPERTY_NAMESPACE = "linuxforhealth.connect.component";
     private final static String ROUTE_BUILDER_PACKAGE = "com.linuxforhealth.connect.builder";
 
@@ -63,7 +70,10 @@ public final class App {
     }
 
     /**
-     * Loads application properties from the classpath
+     * Loads application properties.
+     * Properties are loaded from an external file if available, otherwise properties are loaded from
+     * the classpath. If an external file is available, the camel context is updated to use it as the
+     * default properties file for the application.
      *
      * @return {@link Properties} instance
      * @throws IOException if an error occurs reading application.properties
@@ -71,9 +81,18 @@ public final class App {
     private Properties loadProperties() throws IOException {
         Properties properties = new Properties();
 
-        try (InputStream inputStream = ClassLoader.getSystemResourceAsStream(App.APPLICATION_PROPERTIES_FILE_NAME)) {
-            properties.load(inputStream);
+        Path path = Paths.get(App.EXTERNAL_PROPERTY_FILE_PATH);
+
+        if (Files.exists(path)) {
+            properties.load(Files.newInputStream(path));
+            String absolutePath = path.toAbsolutePath().toString();
+            logger.info("loading properties from file:{}", absolutePath);
+            camelMain.setDefaultPropertyPlaceholderLocation("file:" + absolutePath);
+        } else {
+            properties.load(ClassLoader.getSystemResourceAsStream(App.APPLICATION_PROPERTIES_FILE_NAME));
+            logger.info("loading properties from classpath:{}", App.APPLICATION_PROPERTIES_FILE_NAME);
         }
+
         return properties;
     }
 

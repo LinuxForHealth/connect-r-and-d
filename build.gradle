@@ -17,7 +17,6 @@ application {
 }
 
 dependencies {
-
     // camel libraries
     implementation group: 'org.apache.camel', name: 'camel-core', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-fhir', version: project.camelVersion
@@ -68,4 +67,36 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': application.mainClassName,
+                'Class-Path': configurations.runtimeClasspath.collect { 'libs/' + it.getName() }.join(' '),
+                'Implementation-Title': 'com.linuxforhealth.com',
+                'Implementation-Version': project.projectVersion,
+                'Implementation-Vendor': 'Linux For Health'
+        )
+    }
+}
+
+task archiveDependencies(type: Tar) {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    archiveFileName = 'linux-for-health-connect-dependencies.tar'
+    destinationDirectory = file('build/libs')
+    outputs.file(archiveFile)
+
+    from configurations.compileClasspath.each {
+        from it.getPath()
+    }
+}
+
+build.dependsOn archiveDependencies
+
+processResources {
+    filesMatching('application.properties') {
+        expand(project.properties)
+    }
 }

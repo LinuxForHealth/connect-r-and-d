@@ -1,0 +1,4 @@
+# Ignore everything other than build artifacts which are copied into the image
+*
+!build/libs/linux-for-health-connect*
+!build/resources/main/*

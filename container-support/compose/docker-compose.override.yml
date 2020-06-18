@@ -1,0 +1,19 @@
+# This override file is used to include the Linux for Health container
+# Additional services are reconfigured as necessary so that Linux for Health can resolve services using
+# the docker compose network
+version: "3.7"
+services:
+  lfh:
+    restart: "always"
+    image: linuxforhealth/connect:dev
+    ports:
+      - "2575:2575"
+      - "8080:8080"
+    volumes:
+      - ${PWD}/application.properties:/opt/lfh/config/application.properties
+    depends_on:
+      - "kafka"
+      - "nats-server"
+  kafka:
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka:29092,EXTERNAL://kafka:9092"
