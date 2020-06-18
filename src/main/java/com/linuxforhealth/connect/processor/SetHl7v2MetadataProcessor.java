@@ -6,7 +6,7 @@
 package com.linuxforhealth.connect.processor;
 
 import com.linuxforhealth.connect.configuration.EndpointUriBuilder;
-import com.linuxforhealth.connect.processor.LinuxForHealthProcessor;
+import java.time.Instant;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.component.kafka.KafkaConstants;
@@ -25,6 +25,7 @@ public class SetHl7v2MetadataProcessor extends LinuxForHealthProcessor implement
         String dataStoreUrl = uriBuilder.getDataStoreUri("HL7v2_"+resourceType.toUpperCase());
         DefaultUuidGenerator uuidGen = new DefaultUuidGenerator();
 
+        exchange.getIn().setHeader("timestamp", Instant.now().getEpochSecond());
         exchange.getIn().setHeader("routeUrl", consumerUrl);
         exchange.getIn().setHeader("dataStoreUrl", dataStoreUrl);
         exchange.getIn().setHeader("dataFormat", "hl7-v2");

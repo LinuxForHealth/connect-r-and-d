@@ -30,9 +30,11 @@ dependencies {
     implementation group: 'org.apache.camel', name: 'camel-main', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-nats', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-rest', version: project.camelVersion
+    implementation group: 'org.apache.camel', name: 'camel-support', version: project.camelVersion
 
     // data format support
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: project.jacksonVersion
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: project.jacksonVersion
     implementation group: 'org.json', name: 'json', version: project.jsonVersion
 
     // logging

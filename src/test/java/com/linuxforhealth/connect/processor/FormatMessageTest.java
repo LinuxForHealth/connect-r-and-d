@@ -20,28 +20,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Tests {@link FormatNotificationProcessor} processor
+ * Tests {@link FormatMessageProcessor} processor
  */
-public class FormatNotificationTest extends CamelTestSupport {
+public class FormatMessageTest extends CamelTestSupport {
 
     private Exchange mockedExchange;
-    private FormatNotificationProcessor formatNotification;
+    private FormatMessageProcessor formatMessage;
 
     private Exchange createMockExchange() {
-        TopicPartition mockedTopicPartition = new TopicPartition("HL7v2_ADT", 0);
-        RecordMetadata mockedRecordMetadata =  new RecordMetadata(mockedTopicPartition, 0, 0, 1591732928186L, 0L, 0, 0);
-
-        List<RecordMetadata> metaRecords = new ArrayList<>();
-        metaRecords.add(mockedRecordMetadata);
-
         Exchange mockedExchange = new DefaultExchange(context);
         mockedExchange.getIn().setHeader("timestamp", "1592514822");
         mockedExchange.adapt(ExtendedExchange.class).setFromRouteId("hl7-v2-mllp");
-        mockedExchange.getIn().setHeader(KafkaConstants.KAFKA_RECORDMETA, metaRecords);
         mockedExchange.getIn().setHeader("routeUrl", "netty:tcp://localhost:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder");
         mockedExchange.getIn().setHeader("dataStoreUrl", "kafka:HL7v2_ADT?brokers=localhost:9092");
         mockedExchange.getIn().setHeader("dataFormat", "hl7-v2");
         mockedExchange.getIn().setHeader("uuid", "ID-MBP-2-attlocal-net-1592229483323-2-1");
+        byte[] data = new byte[] {123, 34, 114, 101, 115, 111};
+        mockedExchange.getIn().setBody(data);
 
         return mockedExchange;
     }
@@ -52,21 +47,21 @@ public class FormatNotificationTest extends CamelTestSupport {
     @BeforeEach
     public void beforeEach() {
         mockedExchange = createMockExchange();
-        formatNotification = new FormatNotificationProcessor();
+        formatMessage = new FormatMessageProcessor();
     }
 
     /**
-     * Tests {@link FormatNotificationProcessor#process(Exchange)} to validate that the message body matches an expected result
+     * Tests {@link FormatMessageProcessor#process(Exchange)} to validate that the message body matches an expected result
      */
     @Test
     public void testProcess() {
-        formatNotification.process(mockedExchange);
+        formatMessage.process(mockedExchange);
         String expectedBody = "{\"meta\":{\"routeId\":\"hl7-v2-mllp\","+
             "\"uuid\":\"ID-MBP-2-attlocal-net-1592229483323-2-1\","+
             "\"routeUrl\":\"netty:tcp://localhost:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder\","+
             "\"dataFormat\":\"hl7-v2\",\"timestamp\":\"1592514822\","+
-            "\"dataStoreUrl\":\"kafka:HL7v2_ADT?brokers=localhost:9092\","+
-            "\"status\":\"success\",\"dataRecordLocation\":[\"HL7v2_ADT-0@0\"]}}";
+            "\"dataStoreUrl\":\"kafka:HL7v2_ADT?brokers=localhost:9092\"},"+
+            "\"data\":[123, 34, 114, 101, 115, 111]}";
         String actualBody = mockedExchange.getIn().getBody(String.class);
         Assertions.assertEquals(expectedBody, actualBody);
     }

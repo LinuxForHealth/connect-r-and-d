@@ -5,10 +5,8 @@
  */
 package com.linuxforhealth.connect.processor;
 
-import com.linuxforhealth.connect.processor.LinuxForHealthProcessor;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.json.JSONObject;
 
 /**
  * Format the message for data storage
@@ -17,13 +15,8 @@ public class FormatMessageProcessor extends LinuxForHealthProcessor implements P
 
     @Override
     public void process(Exchange exchange)  {
-        JSONObject top = new JSONObject();
-        JSONObject meta = new JSONObject();
-
-        setCommonMeta(exchange, meta);
-        top.put("meta", meta);
-        top.put("data", exchange.getIn().getBody());
-
-        exchange.getIn().setBody(top.toString());
+        LinuxForHealthMessage msg = new LinuxForHealthMessage(exchange);
+        msg.setData(exchange.getIn().getBody());
+        exchange.getIn().setBody(msg.toString());
     }
 }
