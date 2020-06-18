@@ -7,17 +7,11 @@ package com.linuxforhealth.connect.processor;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.ExtendedExchange;
-import org.apache.camel.component.kafka.KafkaConstants;
 import org.apache.camel.support.DefaultExchange;
 import org.apache.camel.test.junit5.CamelTestSupport;
-import org.apache.kafka.clients.producer.RecordMetadata;
-import org.apache.kafka.common.TopicPartition;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Tests {@link FormatMessageProcessor} processor
