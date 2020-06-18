@@ -41,7 +41,7 @@ class EndpointUriBuilderTest {
      */
     @Test
     void testGetHl7V2MllpUri() {
-        String expectedUri = "netty:tcp://localhost:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder";
+        String expectedUri = "netty:tcp://0.0.0.0:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder";
         Assertions.assertEquals(expectedUri, uriBuilder.getHl7V2MllpUri());
     }
 
@@ -50,7 +50,7 @@ class EndpointUriBuilderTest {
      */
     @Test
     void testGetFhirR4RestUri() {
-        String expectedUri = "http://localhost:8080/fhir/r4";
+        String expectedUri = "http://0.0.0.0:8080/fhir/r4";
         Assertions.assertEquals(expectedUri, uriBuilder.getFhirR4RestUri());
     }
 
