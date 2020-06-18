@@ -90,7 +90,7 @@ class RouteGenerationTest extends CamelTestSupport {
                 Arguments.arguments(
                         new FhirR4RestRouteBuilder(),
                         PROPERTY_FILE_DIRECTORY.concat("fhir-r4-rest.properties"),
-                        "http://0.0.0.0:8080/fhir/r4",
+                        "http://localhost:8080/fhir/r4",
                         new String[]{
                                 "mock:kafka?brokers=localhost:9092",
                                 "mock:nats:idaas-data?servers=localhost:4222"

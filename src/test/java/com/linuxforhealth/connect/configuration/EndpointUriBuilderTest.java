@@ -41,7 +41,7 @@ class EndpointUriBuilderTest {
      */
     @Test
     void testGetHl7V2MllpUri() {
-        String expectedUri = "netty:tcp://localhost:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder";
+        String expectedUri = "netty:tcp://0.0.0.0:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder";
         Assertions.assertEquals(expectedUri, uriBuilder.getHl7V2MllpUri());
     }
 
