@@ -50,7 +50,7 @@ class EndpointUriBuilderTest {
      */
     @Test
     void testGetFhirR4RestUri() {
-        String expectedUri = "http://0.0.0.0:8080/fhir/r4";
+        String expectedUri = "http://localhost:8080/fhir/r4";
         Assertions.assertEquals(expectedUri, uriBuilder.getFhirR4RestUri());
     }
 

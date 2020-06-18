@@ -94,9 +94,3 @@ task archiveDependencies(type: Tar) {
 }
 
 build.dependsOn archiveDependencies
-
-processResources {
-    filesMatching('application.properties') {
-        expand(project.properties)
-    }
-}
