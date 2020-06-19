@@ -67,11 +67,11 @@ public class LinuxForHealthMessage extends JSONObject {
             getString(meta, "uuid")+","+
             getString(meta, "routeUrl")+","+
             getString(meta, "dataFormat")+","+
-            getString(meta, "timestamp")+","+
+            getObject(meta, "timestamp")+","+
             getString(meta, "dataStoreUrl");
 
         if (meta.has("status")) result += ","+getString(meta, "status");
-        if (meta.has("dataRecordLocation")) result += ","+getObjectString(meta, "dataRecordLocation");
+        if (meta.has("dataRecordLocation")) result += ","+getObject(meta, "dataRecordLocation");
         result += "}";
         if (this.has("data")) result += ","+getObjectString(this, "data");
         result += "}";
@@ -83,6 +83,10 @@ public class LinuxForHealthMessage extends JSONObject {
         return "\""+name+"\":\""+obj.getString(name)+"\"";
     }
 
+    private String getObject(JSONObject obj, String name) {
+        return "\""+name+"\":"+obj.get(name).toString();
+    }
+
     // Extend to support different object types as needed
     private String getObjectString(JSONObject obj, String name) {
         Object dataObj = (Object) obj.get(name);
@@ -91,9 +95,9 @@ public class LinuxForHealthMessage extends JSONObject {
         if (dataObj instanceof byte[]) {
             result = "\""+name+"\":"+Arrays.toString((byte[]) dataObj);
         } else if (dataObj instanceof String) {
-            result = "\""+name+"\":\""+dataObj.toString()+"\"";  // quoted value
+            result = getString(obj, name);
         } else {
-            result = "\""+name+"\":"+dataObj.toString();  // value not quoted
+            result = getObject(obj, name);
         }
 
         return result;

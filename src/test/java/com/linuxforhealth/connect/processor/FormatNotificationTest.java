@@ -35,7 +35,7 @@ public class FormatNotificationTest extends CamelTestSupport {
         metaRecords.add(mockedRecordMetadata);
 
         Exchange mockedExchange = new DefaultExchange(context);
-        mockedExchange.getIn().setHeader("timestamp", "1592514822");
+        mockedExchange.getIn().setHeader("timestamp", 1592514822);
         mockedExchange.adapt(ExtendedExchange.class).setFromRouteId("hl7-v2-mllp");
         mockedExchange.getIn().setHeader(KafkaConstants.KAFKA_RECORDMETA, metaRecords);
         mockedExchange.getIn().setHeader("routeUrl", "netty:tcp://localhost:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder");
@@ -64,7 +64,7 @@ public class FormatNotificationTest extends CamelTestSupport {
         String expectedBody = "{\"meta\":{\"routeId\":\"hl7-v2-mllp\","+
             "\"uuid\":\"123e4567-e89b-42d3-a456-556642441234\","+
             "\"routeUrl\":\"netty:tcp://localhost:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder\","+
-            "\"dataFormat\":\"hl7-v2\",\"timestamp\":\"1592514822\","+
+            "\"dataFormat\":\"hl7-v2\",\"timestamp\":1592514822,"+
             "\"dataStoreUrl\":\"kafka:HL7v2_ADT?brokers=localhost:9092\","+
             "\"status\":\"success\",\"dataRecordLocation\":[\"HL7v2_ADT-0@0\"]}}";
         String actualBody = mockedExchange.getIn().getBody(String.class);
