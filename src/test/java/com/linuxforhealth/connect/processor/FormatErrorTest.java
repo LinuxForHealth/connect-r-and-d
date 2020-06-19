@@ -29,7 +29,7 @@ public class FormatErrorTest extends CamelTestSupport {
         mockedExchange.getIn().setHeader("routeUrl", "netty:tcp://localhost:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder");
         mockedExchange.getIn().setHeader("dataStoreUrl", "kafka:HL7v2_ADT?brokers=localhost:9092");
         mockedExchange.getIn().setHeader("dataFormat", "hl7-v2");
-        mockedExchange.getIn().setHeader("uuid", "ID-MBP-2-attlocal-net-1592229483323-2-1");
+        mockedExchange.getIn().setHeader("uuid", "123e4567-e89b-42d3-a456-556642441234");
         Exception ex = new Exception("An error occurred");
         mockedExchange.setProperty(Exchange.EXCEPTION_CAUGHT, ex);
 
@@ -52,7 +52,7 @@ public class FormatErrorTest extends CamelTestSupport {
     public void testProcess() {
         formatError.process(mockedExchange);
         String expectedBody = "{\"meta\":{\"routeId\":\"hl7-v2-mllp\","+
-            "\"uuid\":\"ID-MBP-2-attlocal-net-1592229483323-2-1\","+
+            "\"uuid\":\"123e4567-e89b-42d3-a456-556642441234\","+
             "\"routeUrl\":\"netty:tcp://localhost:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder\","+
             "\"dataFormat\":\"hl7-v2\",\"timestamp\":\"1592514822\","+
             "\"dataStoreUrl\":\"kafka:HL7v2_ADT?brokers=localhost:9092\","+

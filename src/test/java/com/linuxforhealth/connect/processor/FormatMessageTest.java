@@ -28,7 +28,7 @@ public class FormatMessageTest extends CamelTestSupport {
         mockedExchange.getIn().setHeader("routeUrl", "netty:tcp://localhost:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder");
         mockedExchange.getIn().setHeader("dataStoreUrl", "kafka:HL7v2_ADT?brokers=localhost:9092");
         mockedExchange.getIn().setHeader("dataFormat", "hl7-v2");
-        mockedExchange.getIn().setHeader("uuid", "ID-MBP-2-attlocal-net-1592229483323-2-1");
+        mockedExchange.getIn().setHeader("uuid", "123e4567-e89b-42d3-a456-556642441234");
         byte[] data = new byte[] {123, 34, 114, 101, 115, 111};
         mockedExchange.getIn().setBody(data);
 
@@ -51,7 +51,7 @@ public class FormatMessageTest extends CamelTestSupport {
     public void testProcess() {
         formatMessage.process(mockedExchange);
         String expectedBody = "{\"meta\":{\"routeId\":\"hl7-v2-mllp\","+
-            "\"uuid\":\"ID-MBP-2-attlocal-net-1592229483323-2-1\","+
+            "\"uuid\":\"123e4567-e89b-42d3-a456-556642441234\","+
             "\"routeUrl\":\"netty:tcp://localhost:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder\","+
             "\"dataFormat\":\"hl7-v2\",\"timestamp\":\"1592514822\","+
             "\"dataStoreUrl\":\"kafka:HL7v2_ADT?brokers=localhost:9092\"},"+

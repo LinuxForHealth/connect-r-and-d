@@ -19,7 +19,6 @@ application {
 dependencies {
 
     // camel libraries
-    implementation group: 'org.apache.camel', name: 'camel-base', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-core', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-fhir', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-dataformat', version: project.camelVersion
@@ -34,7 +33,6 @@ dependencies {
 
     // data format support
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: project.jacksonVersion
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: project.jacksonVersion
     implementation group: 'org.json', name: 'json', version: project.jsonVersion
 
     // logging
