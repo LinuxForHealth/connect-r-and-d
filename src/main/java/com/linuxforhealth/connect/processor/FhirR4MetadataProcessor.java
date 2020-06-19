@@ -17,7 +17,7 @@ import org.hl7.fhir.r4.model.Resource;
 /**
  * Set the headers used by downstream processors and components
  */
-public class SetFhirR4MetadataProcessor extends LinuxForHealthProcessor implements Processor {
+public class FhirR4MetadataProcessor extends LinuxForHealthProcessor implements Processor {
 
     @Override
     public void process(Exchange exchange)  {

@@ -15,7 +15,7 @@ import org.apache.camel.component.kafka.KafkaConstants;
 /**
  * Set the headers used by downstream processors and components
  */
-public class SetHl7v2MetadataProcessor extends LinuxForHealthProcessor implements Processor {
+public class Hl7v2MetadataProcessor extends LinuxForHealthProcessor implements Processor {
 
     @Override
     public void process(Exchange exchange)  {

@@ -6,7 +6,7 @@
 package com.linuxforhealth.connect.builder;
 
 import com.linuxforhealth.connect.configuration.EndpointUriBuilder;
-import com.linuxforhealth.connect.processor.SetHl7v2MetadataProcessor;
+import com.linuxforhealth.connect.processor.Hl7v2MetadataProcessor;
 import com.linuxforhealth.connect.processor.FormatMessageProcessor;
 import com.linuxforhealth.connect.processor.FormatNotificationProcessor;
 import com.linuxforhealth.connect.processor.FormatErrorProcessor;
@@ -29,7 +29,7 @@ public class Hl7v2MllpRouteBuilder extends LinuxForHealthRouteBuilder {
         String producerUri = uriBuilder.getDataStoreUri("HL7v2_${headers[CamelHL7MessageType]}");
         String messagingUri = uriBuilder.getMessagingUri();
 
-        Processor setHl7Metadata = new SetHl7v2MetadataProcessor();
+        Processor setHl7Metadata = new Hl7v2MetadataProcessor();
         Processor formatMessage = new FormatMessageProcessor();
         Processor formatNotification = new FormatNotificationProcessor();
         Processor formatError = new FormatErrorProcessor();

@@ -6,7 +6,7 @@
 package com.linuxforhealth.connect.builder;
 
 import com.linuxforhealth.connect.configuration.EndpointUriBuilder;
-import com.linuxforhealth.connect.processor.SetFhirR4MetadataProcessor;
+import com.linuxforhealth.connect.processor.FhirR4MetadataProcessor;
 import com.linuxforhealth.connect.processor.FormatMessageProcessor;
 import com.linuxforhealth.connect.processor.FormatNotificationProcessor;
 import com.linuxforhealth.connect.processor.FormatErrorProcessor;
@@ -32,7 +32,7 @@ public class FhirR4RestRouteBuilder extends LinuxForHealthRouteBuilder {
         String kafkaDataStoreUri = uriBuilder.getDataStoreUri("FHIR_R4_${headers.resourceType.toUpperCase()}");
         String messagingUri = uriBuilder.getMessagingUri();
 
-        Processor setFhirR4Metadata = new SetFhirR4MetadataProcessor();
+        Processor setFhirR4Metadata = new FhirR4MetadataProcessor();
         Processor formatMessage = new FormatMessageProcessor();
         Processor formatNotification = new FormatNotificationProcessor();
         Processor formatError = new FormatErrorProcessor();
