@@ -13,7 +13,7 @@ import org.apache.camel.builder.RouteBuilder;
  * Provides convenience methods for resolving application property values and route generation.
  * This class is concrete rather than abstract due to Camel's route scanning mechanism.
  */
-public class LinuxForHealthRouteBuilder extends RouteBuilder {
+public abstract class LinuxForHealthRouteBuilder extends RouteBuilder {
 
     /**
      * @return {@link EndpointUriBuilder} used to build endpoint uris for consumers and producers
@@ -23,7 +23,4 @@ public class LinuxForHealthRouteBuilder extends RouteBuilder {
                 .getRegistry()
                 .lookupByNameAndType(EndpointUriBuilder.BEAN_NAME, EndpointUriBuilder.class);
     }
-
-    @Override
-    public void configure() {}
 }
