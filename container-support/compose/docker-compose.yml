@@ -26,7 +26,7 @@ services:
       KAFKA_RESTART_DELAY: "5"
       ZOOKEEPER_AUTOPURGE_PURGE_INTERVAL: "0"
   nats-server:
-    image: nats:latest
+    image: linuxforhealth/nats-server:2.1.7
     container_name: nats-server
     ports:
       - 4222:4222

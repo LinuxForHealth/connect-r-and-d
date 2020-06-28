@@ -27,11 +27,11 @@ public class LinuxForHealthMessage extends JSONObject {
     public LinuxForHealthMessage(Exchange exchange) {
         meta = new JSONObject();
         meta.put("routeId", exchange.getFromRouteId());
-        meta.put("uuid", exchange.getIn().getHeader("uuid", String.class));
-        meta.put("routeUrl", exchange.getIn().getHeader("routeUrl", String.class));
-        meta.put("dataFormat", exchange.getIn().getHeader("dataFormat", String.class));
-        meta.put("timestamp", exchange.getIn().getHeader("timestamp", String.class));
-        meta.put("dataStoreUrl", exchange.getIn().getHeader("dataStoreUrl", String.class));
+        meta.put("uuid", exchange.getProperty("uuid", String.class));
+        meta.put("routeUrl", exchange.getProperty("routeUrl", String.class));
+        meta.put("dataFormat", exchange.getProperty("dataFormat", String.class));
+        meta.put("timestamp", exchange.getProperty("timestamp", String.class));
+        meta.put("dataStoreUrl", exchange.getProperty("dataStoreUrl", String.class));
         this.put("meta", meta);
     }
 

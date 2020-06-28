@@ -6,28 +6,30 @@
 package com.linuxforhealth.connect.processor;
 
 import com.linuxforhealth.connect.configuration.EndpointUriBuilder;
+import java.net.URI;
 import java.time.Instant;
 import java.util.UUID;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+//import org.hl7.fhir.dstu3.model.Resource;
 
 /**
  * Set the headers used by downstream processors and components
  */
-public class FhirR4MetadataProcessor extends LinuxForHealthProcessor implements Processor {
+public class BlueButton20MetadataProcessor extends LinuxForHealthProcessor implements Processor {
 
     @Override
-    public void process(Exchange exchange)  {
+    public void process(Exchange exchange) {
         EndpointUriBuilder uriBuilder = getEndpointUriBuilder(exchange);
-        String fhirBaseUri = uriBuilder.getFhirR4RestUri();
-        String resourceType = exchange.getIn().getHeader("resource", String.class);
-        String kafkaDataStoreUri = uriBuilder.getDataStoreUri("FHIR_R4_"+resourceType.toUpperCase());
+        String blueButtonBaseUri = uriBuilder.getBlueButton20RestUri();
+        String resource = exchange.getIn().getHeader("resource", String.class);
+        String kafkaDataStoreUri = uriBuilder.getDataStoreUri("FHIR_R3_"+resource.toUpperCase());
 
         exchange.setProperty("timestamp", Instant.now().getEpochSecond());
-        exchange.setProperty("routeUrl", fhirBaseUri);
+        exchange.setProperty("routeUrl", blueButtonBaseUri);
         exchange.setProperty("dataStoreUrl", kafkaDataStoreUri);
-        exchange.setProperty("dataFormat", "fhir-r4");
+        exchange.setProperty("dataFormat", "fhir-r3");
         exchange.setProperty("uuid", UUID.randomUUID());
-        exchange.setProperty("resourceType", resourceType);
+        exchange.setProperty("resourceType", resource);
     }
 }

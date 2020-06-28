@@ -38,15 +38,6 @@ public class Hl7v2MllpRouteBuilder extends LinuxForHealthRouteBuilder {
                 .routeId("hl7-v2-mllp")
                 .unmarshal().hl7()
                 .process(setHl7Metadata)
-                .process(formatMessage)
-                .doTry()
-                    .toD(producerUri)
-                    .process(formatNotification)
-                    .to(messagingUri)
-                .doCatch(Exception.class)
-                    .process(formatError)
-                    .log(LoggingLevel.ERROR, logger, "${body}")
-                    .to(messagingUri)
-                .end();
+                .to("direct:storeandnotify");
     }
 }

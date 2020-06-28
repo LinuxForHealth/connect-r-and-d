@@ -24,12 +24,12 @@ public class FormatErrorTest extends CamelTestSupport {
 
     private Exchange createMockExchange() {
         Exchange mockedExchange = new DefaultExchange(context);
-        mockedExchange.getIn().setHeader("timestamp", 1592514822);
+        mockedExchange.setProperty("timestamp", 1592514822);
         mockedExchange.adapt(ExtendedExchange.class).setFromRouteId("hl7-v2-mllp");
-        mockedExchange.getIn().setHeader("routeUrl", "netty:tcp://localhost:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder");
-        mockedExchange.getIn().setHeader("dataStoreUrl", "kafka:HL7v2_ADT?brokers=localhost:9092");
-        mockedExchange.getIn().setHeader("dataFormat", "hl7-v2");
-        mockedExchange.getIn().setHeader("uuid", "123e4567-e89b-42d3-a456-556642441234");
+        mockedExchange.setProperty("routeUrl", "netty:tcp://localhost:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder");
+        mockedExchange.setProperty("dataStoreUrl", "kafka:HL7v2_ADT?brokers=localhost:9092");
+        mockedExchange.setProperty("dataFormat", "hl7-v2");
+        mockedExchange.setProperty("uuid", "123e4567-e89b-42d3-a456-556642441234");
         Exception ex = new Exception("An error occurred");
         mockedExchange.setProperty(Exchange.EXCEPTION_CAUGHT, ex);
 

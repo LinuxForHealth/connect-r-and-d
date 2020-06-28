@@ -12,7 +12,6 @@ import com.linuxforhealth.connect.processor.FormatNotificationProcessor;
 import com.linuxforhealth.connect.processor.FormatErrorProcessor;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.Processor;
-import org.apache.camel.component.kafka.KafkaConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,13 +28,7 @@ public class FhirR4RestRouteBuilder extends LinuxForHealthRouteBuilder {
     public void configure() {
         EndpointUriBuilder uriBuilder = getEndpointUriBuilder();
         URI fhirBaseUri = URI.create(uriBuilder.getFhirR4RestUri());
-        String kafkaDataStoreUri = uriBuilder.getDataStoreUri("FHIR_R4_${headers.resourceType.toUpperCase()}");
-        String messagingUri = uriBuilder.getMessagingUri();
-
         Processor setFhirR4Metadata = new FhirR4MetadataProcessor();
-        Processor formatMessage = new FormatMessageProcessor();
-        Processor formatNotification = new FormatNotificationProcessor();
-        Processor formatError = new FormatErrorProcessor();
 
         restConfiguration()
                 .host(fhirBaseUri.getHost())
@@ -48,15 +41,6 @@ public class FhirR4RestRouteBuilder extends LinuxForHealthRouteBuilder {
                 .unmarshal().fhirJson("R4")
                 .process(setFhirR4Metadata)
                 .marshal().fhirJson("R4")
-                .process(formatMessage)
-                .doTry()
-                    .toD(kafkaDataStoreUri)
-                    .process(formatNotification)
-                    .to(messagingUri)
-                .doCatch(Exception.class)
-                   .process(formatError)
-                   .log(LoggingLevel.ERROR, logger, "${body}")
-                   .to(messagingUri)
-                .end();
+                .to("direct:storeandnotify");
     }
 }
