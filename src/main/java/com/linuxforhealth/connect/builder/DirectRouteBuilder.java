@@ -31,6 +31,7 @@ public class DirectRouteBuilder extends LinuxForHealthRouteBuilder {
         Processor formatNotification = new FormatNotificationProcessor();
         Processor formatError = new FormatErrorProcessor();
 
+        // Store results in the data store and send a notification message
         from("direct:storeandnotify")
                 .doTry()
                     .setHeader(KafkaConstants.KEY, constant("Camel"))
@@ -42,15 +43,17 @@ public class DirectRouteBuilder extends LinuxForHealthRouteBuilder {
                     .to("direct:error")
                 .end();
 
+        // Store results in the data store
         from("direct:store")
                 .doTry()
                     .process(formatMessage)
-                    .toD("${headers[dataStoreUrl]}")
+                    .toD("${exchangeProperty[dataStoreUrl]}")
                 .doCatch(Exception.class)
                     .setProperty("errorMessage", simple(exceptionMessage().toString()))
                     .to("direct:error")
                 .end();
 
+        // Send a notification message based on the data storage results
         from("direct:notify")
                 .doTry()
                     .process(formatNotification)
@@ -60,6 +63,7 @@ public class DirectRouteBuilder extends LinuxForHealthRouteBuilder {
                     .to("direct:error")
                 .end();
 
+        // Send an error notification message
         from("direct:error")
                 .doTry()
                     .process(formatError)

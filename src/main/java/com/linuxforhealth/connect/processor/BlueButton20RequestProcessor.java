@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Format the message for data storage
+ * Set up the Blue Button 2.0 API query
  */
 public class BlueButton20RequestProcessor extends LinuxForHealthProcessor implements Processor {
 
@@ -24,9 +24,8 @@ public class BlueButton20RequestProcessor extends LinuxForHealthProcessor implem
         EndpointUriBuilder uriBuilder = getEndpointUriBuilder(exchange);
         String cmsBaseURL = uriBuilder.getBlueButton20CmsBaseUri();
 
-        logger.info("Entering Blue Button request processor with headers: "+exchange.getIn().getHeaders().toString());
+        logger.info("Setting up Blue Button 2.0 query");
 
-        // Set up call to Blue Button API
         String authorizationHdr =  exchange.getIn().getHeader("Authorization", String.class);
         String httpMethod = exchange.getIn().getHeader("CamelHttpMethod", String.class);
         String resource = exchange.getIn().getHeader("resource", String.class);
@@ -35,7 +34,5 @@ public class BlueButton20RequestProcessor extends LinuxForHealthProcessor implem
         exchange.getOut().setHeader("Authorization", authorizationHdr);
         exchange.getOut().setHeader(Exchange.HTTP_METHOD, httpMethod);
         exchange.setProperty("location", location);
-
-        logger.info("Exiting Blue Button request processor with headers: "+exchange.getOut().getHeaders().toString());
     }
 }

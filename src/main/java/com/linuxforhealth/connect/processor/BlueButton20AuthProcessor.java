@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Format the message for data storage
+ * Set up request for Blue Button 2.0 authorization code
  */
 public class BlueButton20AuthProcessor extends LinuxForHealthProcessor implements Processor {
 
@@ -26,7 +26,7 @@ public class BlueButton20AuthProcessor extends LinuxForHealthProcessor implement
         String cmsAuthorizeURL = uriBuilder.getBlueButton20CmsAuthorizeUri();
         String clientId = uriBuilder.getBlueButton20ClientId();
 
-        logger.info("Redirecting to authenticate the user with headers: "+exchange.getIn().getHeaders().toString());
+        logger.info("Redirecting to authenticate the user");
 
         // Set up call to redirect to Blue Button API so the user can authenticate this application
         String authorizeURL = cmsAuthorizeURL+

@@ -10,6 +10,9 @@ compileJava {
 
 repositories {
     mavenCentral()
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots/"
+    }
 }
 
 application {
@@ -63,6 +66,7 @@ dependencies {
     implementation group: 'ca.uhn.hapi.fhir', name: 'hapi-fhir-structures-r4', version: project.hapiFhirVersion
     implementation group: 'ca.uhn.hapi.fhir', name: 'hapi-fhir-client', version: project.hapiFhirVersion
     implementation group: 'ca.uhn.hapi.fhir', name: 'hapi-fhir-structures-dstu3', version: project.hapiFhirVersion
+    implementation group: 'ca.uhn.hapi.fhir', name: 'hapi-fhir-converter', version: project.hapiFhirConvertorVersion
 
     // testing
     testImplementation group: 'org.apache.camel', name: 'camel-test-junit5', version: project.camelVersion

@@ -8,8 +8,9 @@ package com.linuxforhealth.connect.builder;
 import com.linuxforhealth.connect.configuration.EndpointUriBuilder;
 import com.linuxforhealth.connect.processor.BlueButton20AuthProcessor;
 import com.linuxforhealth.connect.processor.BlueButton20CallbackProcessor;
-import com.linuxforhealth.connect.processor.BlueButton20RequestProcessor;
 import com.linuxforhealth.connect.processor.BlueButton20MetadataProcessor;
+import com.linuxforhealth.connect.processor.BlueButton20RequestProcessor;
+import com.linuxforhealth.connect.processor.BlueButton20ResultProcessor;
 import java.net.URI;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.Processor;
@@ -36,6 +37,7 @@ public class BlueButton20RestRouteBuilder extends LinuxForHealthRouteBuilder {
         Processor handleBlueButtonCallback =  new BlueButton20CallbackProcessor();
         Processor setCMSRequestHeaders =  new BlueButton20RequestProcessor();
         Processor setBlueButton20Metadata = new BlueButton20MetadataProcessor();
+        Processor convertR3ToR4 = new BlueButton20ResultProcessor();
 
         restConfiguration()
                 .host(blueButtonBaseUri.getHost())
@@ -47,7 +49,6 @@ public class BlueButton20RestRouteBuilder extends LinuxForHealthRouteBuilder {
                 .route()
                 .routeId("bluebutton-20-rest-authorize")
                 .process(handleBlueButtonAuth)
-                .log(LoggingLevel.INFO, logger, "In authorize route: ${headers}")
                 .toD("exec:open?args=RAW(${exchangeProperty[location]})");
 
         // Blue Button OAuth2 - Callback to exchange code for token (displayed in the browser)
@@ -56,7 +57,6 @@ public class BlueButton20RestRouteBuilder extends LinuxForHealthRouteBuilder {
                 .route()
                 .routeId("bluebutton-20-rest-callback")
                 .process(handleBlueButtonCallback)
-                .log(LoggingLevel.INFO, logger, "In callback route: ${headers} ${body}")
                 .to(cmsTokenURL);
         
         // Blue Button 2.0 route - Retrieve patient resources
@@ -66,10 +66,10 @@ public class BlueButton20RestRouteBuilder extends LinuxForHealthRouteBuilder {
                 .routeId("bluebutton-20-rest")
                 .process(setBlueButton20Metadata)
                 .doTry()
-                    .log(LoggingLevel.INFO, logger, "In Blue Button 2.0 route: ${headers} ${body}")
                     .process(setCMSRequestHeaders)
                     .toD("${exchangeProperty[location]}")
                     .unmarshal().fhirJson("DSTU3")
+                    .process(convertR3ToR4)
                     .to("direct:storeandnotify")
                 .doCatch(Exception.class)
                     .setProperty("errorMessage", simple(exceptionMessage().toString()))
