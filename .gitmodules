@@ -1,0 +1,3 @@
+[submodule "utils/thirdparty/linuxfoundation/hyperledger/avalon"]
+	path = utils/thirdparty/linuxfoundation/hyperledger/avalon
+	url = https://github.com/hyperledger/avalon
