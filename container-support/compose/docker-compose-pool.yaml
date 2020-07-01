@@ -1,0 +1,95 @@
+# Copyright 2020 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: '3.5'
+
+volumes:
+  # Named volume for WPE to share MRENCLAVE with KME. MRENCLAVE value can also be passed
+  # as a command line parameter (using the option --wpe_mr_enclave) to KME enclave manger.
+  # Then the MRENCLAVE value stored in file "wpe_mr_enclave.txt" in shared volume will be
+  # overridden by the value passed in command line.
+  pool-1:
+
+services:
+
+  avalon-kme:
+    container_name: avalon-kme
+    image: avalon-enclave-manager-kme-dev
+    build:
+      context: .
+      dockerfile: ./enclave_manager/Dockerfile
+      args:
+        - http_proxy
+        - https_proxy
+        - no_proxy
+        - ENCLAVE_TYPE=kme
+    environment:
+      - http_proxy
+      - https_proxy
+      - no_proxy
+    volumes:
+      - pool-1:/shared-pool-1
+    expose:
+      # KME listener port
+      - 1948
+    command: |
+      bash -c "
+        while true;
+          do
+            if [ -e /shared-pool-1/wpe_mr_enclave.txt ];
+              then mv /shared-pool-1/wpe_mr_enclave.txt /project/avalon/wpe_mr_enclave.txt;
+              break;
+            fi;
+            sleep 1;
+        done;
+        enclave_manager --lmdb_url http://avalon-lmdb:9090 --bind http://avalon-kme:1948
+        tail -f /dev/null
+      "
+    depends_on:
+      - avalon-lmdb
+      - avalon-listener
+
+  avalon-enclave-manager:
+    container_name: avalon-wpe
+    image: avalon-enclave-manager-wpe-dev
+    build:
+      context: .
+      dockerfile: ./enclave_manager/Dockerfile
+      args:
+        - http_proxy
+        - https_proxy
+        - no_proxy
+        - ENCLAVE_TYPE=wpe
+        # Configure list of workload that need to be supported
+        # by this WPE by separating each workload by delimiter semicolon.
+        - WORKLOADS=echo-result;heart-disease-eval;inside-out-eval;simple-wallet
+    environment:
+      - http_proxy
+      - https_proxy
+      - no_proxy
+    volumes:
+      - pool-1:/shared-pool-1
+    expose:
+      # ZMQ socket port.
+      - 5555
+    command: |
+      bash -c "
+        mv /project/avalon/wpe_mr_enclave.txt /shared-pool-1
+        enclave_manager --lmdb_url http://avalon-lmdb:9090 --kme_listener_url http://avalon-kme:1948
+        tail -f /dev/null
+      "
+    depends_on:
+      - avalon-lmdb
+      - avalon-listener
+      - avalon-kme
