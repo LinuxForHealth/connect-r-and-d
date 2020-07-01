@@ -26,8 +26,6 @@ public class BlueButton20AuthProcessor extends LinuxForHealthProcessor implement
         String cmsAuthorizeURL = uriBuilder.getBlueButton20CmsAuthorizeUri();
         String clientId = uriBuilder.getBlueButton20ClientId();
 
-        logger.info("Redirecting to authenticate the user");
-
         // Set up call to redirect to Blue Button API so the user can authenticate this application
         String authorizeURL = cmsAuthorizeURL+
             "?client_id="+clientId+

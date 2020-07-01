@@ -25,7 +25,7 @@ public class Hl7v2MetadataProcessor extends LinuxForHealthProcessor implements P
 
         exchange.setProperty("timestamp", Instant.now().getEpochSecond());
         exchange.setProperty("routeUrl", consumerUrl);
-        exchange.setProperty("dataStoreUrl", dataStoreUrl);
+        exchange.setProperty("dataStoreUri", dataStoreUrl);
         exchange.setProperty("dataFormat", "hl7-v2");
         exchange.setProperty("uuid",  UUID.randomUUID());
         exchange.setProperty("resourceType", resourceType);

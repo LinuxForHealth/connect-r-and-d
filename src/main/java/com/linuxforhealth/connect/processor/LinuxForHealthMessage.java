@@ -31,7 +31,7 @@ public class LinuxForHealthMessage extends JSONObject {
         meta.put("routeUrl", exchange.getProperty("routeUrl", String.class));
         meta.put("dataFormat", exchange.getProperty("dataFormat", String.class));
         meta.put("timestamp", exchange.getProperty("timestamp", String.class));
-        meta.put("dataStoreUrl", exchange.getProperty("dataStoreUrl", String.class));
+        meta.put("dataStoreUri", exchange.getProperty("dataStoreUri", String.class));
         this.put("meta", meta);
     }
 
@@ -68,7 +68,7 @@ public class LinuxForHealthMessage extends JSONObject {
             getString(meta, "routeUrl")+","+
             getString(meta, "dataFormat")+","+
             getObject(meta, "timestamp")+","+
-            getString(meta, "dataStoreUrl");
+            getString(meta, "dataStoreUri");
 
         if (meta.has("status")) result += ","+getString(meta, "status");
         if (meta.has("dataRecordLocation")) result += ","+getObject(meta, "dataRecordLocation");

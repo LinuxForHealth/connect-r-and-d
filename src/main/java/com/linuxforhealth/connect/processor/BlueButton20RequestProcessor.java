@@ -23,9 +23,8 @@ public class BlueButton20RequestProcessor extends LinuxForHealthProcessor implem
     public void process(Exchange exchange) throws Exception {
         EndpointUriBuilder uriBuilder = getEndpointUriBuilder(exchange);
         String cmsBaseURL = uriBuilder.getBlueButton20CmsBaseUri();
-
-        logger.info("Setting up Blue Button 2.0 query");
-
+        
+        // Set up Blue Button 2.0 query
         String authorizationHdr =  exchange.getIn().getHeader("Authorization", String.class);
         String httpMethod = exchange.getIn().getHeader("CamelHttpMethod", String.class);
         String resource = exchange.getIn().getHeader("resource", String.class);

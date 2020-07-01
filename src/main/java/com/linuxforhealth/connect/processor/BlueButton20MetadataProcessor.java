@@ -21,14 +21,19 @@ public class BlueButton20MetadataProcessor extends LinuxForHealthProcessor imple
     public void process(Exchange exchange) {
         EndpointUriBuilder uriBuilder = getEndpointUriBuilder(exchange);
         String blueButtonBaseUri = uriBuilder.getBlueButton20RestUri();
-        String resource = exchange.getIn().getHeader("resource", String.class);
-        String kafkaDataStoreUri = uriBuilder.getDataStoreUri("FHIR_R4_"+resource.toUpperCase());
+        String resourceType = exchange.getIn().getHeader("resource", String.class);
+        String kafkaDataStoreUri = uriBuilder.getDataStoreUri("FHIR_R4_"+resourceType.toUpperCase());
+
+        // Form the incoming route url for the message property routeUrl
+        String routeUrl = blueButtonBaseUri+"/"+resourceType;
+        String queryStr = exchange.getIn().getHeader("CamelHttpQuery", String.class);
+        if (queryStr != null && queryStr != "") routeUrl += "?"+queryStr;
 
         exchange.setProperty("timestamp", Instant.now().getEpochSecond());
-        exchange.setProperty("routeUrl", blueButtonBaseUri);
-        exchange.setProperty("dataStoreUrl", kafkaDataStoreUri);
+        exchange.setProperty("routeUrl", queryStr);
+        exchange.setProperty("dataStoreUri", kafkaDataStoreUri);
         exchange.setProperty("dataFormat", "fhir-r4");
         exchange.setProperty("uuid", UUID.randomUUID());
-        exchange.setProperty("resourceType", resource);
+        exchange.setProperty("resourceType", resourceType);
     }
 }

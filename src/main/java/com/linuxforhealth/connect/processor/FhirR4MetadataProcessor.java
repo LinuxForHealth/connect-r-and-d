@@ -22,10 +22,11 @@ public class FhirR4MetadataProcessor extends LinuxForHealthProcessor implements 
         String fhirBaseUri = uriBuilder.getFhirR4RestUri();
         String resourceType = exchange.getIn().getHeader("resource", String.class);
         String kafkaDataStoreUri = uriBuilder.getDataStoreUri("FHIR_R4_"+resourceType.toUpperCase());
+        String routeUrl = fhirBaseUri+"/"+resourceType;
 
         exchange.setProperty("timestamp", Instant.now().getEpochSecond());
-        exchange.setProperty("routeUrl", fhirBaseUri);
-        exchange.setProperty("dataStoreUrl", kafkaDataStoreUri);
+        exchange.setProperty("routeUrl", routeUrl);
+        exchange.setProperty("dataStoreUri", kafkaDataStoreUri);
         exchange.setProperty("dataFormat", "fhir-r4");
         exchange.setProperty("uuid", UUID.randomUUID());
         exchange.setProperty("resourceType", resourceType);

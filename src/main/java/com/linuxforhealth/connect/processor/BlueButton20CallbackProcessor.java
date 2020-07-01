@@ -26,8 +26,7 @@ public class BlueButton20CallbackProcessor extends LinuxForHealthProcessor imple
         String clientId = uriBuilder.getBlueButton20ClientId();
         String clientSecret = uriBuilder.getBlueButton20ClientSecret();
 
-        logger.info("Setting up call to Blue Button 2.0 to exchange the code for a token");
-
+        // Setting up call to Blue Button 2.0 to exchange the code for a token
         String code  = exchange.getIn().getHeader("code", String.class);
         String body = "code="+code+"&grant_type=authorization_code";
         String auth = clientId+":"+clientSecret;

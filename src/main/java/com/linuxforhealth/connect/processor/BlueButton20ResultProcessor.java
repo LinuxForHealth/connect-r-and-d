@@ -29,8 +29,7 @@ public class BlueButton20ResultProcessor extends LinuxForHealthProcessor impleme
         Resource resource = (Resource) exchange.getIn().getBody();
         String result;
 
-        logger.info("Converting Blue Button 2.0 query results to R4");
-
+        // Converting Blue Button 2.0 query results to R4
         try {
             IBaseResource converted = VersionConvertor_30_40.convertResource(resource, true);
             result = FhirContext.forR4().newJsonParser().encodeResourceToString(converted);
@@ -41,11 +40,10 @@ public class BlueButton20ResultProcessor extends LinuxForHealthProcessor impleme
             // Set the message attributes for data format back to r3 and change the Kafka queue
             String resourceType = exchange.getProperty("resourceType", String.class);
             String kafkaDataStoreUri = uriBuilder.getDataStoreUri("FHIR_R3_"+resourceType.toUpperCase());
-            exchange.setProperty("dataStoreUrl", kafkaDataStoreUri);
+            exchange.setProperty("dataStoreUri", kafkaDataStoreUri);
             exchange.setProperty("dataFormat", "fhir-r3");
         }
 
-        logger.info("Result: "+result);
         exchange.getIn().setBody(result);
     }
 }
