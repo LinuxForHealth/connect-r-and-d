@@ -30,7 +30,7 @@ public class BlueButton20MetadataProcessor extends LinuxForHealthProcessor imple
         if (queryStr != null && queryStr != "") routeUrl += "?"+queryStr;
 
         exchange.setProperty("timestamp", Instant.now().getEpochSecond());
-        exchange.setProperty("routeUrl", queryStr);
+        exchange.setProperty("routeUrl", routeUrl);
         exchange.setProperty("dataStoreUri", kafkaDataStoreUri);
         exchange.setProperty("dataFormat", "fhir-r4");
         exchange.setProperty("uuid", UUID.randomUUID());

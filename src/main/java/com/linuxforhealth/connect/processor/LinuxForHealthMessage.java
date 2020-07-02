@@ -45,10 +45,15 @@ public class LinuxForHealthMessage extends JSONObject {
     public void setDataStoreResult(List<RecordMetadata> metaRecords) {
         JSONArray kafkaMeta  = new JSONArray();
 
-        for (RecordMetadata m: metaRecords) {
-            kafkaMeta.put(m);
+        if (metaRecords != null) {
+            for (RecordMetadata m: metaRecords) {
+                kafkaMeta.put(m);
+            }
+            meta.put("status", "success");
+        } else {
+            meta.put("status", "error");
         }
-        meta.put("status", "success");
+
         meta.put("dataRecordLocation", kafkaMeta);
     }
 

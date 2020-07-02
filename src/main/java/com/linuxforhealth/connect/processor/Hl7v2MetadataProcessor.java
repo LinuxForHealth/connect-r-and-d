@@ -21,11 +21,11 @@ public class Hl7v2MetadataProcessor extends LinuxForHealthProcessor implements P
         EndpointUriBuilder uriBuilder = getEndpointUriBuilder(exchange);
         String consumerUrl = uriBuilder.getHl7V2MllpUri();
         String resourceType = exchange.getIn().getHeader("CamelHL7MessageType", String.class);
-        String dataStoreUrl = uriBuilder.getDataStoreUri("HL7v2_"+resourceType.toUpperCase());
+        String dataStoreUri = uriBuilder.getDataStoreUri("HL7v2_"+resourceType.toUpperCase());
 
         exchange.setProperty("timestamp", Instant.now().getEpochSecond());
         exchange.setProperty("routeUrl", consumerUrl);
-        exchange.setProperty("dataStoreUri", dataStoreUrl);
+        exchange.setProperty("dataStoreUri", dataStoreUri);
         exchange.setProperty("dataFormat", "hl7-v2");
         exchange.setProperty("uuid",  UUID.randomUUID());
         exchange.setProperty("resourceType", resourceType);
