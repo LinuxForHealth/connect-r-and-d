@@ -9,6 +9,7 @@ import com.linuxforhealth.connect.configuration.EndpointUriBuilder;
 import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.Processor;
+import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,18 @@ public class BlueButton20AuthProcessor extends LinuxForHealthProcessor implement
             "&redirect_uri="+callbackURL+
             "&response_type=code";
         logger.info("Authorize URL: "+authorizeURL);
-        exchange.setProperty("location", authorizeURL);
+
+        // Determine the current OS so we know the cmd to launch the browser
+        String osCmd;
+        if (SystemUtils.IS_OS_MAC) {
+            osCmd = "open";
+        } else if (SystemUtils.IS_OS_WINDOWS) {
+            osCmd = "explorer";
+        } else {
+            // Assume SystemUtils.IS_OS_UNIX
+            osCmd = "xdg-open";
+        }
+
+        exchange.setProperty("location", "exec:"+osCmd+"?args=RAW("+authorizeURL+")");
     }
 }

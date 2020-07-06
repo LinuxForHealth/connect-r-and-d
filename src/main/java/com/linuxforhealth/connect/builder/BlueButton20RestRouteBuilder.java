@@ -49,7 +49,7 @@ public class BlueButton20RestRouteBuilder extends LinuxForHealthRouteBuilder {
                 .route()
                 .routeId("bluebutton-20-rest-authorize")
                 .process(handleBlueButtonAuth)
-                .toD("exec:open?args=RAW(${exchangeProperty[location]})");
+                .toD("${exchangeProperty[location]}");
 
         // Blue Button OAuth2 - Callback to exchange code for token (displayed in the browser)
         rest(blueButtonCallbackUri.getPath())
