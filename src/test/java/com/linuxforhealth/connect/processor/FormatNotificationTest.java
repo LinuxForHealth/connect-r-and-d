@@ -35,13 +35,13 @@ public class FormatNotificationTest extends CamelTestSupport {
         metaRecords.add(mockedRecordMetadata);
 
         Exchange mockedExchange = new DefaultExchange(context);
-        mockedExchange.getIn().setHeader("timestamp", 1592514822);
+        mockedExchange.setProperty("timestamp", 1592514822);
         mockedExchange.adapt(ExtendedExchange.class).setFromRouteId("hl7-v2-mllp");
         mockedExchange.getIn().setHeader(KafkaConstants.KAFKA_RECORDMETA, metaRecords);
-        mockedExchange.getIn().setHeader("routeUrl", "netty:tcp://localhost:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder");
-        mockedExchange.getIn().setHeader("dataStoreUrl", "kafka:HL7v2_ADT?brokers=localhost:9092");
-        mockedExchange.getIn().setHeader("dataFormat", "hl7-v2");
-        mockedExchange.getIn().setHeader("uuid", "123e4567-e89b-42d3-a456-556642441234");
+        mockedExchange.setProperty("routeUrl", "netty:tcp://localhost:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder");
+        mockedExchange.setProperty("dataStoreUri", "kafka:HL7v2_ADT?brokers=localhost:9092");
+        mockedExchange.setProperty("dataFormat", "hl7-v2");
+        mockedExchange.setProperty("uuid", "123e4567-e89b-42d3-a456-556642441234");
 
         return mockedExchange;
     }
@@ -65,7 +65,7 @@ public class FormatNotificationTest extends CamelTestSupport {
             "\"uuid\":\"123e4567-e89b-42d3-a456-556642441234\","+
             "\"routeUrl\":\"netty:tcp://localhost:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder\","+
             "\"dataFormat\":\"hl7-v2\",\"timestamp\":1592514822,"+
-            "\"dataStoreUrl\":\"kafka:HL7v2_ADT?brokers=localhost:9092\","+
+            "\"dataStoreUri\":\"kafka:HL7v2_ADT?brokers=localhost:9092\","+
             "\"status\":\"success\",\"dataRecordLocation\":[\"HL7v2_ADT-0@0\"]}}";
         String actualBody = mockedExchange.getIn().getBody(String.class);
         Assertions.assertEquals(expectedBody, actualBody);

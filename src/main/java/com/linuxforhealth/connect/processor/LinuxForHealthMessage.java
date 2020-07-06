@@ -27,11 +27,11 @@ public class LinuxForHealthMessage extends JSONObject {
     public LinuxForHealthMessage(Exchange exchange) {
         meta = new JSONObject();
         meta.put("routeId", exchange.getFromRouteId());
-        meta.put("uuid", exchange.getIn().getHeader("uuid", String.class));
-        meta.put("routeUrl", exchange.getIn().getHeader("routeUrl", String.class));
-        meta.put("dataFormat", exchange.getIn().getHeader("dataFormat", String.class));
-        meta.put("timestamp", exchange.getIn().getHeader("timestamp", String.class));
-        meta.put("dataStoreUrl", exchange.getIn().getHeader("dataStoreUrl", String.class));
+        meta.put("uuid", exchange.getProperty("uuid", String.class));
+        meta.put("routeUrl", exchange.getProperty("routeUrl", String.class));
+        meta.put("dataFormat", exchange.getProperty("dataFormat", String.class));
+        meta.put("timestamp", exchange.getProperty("timestamp", String.class));
+        meta.put("dataStoreUri", exchange.getProperty("dataStoreUri", String.class));
         this.put("meta", meta);
     }
 
@@ -45,10 +45,15 @@ public class LinuxForHealthMessage extends JSONObject {
     public void setDataStoreResult(List<RecordMetadata> metaRecords) {
         JSONArray kafkaMeta  = new JSONArray();
 
-        for (RecordMetadata m: metaRecords) {
-            kafkaMeta.put(m);
+        if (metaRecords != null) {
+            for (RecordMetadata m: metaRecords) {
+                kafkaMeta.put(m);
+            }
+            meta.put("status", "success");
+        } else {
+            meta.put("status", "error");
         }
-        meta.put("status", "success");
+
         meta.put("dataRecordLocation", kafkaMeta);
     }
 
@@ -68,7 +73,7 @@ public class LinuxForHealthMessage extends JSONObject {
             getString(meta, "routeUrl")+","+
             getString(meta, "dataFormat")+","+
             getObject(meta, "timestamp")+","+
-            getString(meta, "dataStoreUrl");
+            getString(meta, "dataStoreUri");
 
         if (meta.has("status")) result += ","+getString(meta, "status");
         if (meta.has("dataRecordLocation")) result += ","+getObject(meta, "dataRecordLocation");
