@@ -28,6 +28,7 @@ dependencies {
     implementation group: 'org.apache.camel', name: 'camel-kafka', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-http', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-jackson', version: project.camelVersion
+    implementation group: 'org.apache.camel', name: 'camel-jasypt', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-jetty', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-main', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-nats', version: project.camelVersion

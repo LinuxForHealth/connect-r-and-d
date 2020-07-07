@@ -6,6 +6,7 @@
 package com.linuxforhealth.connect.processor;
 
 import com.linuxforhealth.connect.configuration.EndpointUriBuilder;
+import org.apache.camel.builder.SimpleBuilder;
 import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.Processor;
@@ -25,7 +26,8 @@ public class BlueButton20AuthProcessor extends LinuxForHealthProcessor implement
         EndpointUriBuilder uriBuilder = getEndpointUriBuilder(exchange);
         String callbackURL = uriBuilder.getBlueButton20RestCallbackUri();
         String cmsAuthorizeURL = uriBuilder.getBlueButton20CmsAuthorizeUri();
-        String clientId = uriBuilder.getBlueButton20ClientId();
+        SimpleBuilder simpleId = new SimpleBuilder("${properties:linuxforhealth.connect.endpoint.bluebutton_20_rest.clientId}");
+        String clientId = simpleId.evaluate(exchange, String.class);
 
         // Set up call to redirect to Blue Button API so the user can authenticate this application
         String authorizeURL = cmsAuthorizeURL+

@@ -6,6 +6,7 @@
 package com.linuxforhealth.connect.processor;
 
 import com.linuxforhealth.connect.configuration.EndpointUriBuilder;
+import org.apache.camel.builder.SimpleBuilder;
 import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.Processor;
@@ -23,8 +24,10 @@ public class BlueButton20CallbackProcessor extends LinuxForHealthProcessor imple
     @Override
     public void process(Exchange exchange) throws Exception {
         EndpointUriBuilder uriBuilder = getEndpointUriBuilder(exchange);
-        String clientId = uriBuilder.getBlueButton20ClientId();
-        String clientSecret = uriBuilder.getBlueButton20ClientSecret();
+        SimpleBuilder simpleId = new SimpleBuilder("${properties:linuxforhealth.connect.endpoint.bluebutton_20_rest.clientId}");
+        String clientId = simpleId.evaluate(exchange, String.class);
+        SimpleBuilder simpleSecret = new SimpleBuilder("${properties:linuxforhealth.connect.endpoint.bluebutton_20_rest.clientSecret}");
+        String clientSecret = simpleSecret.evaluate(exchange, String.class);
 
         // Setting up call to Blue Button 2.0 to exchange the code for a token
         String code  = exchange.getIn().getHeader("code", String.class);
