@@ -1,5 +1,14 @@
+# Linux for Health Connect Image
+# Supports the LFH
+#
+# Environment variables:
+# - APP_ROOT: The root application directory. Set in base image.
+# - USER_ID: The USER ID used for the non-privileged "application" account. Set in base image.
+# - JAVA_HOME: The Java installation directory. Set in base image.
+# - JAVA_OPTIONS: Java command line options used to configure the JVM. Set in base image.
+
 # builder image
-FROM registry.redhat.io/ubi8/ubi-minimal:8.2 AS builder
+FROM docker.io/linuxforhealth/openjdk:1.8 AS builder
 
 RUN mkdir -p /tmp/lfh/{config,libs}
 WORKDIR /tmp/lfh
@@ -7,7 +16,7 @@ ADD build/libs/linux-for-health-connect*dependencies.tar libs/
 COPY build/libs/linux-for-health-connect*.jar .
 
 # target image
-FROM registry.redhat.io/ubi8/ubi-minimal:8.2
+FROM  docker.io/linuxforhealth/openjdk:1.8
 
 LABEL maintainer="Linux for Health"
 LABEL com.linuxforhealth.component="connect"
@@ -16,24 +25,13 @@ LABEL com.linuxforhealth.license_terms="https://www.apache.org/licenses/LICENSE-
 LABEL summary="Linux For Health Connectors for Inbound Data Processing"
 LABEL description="Provides Route Based Processing for Inbound Data Flows"
 
-RUN microdnf update -y && rm -rf /var/cache/yum
-RUN microdnf install -y shadow-utils \
-                        ca-certificates \
-                        java-1.8.0-openjdk && \
-                        microdnf clean all
-
 RUN mkdir -p /opt/lfh/libs
 COPY --from=builder /tmp/lfh /opt/lfh/
 
-ENV HOME=/home/lfh
-ENV APP_ROOT=/opt/lfh
-ENV JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk
-ENV JAVA_OPTIONS=""
-
-RUN useradd -u 1001 -r -g 0 -d ${HOME} \
-            -s /sbin/nologin \
-            -c "Default Application User" default && \
-            chown -R 1001:0 ${APP_ROOT}
+ENV APP_ROOT=${APP_ROOT}
+ENV USER_ID=${USER_ID}
+ENV JAVA_HOME=${JAVA_HOME}
+ENV JAVA_OPTIONS=${JAVA_OPTIONS}
 
 # MLLP
 EXPOSE 2575
