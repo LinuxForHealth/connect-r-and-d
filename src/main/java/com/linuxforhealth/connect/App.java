@@ -95,7 +95,7 @@ public final class App {
         } else {
             properties.load(ClassLoader.getSystemResourceAsStream(App.APPLICATION_PROPERTIES_FILE_NAME));
             logger.info("loading properties from classpath:{}", App.APPLICATION_PROPERTIES_FILE_NAME);
-            pc.setLocation("classpath:"+APPLICATION_PROPERTIES_FILE_NAME);
+            pc.setLocation("classpath:"+App.APPLICATION_PROPERTIES_FILE_NAME);
         }
 
         return properties;

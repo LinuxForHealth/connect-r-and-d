@@ -95,6 +95,16 @@ class RouteGenerationTest extends CamelTestSupport {
                                 "mock:kafka?brokers=localhost:9092",
                                 "mock:nats:idaas-data?servers=localhost:4222"
                         }
+                ),
+                Arguments.arguments(
+                        new BlueButton20RestRouteBuilder(),
+                        PROPERTY_FILE_DIRECTORY.concat("bluebutton-20-rest.properties"),
+                        "http://0.0.0.0:8080/bluebutton/v1",
+                        new String[]{
+                                "mock:https://sandbox.bluebutton.cms.gov/v1/fhir/",
+                                "mock:kafka?brokers=localhost:9092",
+                                "mock:nats:idaas-data?servers=localhost:4222"
+                        }
                 )
         );
     }
@@ -123,4 +133,3 @@ class RouteGenerationTest extends CamelTestSupport {
         Arrays.stream(expectedProducerUris).forEach(this::getMockEndpoint);
     }
 }
-
