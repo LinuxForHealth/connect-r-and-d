@@ -6,6 +6,8 @@
 package com.linuxforhealth.connect;
 
 import com.linuxforhealth.connect.configuration.EndpointUriBuilder;
+import org.apache.camel.component.jasypt.JasyptPropertiesParser;
+import org.apache.camel.component.properties.PropertiesComponent;
 import org.apache.camel.main.Main;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,6 +82,7 @@ public final class App {
      */
     private Properties loadProperties() throws IOException {
         Properties properties = new Properties();
+        PropertiesComponent pc = configurePropertyParser();
 
         Path path = Paths.get(App.EXTERNAL_PROPERTY_FILE_PATH);
 
@@ -88,12 +91,35 @@ public final class App {
             String absolutePath = path.toAbsolutePath().toString();
             logger.info("loading properties from file:{}", absolutePath);
             camelMain.setDefaultPropertyPlaceholderLocation("file:" + absolutePath);
+            pc.setLocation(absolutePath);
         } else {
             properties.load(ClassLoader.getSystemResourceAsStream(App.APPLICATION_PROPERTIES_FILE_NAME));
             logger.info("loading properties from classpath:{}", App.APPLICATION_PROPERTIES_FILE_NAME);
+            pc.setLocation("classpath:"+App.APPLICATION_PROPERTIES_FILE_NAME);
         }
 
         return properties;
+    }
+
+    /**
+     * Configures encrypted property parsing using PropertiesComponent and Jasypt for encryption.
+     *
+     * @return {@link Properties} instance
+     * @throws IOException if an error occurs reading application.properties
+     */
+    private PropertiesComponent configurePropertyParser() throws IOException {
+        // Configure the Jasypt master password
+        // TODO: use env var, e.g. sysenv:CAMEL_ENCRYPTION_PASSWORD
+        JasyptPropertiesParser jasypt = new JasyptPropertiesParser();
+        jasypt.setPassword("ultrasecret");
+
+        // Configure the PropertiesComponent to use Jasypt
+        PropertiesComponent pc = new PropertiesComponent();
+        pc.setPropertiesParser(jasypt);
+
+        camelMain.bind("properties", pc);
+
+        return pc;
     }
 
     /**

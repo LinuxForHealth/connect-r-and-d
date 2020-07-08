@@ -40,7 +40,6 @@ public class FhirR4RestRouteBuilder extends LinuxForHealthRouteBuilder {
                 .routeId("fhir-r4-rest")
                 .unmarshal().fhirJson("R4")
                 .process(setFhirR4Metadata)
-                .marshal().fhirJson("R4")
                 .to("direct:storeandnotify");
     }
 }
