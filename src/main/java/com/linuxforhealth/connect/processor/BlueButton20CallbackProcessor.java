@@ -24,10 +24,10 @@ public class BlueButton20CallbackProcessor extends LinuxForHealthProcessor imple
     @Override
     public void process(Exchange exchange) throws Exception {
         EndpointUriBuilder uriBuilder = getEndpointUriBuilder(exchange);
-        SimpleBuilder simpleId = new SimpleBuilder("${properties:linuxforhealth.connect.endpoint.bluebutton_20_rest.clientId}");
-        String clientId = simpleId.evaluate(exchange, String.class);
-        SimpleBuilder simpleSecret = new SimpleBuilder("${properties:linuxforhealth.connect.endpoint.bluebutton_20_rest.clientSecret}");
-        String clientSecret = simpleSecret.evaluate(exchange, String.class);
+        String clientId = SimpleBuilder.simple("${properties:linuxforhealth.connect.endpoint.bluebutton_20_rest.clientId}") 
+            .evaluate(exchange, String.class);
+        String clientSecret = SimpleBuilder.simple("${properties:linuxforhealth.connect.endpoint.bluebutton_20_rest.clientSecret}") 
+            .evaluate(exchange, String.class);
 
         // Setting up call to Blue Button 2.0 to exchange the code for a token
         String code  = exchange.getIn().getHeader("code", String.class);
