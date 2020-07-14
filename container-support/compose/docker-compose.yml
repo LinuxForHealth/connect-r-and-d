@@ -1,30 +1,33 @@
 version: "3.7"
 services:
+  zookeeper:
+    image: docker.io/linuxforhealth/zookeeper-standalone:3.6.1
+    ports:
+      - "2181:2181"
   kafdrop:
     image: obsidiandynamics/kafdrop
-    restart: "no"
+    restart: "always"
     ports:
       - "9000:9000"
     environment:
-      KAFKA_BROKERCONNECT: "kafka:29092"
+      KAFKA_BROKERCONNECT: "kafka:9094"
       JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
     depends_on:
       - "kafka"
   kafka:
-    image: obsidiandynamics/kafka
-    restart: "no"
+    image: docker.io/linuxforhealth/kafka-standalone:2.5.0
+    restart: "always"
     ports:
-      - "2181:2181"
       - "9092:9092"
+      - "9094:9094"
     environment:
-      KAFKA_LISTENERS: "INTERNAL://:29092,EXTERNAL://:9092"
-      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka:29092,EXTERNAL://localhost:9092"
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_LISTENERS: "INTERNAL://kafka:9094,EXTERNAL://kafka:9092"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka:9094,EXTERNAL://localhost:9092"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
       KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
-      KAFKA_ZOOKEEPER_SESSION_TIMEOUT: "6000"
-      KAFKA_RESTART_ATTEMPTS: "10"
-      KAFKA_RESTART_DELAY: "5"
-      ZOOKEEPER_AUTOPURGE_PURGE_INTERVAL: "0"
+    depends_on:
+      - "zookeeper"
   nats-server:
     image: linuxforhealth/nats-server:2.1.7
     container_name: nats-server

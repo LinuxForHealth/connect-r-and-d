@@ -105,6 +105,15 @@ class RouteGenerationTest extends CamelTestSupport {
                                 "mock:kafka?brokers=localhost:9092",
                                 "mock:nats:idaas-data?servers=localhost:4222"
                         }
+                ),
+                Arguments.arguments(
+                        new FhirR4ToAcdRouteBuilder(),
+                        PROPERTY_FILE_DIRECTORY.concat("fhir-to-acd.properties"),
+                        "direct:fhir-r4-to-acd",
+                        new String[]{
+                        		"mock:kafka?brokers=localhost:9092",
+                                "mock:nats:idaas-data?servers=localhost:4222"
+                        }
                 )
         );
     }
