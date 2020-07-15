@@ -5,7 +5,7 @@ services:
     ports:
       - "2181:2181"
   kafdrop:
-    image: obsidiandynamics/kafdrop
+    image: docker.io/obsidiandynamics/kafdrop
     restart: "always"
     ports:
       - "9000:9000"
@@ -29,7 +29,7 @@ services:
     depends_on:
       - "zookeeper"
   nats-server:
-    image: linuxforhealth/nats-server:2.1.7
+    image: docker.io/linuxforhealth/nats-server:2.1.7
     container_name: nats-server
     ports:
       - 4222:4222
