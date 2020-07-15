@@ -7,19 +7,8 @@
 # docker-compose up -d
 version: "3.7"
 services:
-  lfh:
-    restart: "always"
-    image: docker.io/linuxforhealth/connect:0.46.0-beta
-    ports:
-      - "2575:2575"
-      - "8080:8080"
-    volumes:
-      - ${PWD}/application.properties:/opt/lfh/config/application.properties
-    depends_on:
-      - "kafka"
-      - "nats-server"
   kafdrop:
-    image: obsidiandynamics/kafdrop
+    image: docker.io/obsidiandynamics/kafdrop
     restart: "always"
     ports:
       - "9000:9000"
@@ -34,3 +23,14 @@ services:
       KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka:9092"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT"
       KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
+  lfh:
+    restart: "always"
+    image: docker.io/linuxforhealth/connect:0.47.0-beta
+    ports:
+      - "2575:2575"
+      - "8080:8080"
+    volumes:
+      - ${PWD}/application.properties:/opt/lfh/config/application.properties
+    depends_on:
+      - "kafka"
+      - "nats-server"

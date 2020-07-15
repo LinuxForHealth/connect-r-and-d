@@ -91,7 +91,7 @@ public final class App {
             String absolutePath = path.toAbsolutePath().toString();
             logger.info("loading properties from file:{}", absolutePath);
             camelMain.setDefaultPropertyPlaceholderLocation("file:" + absolutePath);
-            pc.setLocation(absolutePath);
+            pc.setLocation("file:" + absolutePath);
         } else {
             properties.load(ClassLoader.getSystemResourceAsStream(App.APPLICATION_PROPERTIES_FILE_NAME));
             logger.info("loading properties from classpath:{}", App.APPLICATION_PROPERTIES_FILE_NAME);
