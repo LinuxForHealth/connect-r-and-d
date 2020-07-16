@@ -6,7 +6,6 @@
 source ../compose/.env
 source .env
 
-
 function is_ready {
   # returns 0 if the service is "ready" or 1 if the service is not ready after "${LFH_RETRY_ATTEMPTS}" are exhausted
   # parameters:
@@ -40,55 +39,55 @@ function is_ready {
 
 # create network
 echo "create lfh network"
-docker network create "${LFH_NETWORK_NAME}"
+sudo podman network create "${LFH_NETWORK_NAME}"
 
 # launch containers
 echo "launch nats container"
-docker run -d \
-        --network "${LFH_NETWORK_NAME}" \
-        --name "${LFH_NATS_SERVICE_NAME}" \
-        -p "${LFH_NATS_CLIENT_HOST_PORT}":"${LFH_NATS_CLIENT_CONTAINER_PORT}" \
-        -p "${LFH_NATS_MANAGEMENT_HOST_PORT}":"${LFH_NATS_MANAGEMENT_CONTAINER_PORT}" \
-        -p "${LFH_NATS_CLUSTER_HOST_PORT}":"${LFH_NATS_CLUSTER_CONTAINER_PORT}" \
-        "${LFH_NATS_IMAGE}"
+sudo podman run -d \
+          --network "${LFH_NETWORK_NAME}" \
+          --name "${LFH_NATS_SERVICE_NAME}" \
+          -p "${LFH_NATS_CLIENT_HOST_PORT}":"${LFH_NATS_CLIENT_CONTAINER_PORT}" \
+          -p "${LFH_NATS_MANAGEMENT_HOST_PORT}":"${LFH_NATS_MANAGEMENT_CONTAINER_PORT}" \
+          -p "${LFH_NATS_CLUSTER_HOST_PORT}":"${LFH_NATS_CLUSTER_CONTAINER_PORT}" \
+          "${LFH_NATS_IMAGE}"
 
 is_ready localhost "${LFH_NATS_CLIENT_HOST_PORT}"
 is_ready localhost "${LFH_NATS_MANAGEMENT_HOST_PORT}"
 is_ready localhost "${LFH_NATS_CLUSTER_HOST_PORT}"
 
 echo "launch zookeeper container"
-docker run -d \
-        --network "${LFH_NETWORK_NAME}" \
-        --name "${LFH_ZOOKEEPER_SERVICE_NAME}" \
-        -p "${LFH_ZOOKEEPER_HOST_PORT}":"${LFH_ZOOKEEPER_CONTAINER_PORT}" \
-        "${LFH_ZOOKEEPER_IMAGE}"
+sudo podman run -d \
+          --network "${LFH_NETWORK_NAME}" \
+          --name "${LFH_ZOOKEEPER_SERVICE_NAME}" \
+          -p "${LFH_ZOOKEEPER_HOST_PORT}":"${LFH_ZOOKEEPER_CONTAINER_PORT}" \
+          "${LFH_ZOOKEEPER_IMAGE}"
 
 is_ready localhost "${LFH_ZOOKEEPER_HOST_PORT}"
 
 echo "launch kafka container"
-docker run -d \
-        --network "${LFH_NETWORK_NAME}" \
-        --name "${LFH_KAFKA_SERVICE_NAME}" \
-        -p "${LFH_KAFKA_INTERNAL_HOST_PORT}":"${LFH_KAFKA_INTERNAL_CONTAINER_PORT}" \
-        -p "${LFH_KAFKA_EXTERNAL_HOST_PORT}":"${LFH_KAFKA_EXTERNAL_CONTAINER_PORT}" \
-        --env KAFKA_ZOOKEEPER_CONNECT="${LFH_KAFKA_ZOOKEEPER_CONNECT}" \
-        --env KAFKA_LISTENERS="${LFH_KAFKA_LISTENERS}" \
-        --env KAFKA_ADVERTISED_LISTENERS="${LFH_KAFKA_ADVERTISED_LISTENERS}" \
-        --env KAFKA_LISTENER_SECURITY_PROTOCOL_MAP="${LFH_KAFKA_LISTENER_SECURITY_PROTOCOL_MAP}" \
-        --env KAFKA_INTER_BROKER_LISTENER_NAME="${LFH_KAFKA_INTER_BROKER_LISTENER_NAME}" \
-        "${LFH_KAFKA_IMAGE}"
+sudo podman run -d \
+          --network "${LFH_NETWORK_NAME}" \
+          --name "${LFH_KAFKA_SERVICE_NAME}" \
+          -p "${LFH_KAFKA_INTERNAL_HOST_PORT}":"${LFH_KAFKA_INTERNAL_CONTAINER_PORT}" \
+          -p "${LFH_KAFKA_EXTERNAL_HOST_PORT}":"${LFH_KAFKA_EXTERNAL_CONTAINER_PORT}" \
+          --env KAFKA_ZOOKEEPER_CONNECT="${LFH_KAFKA_ZOOKEEPER_CONNECT}" \
+          --env KAFKA_LISTENERS="${LFH_KAFKA_LISTENERS}" \
+          --env KAFKA_ADVERTISED_LISTENERS="${LFH_KAFKA_ADVERTISED_LISTENERS}" \
+          --env KAFKA_LISTENER_SECURITY_PROTOCOL_MAP="${LFH_KAFKA_LISTENER_SECURITY_PROTOCOL_MAP}" \
+          --env KAFKA_INTER_BROKER_LISTENER_NAME="${LFH_KAFKA_INTER_BROKER_LISTENER_NAME}" \
+          "${LFH_KAFKA_IMAGE}"
 
 is_ready localhost "${LFH_KAFKA_INTERNAL_HOST_PORT}"
 is_ready localhost "${LFH_KAFKA_EXTERNAL_HOST_PORT}"
 
 echo "launch kafdrop"
-docker run -d \
-        --network "${LFH_NETWORK_NAME}" \
-        --name "${LFH_KAFDROP_SERVICE_NAME}" \
-        -p "${LFH_KAFDROP_HOST_PORT}":"${LFH_KAFDROP_CONTAINER_PORT}" \
-        --env KAFKA_BROKERCONNECT="${LFH_KAFDROP_BROKER_CONNECT}" \
-        --env JVM_OPTS="${LFH_KAFDROP_JVM_OPTS}" \
-        "${LFH_KAFDROP_IMAGE}"
+sudo podman run -d \
+          --network "${LFH_NETWORK_NAME}" \
+          --name "${LFH_KAFDROP_SERVICE_NAME}" \
+          -p "${LFH_KAFDROP_HOST_PORT}":"${LFH_KAFDROP_CONTAINER_PORT}" \
+          --env KAFKA_BROKERCONNECT="${LFH_KAFDROP_BROKER_CONNECT}" \
+          --env JVM_OPTS="${LFH_KAFDROP_JVM_OPTS}" \
+          "${LFH_KAFDROP_IMAGE}"
 
 is_ready localhost "${LFH_KAFDROP_HOST_PORT}"
 
@@ -97,13 +96,13 @@ echo "launch lfh connect"
 HOST_VOLUME_DIR=$(dirname "${PWD}")/compose
 echo "mounting application.properties from ${HOST_VOLUME_DIR}"
 
-docker run -d \
-        --network "${LFH_NETWORK_NAME}" \
-        --name "${LFH_CONNECT_SERVICE_NAME}" \
-        -p "${LFH_CONNECT_MLLP_HOST_PORT}":"${LFH_CONNECT_MLLP_CONTAINER_PORT}" \
-        -p "${LFH_CONNECT_REST_HOST_PORT}":"${LFH_CONNECT_REST_CONTAINER_PORT}" \
-        -v "${HOST_VOLUME_DIR}"/application.properties:/opt/lfh/config/application.properties \
-        "${LFH_CONNECT_IMAGE}"
+sudo podman run -d \
+          --network "${LFH_NETWORK_NAME}" \
+          --name "${LFH_CONNECT_SERVICE_NAME}" \
+          -p "${LFH_CONNECT_MLLP_HOST_PORT}":"${LFH_CONNECT_MLLP_CONTAINER_PORT}" \
+          -p "${LFH_CONNECT_REST_HOST_PORT}":"${LFH_CONNECT_REST_CONTAINER_PORT}" \
+          -v "${HOST_VOLUME_DIR}"/application.properties:/opt/lfh/config/application.properties \
+          "${LFH_CONNECT_IMAGE}"
 
 is_ready localhost "${LFH_CONNECT_MLLP_HOST_PORT}"
 is_ready localhost "${LFH_CONNECT_REST_HOST_PORT}"
