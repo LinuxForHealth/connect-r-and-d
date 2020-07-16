@@ -1,37 +1,37 @@
 version: "3.7"
 services:
   zookeeper:
-    image: docker.io/linuxforhealth/zookeeper-standalone:3.6.1
+    image: ${LFH_ZOOKEEPER_IMAGE}
     ports:
-      - "2181:2181"
+      - ${LFH_ZOOKEEPER_HOST_PORT}:${LFH_ZOOKEEPER_CONTAINER_PORT}
   kafdrop:
-    image: docker.io/obsidiandynamics/kafdrop
+    image: ${LFH_KAFDROP_IMAGE}
     restart: "always"
     ports:
-      - "9000:9000"
+      - ${LFH_KAFDROP_HOST_PORT}:${LFH_KAFDROP_CONTAINER_PORT}
     environment:
-      KAFKA_BROKERCONNECT: "kafka:9094"
+      KAFKA_BROKERCONNECT: ${LFH_KAFDROP_BROKER_CONNECT}
       JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
     depends_on:
       - "kafka"
   kafka:
-    image: docker.io/linuxforhealth/kafka-standalone:2.5.0
+    image: ${LFH_KAFKA_IMAGE}
     restart: "always"
     ports:
-      - "9092:9092"
-      - "9094:9094"
+      - ${LFH_KAFKA_INTERNAL_HOST_PORT}:${LFH_KAFKA_INTERNAL_CONTAINER_PORT}
+      - ${LFH_KAFKA_EXTERNAL_HOST_PORT}:${LFH_KAFKA_EXTERNAL_CONTAINER_PORT}
     environment:
-      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
-      KAFKA_LISTENERS: "INTERNAL://kafka:9094,EXTERNAL://kafka:9092"
-      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka:9094,EXTERNAL://localhost:9092"
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
-      KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
+      KAFKA_ZOOKEEPER_CONNECT: ${LFH_KAFKA_ZOOKEEPER_CONNECT}
+      KAFKA_LISTENERS: ${LFH_KAFKA_LISTENERS}
+      KAFKA_ADVERTISED_LISTENERS: ${LFH_KAFKA_ADVERTISED_LISTENERS}
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: ${LFH_KAFKA_LISTENER_SECURITY_PROTOCOL_MAP}
+      KAFKA_INTER_BROKER_LISTENER_NAME: ${LFH_KAFKA_INTER_BROKER_LISTENER_NAME}
     depends_on:
       - "zookeeper"
   nats-server:
-    image: docker.io/linuxforhealth/nats-server:2.1.7
+    image: ${LFH_NATS_IMAGE}
     container_name: nats-server
     ports:
-      - 4222:4222
-      - 6222:6222
-      - 8222:8222
+      - ${LFH_NATS_CLIENT_HOST_PORT}:${LFH_NATS_CLIENT_CONTAINER_PORT}
+      - ${LFH_NATS_CLUSTER_HOST_PORT}:${LFH_NATS_CLUSTER_CONTAINER_PORT}
+      - ${LFH_NATS_MANAGEMENT_HOST_PORT}:${LFH_NATS_MANAGEMENT_CONTAINER_PORT}
