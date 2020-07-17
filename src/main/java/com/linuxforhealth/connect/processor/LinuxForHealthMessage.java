@@ -65,14 +65,13 @@ public class LinuxForHealthMessage extends JSONObject {
      */
     @Override
     public String toString() {
-        String result = "{\"meta\":{"+
-            getString(meta, "routeId")+","+
-            getString(meta, "uuid")+","+
-            getString(meta, "routeUrl")+","+
-            getString(meta, "dataFormat")+","+
-            getObject(meta, "timestamp")+","+
-            getString(meta, "dataStoreUri");
+        String result = "{\"meta\":{"+getString(meta, "routeId");
 
+        if (meta.has("uuid")) result += ","+getString(meta, "uuid");
+        if (meta.has("routeUrl")) result += ","+getString(meta, "routeUrl");
+        if (meta.has("dataFormat")) result += ","+getString(meta, "dataFormat");
+        if (meta.has("timestamp")) result += ","+getObject(meta, "timestamp");
+        if (meta.has("dataStoreUri")) result += ","+getString(meta, "dataStoreUri");
         if (meta.has("status")) result += ","+getString(meta, "status");
         if (meta.has("dataRecordLocation")) result += ","+getObject(meta, "dataRecordLocation");
         result += "}";
