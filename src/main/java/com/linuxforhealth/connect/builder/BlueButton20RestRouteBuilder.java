@@ -48,16 +48,26 @@ public class BlueButton20RestRouteBuilder extends LinuxForHealthRouteBuilder {
                 .get()
                 .route()
                 .routeId("bluebutton-20-rest-authorize")
-                .process(handleBlueButtonAuth)
-                .toD("${exchangeProperty[location]}");
+                .doTry()
+                    .process(handleBlueButtonAuth)
+                    .toD("${exchangeProperty[location]}")
+                .doCatch(Exception.class)
+                    .setProperty("errorMessage", simple(exceptionMessage().toString()))
+                    .to("direct:error")
+                .end();
 
         // Blue Button OAuth2 - Callback to exchange code for token (displayed in the browser)
         rest(blueButtonCallbackUri.getPath())
                 .get()
                 .route()
                 .routeId("bluebutton-20-rest-callback")
-                .process(handleBlueButtonCallback)
-                .to(cmsTokenURL);
+                .doTry()
+                    .process(handleBlueButtonCallback)
+                    .to(cmsTokenURL)
+                .doCatch(Exception.class)
+                    .setProperty("errorMessage", simple(exceptionMessage().toString()))
+                    .to("direct:error")
+                .end();
         
         // Blue Button 2.0 route - Retrieve patient resources
         rest(blueButtonBaseUri.getPath())
