@@ -8,12 +8,10 @@ package com.linuxforhealth.connect.processor;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.camel.Exchange;
-import org.apache.camel.LoggingLevel;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Extend JSONObject to override toString to print attributes in a specific order.
@@ -88,6 +86,10 @@ public class LinuxForHealthMessage extends JSONObject {
         return "\""+name+"\":\""+obj.getString(name)+"\"";
     }
 
+    private String getJsonString(JSONObject obj, String name) {
+    	 return "\""+name+"\":" + obj.getString(name);
+    }
+
     private String getObject(JSONObject obj, String name) {
         return "\""+name+"\":"+obj.get(name).toString();
     }
@@ -100,11 +102,22 @@ public class LinuxForHealthMessage extends JSONObject {
         if (dataObj instanceof byte[]) {
             result = "\""+name+"\":"+Arrays.toString((byte[]) dataObj);
         } else if (dataObj instanceof String) {
-            result = getString(obj, name);
+          // If data value is json, do not enclose the brackets in quotation marks (invalid json)
+          if (isJson(this.get("data").toString())) result = getJsonString(obj, name);
+          else result = getString(obj, name);
         } else {
             result = getObject(obj, name);
         }
 
         return result;
     }
+
+    // Determine whether/not a string is json
+    private boolean isJson(String str) {
+    	try {
+    	    new JSONObject(str);
+    	    return true;
+    	} catch (JSONException e) { return false; }
+    }
+    
 }
