@@ -57,7 +57,7 @@ public class FhirR4ToAcdProcessorTest extends CamelTestSupport {
     }
 
     /**
-     * Tests {@link BlueButton20ResultProcessor#process(Exchange)} to validate that the message body matches an expected result
+     * Tests {@link FhirR4ToAcdProcessor#process(Exchange)} to validate that the message body matches an expected result
      */
     @Test
     public void testProcess() throws Exception {

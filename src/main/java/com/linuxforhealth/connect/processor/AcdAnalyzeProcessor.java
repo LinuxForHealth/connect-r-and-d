@@ -15,10 +15,10 @@ public class AcdAnalyzeProcessor extends LinuxForHealthProcessor implements Proc
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		
-		EndpointUriBuilder uriBuilder = getEndpointUriBuilder(exchange);
+        EndpointUriBuilder uriBuilder = getEndpointUriBuilder(exchange);
         String kafkaDataStoreUri = uriBuilder.getDataStoreUri("ACD_INSIGHTS");
         String routeUrl = uriBuilder.getAcdRestUri();
-
+        
         exchange.setProperty("timestamp", Instant.now().getEpochSecond());
         exchange.setProperty("routeUrl", routeUrl);
         exchange.setProperty("dataStoreUri", kafkaDataStoreUri);
