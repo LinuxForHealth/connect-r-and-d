@@ -91,7 +91,7 @@ public final class App {
             String absolutePath = path.toAbsolutePath().toString();
             logger.info("loading properties from file:{}", absolutePath);
             camelMain.setDefaultPropertyPlaceholderLocation("file:" + absolutePath);
-            pc.setLocation(absolutePath);
+            pc.setLocation("file:" + absolutePath);
         } else {
             properties.load(ClassLoader.getSystemResourceAsStream(App.APPLICATION_PROPERTIES_FILE_NAME));
             logger.info("loading properties from classpath:{}", App.APPLICATION_PROPERTIES_FILE_NAME);
@@ -108,10 +108,19 @@ public final class App {
      * @throws IOException if an error occurs reading application.properties
      */
     private PropertiesComponent configurePropertyParser() throws IOException {
+        // LFH default master password (development only)
+        String password = "ultrasecret";
+        // New password, if set
+        String newPassword = System.getenv("JASYPT_ENCRYPTION_PASSWORD");
+
+        if (newPassword != null) {
+            logger.info("Using JASYPT_ENCRYPTION_PASSWORD as the master password");
+            password = newPassword;
+        }
+
         // Configure the Jasypt master password
-        // TODO: use env var, e.g. sysenv:CAMEL_ENCRYPTION_PASSWORD
         JasyptPropertiesParser jasypt = new JasyptPropertiesParser();
-        jasypt.setPassword("ultrasecret");
+        jasypt.setPassword(password);
 
         // Configure the PropertiesComponent to use Jasypt
         PropertiesComponent pc = new PropertiesComponent();
