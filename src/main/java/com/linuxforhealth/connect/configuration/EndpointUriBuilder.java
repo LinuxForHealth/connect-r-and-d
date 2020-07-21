@@ -35,6 +35,9 @@ public final class EndpointUriBuilder {
     private static final String DATA_STORE_OPTIONS_PROP_KEY = "linuxforhealth.connect.endpoint.datastore.options";
 
     private static final String MESSAGING_BASE_URI_PROP_KEY = "linuxforhealth.connect.endpoint.messaging.baseUri";
+    
+    private static final String ACD_REST_BASE_URI_PROP_KEY = "linuxforhealth.connect.endpoint.acd_rest.baseUri";
+    private static final String ACD_REST_FLOW_PROP_KEY = "linuxforhealth.connect.endpoint.acd_rest.flow";
 
     private final Properties appProperties;
 
@@ -210,4 +213,21 @@ public final class EndpointUriBuilder {
     public EndpointUriBuilder(Properties appProperties) {
         this.appProperties = appProperties;
     }
+    
+    /**
+     * Builds the ACD REST URI
+     * @return
+     */
+    public String getAcdRestUri() {
+    	return appProperties.getProperty(ACD_REST_BASE_URI_PROP_KEY);
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public String getAcdFlow() {
+    	return appProperties.getProperty(ACD_REST_FLOW_PROP_KEY);
+    }
+    
 }

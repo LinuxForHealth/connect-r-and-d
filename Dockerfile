@@ -27,16 +27,10 @@ LABEL description="Provides Route Based Processing for Inbound Data Flows"
 RUN mkdir -p /opt/lfh/libs
 COPY --from=builder /tmp/lfh /opt/lfh/
 
-ENV APP_ROOT=${APP_ROOT}
-ENV JAVA_HOME=${JAVA_HOME}
-ENV JAVA_OPTIONS=${JAVA_OPTIONS}
-
-# MLLP
-EXPOSE 2575
-# REST
-EXPOSE 8080
+# expose MLLP, REST
+EXPOSE 2575 8080
 
 WORKDIR ${APP_ROOT}
-USER 1001
+USER lfh
 
 CMD ["sh", "-c", "java -XX:+UseContainerSupport ${JAVA_OPTS} -jar linux-for-health-connect.jar"]
