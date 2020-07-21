@@ -1,13 +1,24 @@
-# Linux for Health OCI (Open Container Initiative_) Scripts
+# Linux for Health OCI (Open Container Initiative) Scripts
 
-The Linux for Health OCI scripts support LFH containers within [podman](http://docs.podman.io/en/latest/Introduction.html), an OCI compliant tool.
-The OCI scripts are compatible with the following minimum versions:
-
-- [podman](http://docs.podman.io/en/latest/Introduction.html) 1.6.4
-- bash 4.x
+The Linux for Health OCI scripts support LFH containers within OCI compliant tools such as [podman](http://docs.podman.io/en/latest/Introduction.html)
+and [docker](https://www.docker.com/)
 
 ## Script Overview
 
-## Starting Containersgit
+The OCI scripts source configuration data, typically image coordinates and ports from the [docker compose env](../compose/.env)
+and the [OCI env](.env). Consult these scripts to update configuration settings as needed. 
 
-## Stopping Containers
+Linux for Health provides OCI scripts for starting and removing the container environment. Please consult the appropriate
+implementation specific documentation for the commands used to administer and interact with the container environment.
+
+## Starting Containers
+
+```shell script
+./start.sh
+```
+
+## Removing Containers
+
+```shell script
+./remove.sh
+```
