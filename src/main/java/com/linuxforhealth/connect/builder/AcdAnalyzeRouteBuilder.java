@@ -44,7 +44,7 @@ public class AcdAnalyzeRouteBuilder extends LinuxForHealthRouteBuilder {
 	@Override
 	public void configure() throws Exception {
         
-        from("direct:" + ACD_ANALYZE_ROUTE_ID)
+        from("direct:acd-analyze")
 		.routeId(ACD_ANALYZE_ROUTE_ID)
         .log(LoggingLevel.DEBUG, logger, "Received message body: ${body}")
         .log(LoggingLevel.DEBUG, logger, "Received message content-type: ${header.content-type}")
