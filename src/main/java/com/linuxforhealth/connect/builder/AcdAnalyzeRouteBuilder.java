@@ -23,6 +23,8 @@ import com.linuxforhealth.connect.processor.AcdAnalyzeProcessor;
  * OUTPUT: ACD_INSIGHTS kafka topic message
  */
 public class AcdAnalyzeRouteBuilder extends LinuxForHealthRouteBuilder {
+
+	public final static String ACD_ANALYZE_ROUTE_ID = "acd-analyze";
 	
 	private final Logger logger = LoggerFactory.getLogger(AcdAnalyzeRouteBuilder.class);
 	
@@ -42,8 +44,8 @@ public class AcdAnalyzeRouteBuilder extends LinuxForHealthRouteBuilder {
 	@Override
 	public void configure() throws Exception {
         
-        from("direct:acd-analyze")
-        
+        from("direct:" + ACD_ANALYZE_ROUTE_ID)
+		.routeId(ACD_ANALYZE_ROUTE_ID)
         .log(LoggingLevel.DEBUG, logger, "Received message body: ${body}")
         .log(LoggingLevel.DEBUG, logger, "Received message content-type: ${header.content-type}")
         

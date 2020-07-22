@@ -19,6 +19,10 @@ import org.slf4j.LoggerFactory;
  * Defines the Linux for Health direct routes
  */
 public class DirectRouteBuilder extends LinuxForHealthRouteBuilder {
+    public final static String STORE_AND_NOTIFY_ROUTE_ID = "store-and-notify";
+    public final static String STORE_ROUTE_ID = "store";
+    public final static String NOTIFY_ROUTE_ID = "notify";
+    public final static String ERROR_ROUTE_ID = "error";
 
     private final Logger logger = LoggerFactory.getLogger(DirectRouteBuilder.class);
 
@@ -33,6 +37,7 @@ public class DirectRouteBuilder extends LinuxForHealthRouteBuilder {
 
         // Store results in the data store and send a notification message
         from("direct:storeandnotify")
+                .routeId(STORE_AND_NOTIFY_ROUTE_ID)
                 .doTry()
                     .setHeader(KafkaConstants.KEY, constant("Camel"))
                     .process(formatMessage)
@@ -45,6 +50,7 @@ public class DirectRouteBuilder extends LinuxForHealthRouteBuilder {
 
         // Store results in the data store
         from("direct:store")
+                .routeId(STORE_ROUTE_ID)
                 .doTry()
                     .process(formatMessage)
                     .toD("${exchangeProperty[dataStoreUri]}")
@@ -55,6 +61,7 @@ public class DirectRouteBuilder extends LinuxForHealthRouteBuilder {
 
         // Send a notification message based on the data storage results
         from("direct:notify")
+                .routeId(NOTIFY_ROUTE_ID)
                 .doTry()
                     .process(formatNotification)
                     .to(messagingUri)
@@ -65,6 +72,7 @@ public class DirectRouteBuilder extends LinuxForHealthRouteBuilder {
 
         // Send an error notification message
         from("direct:error")
+                .routeId(ERROR_ROUTE_ID)
                 .doTry()
                     .process(formatError)
                     .log(LoggingLevel.ERROR, logger, "${exchangeProperty[errorMessage]}")

@@ -19,30 +19,25 @@ import com.linuxforhealth.connect.processor.FhirR4ToAcdProcessor;
  * OUTPUT: unstructured text/plain text
  */
 public class FhirR4ToAcdRouteBuilder extends LinuxForHealthRouteBuilder {
+
+	public final static String FHIR_R4_TO_ACD_ROUTE_ID = "fhir-r4-to-acd";
 	
 	private final Logger logger = LoggerFactory.getLogger(FhirR4ToAcdProcessor.class);
 	
 	Processor fhirR4ToAcdProcessor = new FhirR4ToAcdProcessor();
 
 	@Override
-	public void configure() throws Exception {
+	public void configure() {
 		
 		from("direct:fhir-r4-to-acd")
-		
+		.routeId(FHIR_R4_TO_ACD_ROUTE_ID)
 		.log(LoggingLevel.DEBUG, logger, "Received message body: ${body}")
-		
 		.choice()
-		
 			.when(body().isNotNull())
 				.process(fhirR4ToAcdProcessor)
-			
 			.otherwise()
 				.log(LoggingLevel.WARN, logger, "Received message body was null - unable to process message")
-			
-		.end()
-		
-		;
-
+		.end();
 	}
 
 }

@@ -22,6 +22,10 @@ import org.slf4j.LoggerFactory;
  */
 public class BlueButton20RestRouteBuilder extends LinuxForHealthRouteBuilder {
 
+    public final static String AUTHORIZE_ROUTE_ID = "bluebutton-20-rest-authorize";
+    public final static String CALLBACK_ROUTE_ID = "bluebutton-20-rest-callback";
+    public final static String API_ROUTE_ID = "bluebutton-20-rest";
+
     private final Logger logger = LoggerFactory.getLogger(BlueButton20RestRouteBuilder.class);
 
     @Override
@@ -47,7 +51,7 @@ public class BlueButton20RestRouteBuilder extends LinuxForHealthRouteBuilder {
         rest(blueButtonAuthorizeUri.getPath())
                 .get()
                 .route()
-                .routeId("bluebutton-20-rest-authorize")
+                .routeId(AUTHORIZE_ROUTE_ID)
                 .doTry()
                     .process(handleBlueButtonAuth)
                     .toD("${exchangeProperty[location]}")
@@ -60,7 +64,7 @@ public class BlueButton20RestRouteBuilder extends LinuxForHealthRouteBuilder {
         rest(blueButtonCallbackUri.getPath())
                 .get()
                 .route()
-                .routeId("bluebutton-20-rest-callback")
+                .routeId(CALLBACK_ROUTE_ID)
                 .doTry()
                     .process(handleBlueButtonCallback)
                     .to(cmsTokenURL)
@@ -73,7 +77,7 @@ public class BlueButton20RestRouteBuilder extends LinuxForHealthRouteBuilder {
         rest(blueButtonBaseUri.getPath())
                 .get("/{resource}")
                 .route()
-                .routeId("bluebutton-20-rest")
+                .routeId(API_ROUTE_ID)
                 .process(setBlueButton20Metadata)
                 .doTry()
                     .process(setCMSRequestHeaders)

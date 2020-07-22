@@ -22,6 +22,8 @@ import java.net.URI;
  */
 public class FhirR4RestRouteBuilder extends LinuxForHealthRouteBuilder {
 
+    public final static String FHIR_R4_ROUTE_ID = "fhir-r4-rest";
+
     private final Logger logger = LoggerFactory.getLogger(FhirR4RestRouteBuilder.class);
 
     @Override
@@ -37,7 +39,7 @@ public class FhirR4RestRouteBuilder extends LinuxForHealthRouteBuilder {
         rest(fhirBaseUri.getPath())
                 .post("/{resource}")
                 .route()
-                .routeId("fhir-r4-rest")
+                .routeId(FHIR_R4_ROUTE_ID)
                 .unmarshal().fhirJson("R4")
                 .process(setFhirR4Metadata)
                 .to("direct:storeandnotify");
