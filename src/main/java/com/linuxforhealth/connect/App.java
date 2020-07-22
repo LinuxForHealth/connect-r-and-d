@@ -69,29 +69,39 @@ public final class App {
 
     /**
      * Loads application properties.
-     * Properties are loaded from an external file if available, otherwise properties are loaded from
-     * the classpath. If an external file is available, the camel context is updated to use it as the
-     * default properties file for the application.
+     *
+     * Properties are loaded from the classpath and may be overridden using an external file located in
+     * config/application.properties.
+     *
+     * Properties are registered with the camel context and returned from this method for bootstrap processing.
+     * This "double-evaluation" is required as the app has to configure some components prior to the camel context
+     * being available.
      *
      * @return {@link Properties} instance
      * @throws IOException if an error occurs reading application.properties
      */
     private Properties loadProperties() throws IOException {
         Properties properties = new Properties();
-        PropertiesComponent pc = configurePropertyParser();
+        PropertiesComponent camelPropertiesComponent = configurePropertyParser();
 
-        Path path = Paths.get(App.EXTERNAL_PROPERTY_FILE_PATH);
+        properties.load(ClassLoader.getSystemResourceAsStream(App.APPLICATION_PROPERTIES_FILE_NAME));
+        logger.info("loading properties from classpath:{}", App.APPLICATION_PROPERTIES_FILE_NAME);
+        camelPropertiesComponent.setLocation("classpath:"+App.APPLICATION_PROPERTIES_FILE_NAME);
 
-        if (Files.exists(path)) {
-            properties.load(Files.newInputStream(path));
-            String absolutePath = path.toAbsolutePath().toString();
-            logger.info("loading properties from file:{}", absolutePath);
-            camelMain.setDefaultPropertyPlaceholderLocation("file:" + absolutePath);
-            pc.setLocation("file:" + absolutePath);
-        } else {
-            properties.load(ClassLoader.getSystemResourceAsStream(App.APPLICATION_PROPERTIES_FILE_NAME));
-            logger.info("loading properties from classpath:{}", App.APPLICATION_PROPERTIES_FILE_NAME);
-            pc.setLocation("classpath:"+App.APPLICATION_PROPERTIES_FILE_NAME);
+        Path externalPropertyPath = Paths.get(App.EXTERNAL_PROPERTY_FILE_PATH);
+
+        if (Files.exists(externalPropertyPath)) {
+            String absolutePath = externalPropertyPath.toAbsolutePath().toString();
+            logger.info("loading override properties from file:{}", absolutePath);
+
+            Properties overrideProperties = new Properties();
+            overrideProperties.load(Files.newInputStream(externalPropertyPath));
+            camelPropertiesComponent.setOverrideProperties(overrideProperties);
+
+            // set override properties
+            overrideProperties.forEach((k, v) -> {
+                properties.setProperty(k.toString(), v.toString());
+            });
         }
 
         return properties;
