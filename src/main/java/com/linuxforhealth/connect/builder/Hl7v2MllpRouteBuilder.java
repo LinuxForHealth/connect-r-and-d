@@ -20,22 +20,19 @@ import org.slf4j.LoggerFactory;
  */
 public class Hl7v2MllpRouteBuilder extends LinuxForHealthRouteBuilder {
 
+    public final static String HL7_V2_MLLP_ROUTE_ID = "hl7-v2-mllp";
+
     private final Logger logger = LoggerFactory.getLogger(Hl7v2MllpRouteBuilder.class);
 
     @Override
     public void configure() {
         EndpointUriBuilder uriBuilder = getEndpointUriBuilder();
         String consumerUri = uriBuilder.getHl7V2MllpUri();
-        String producerUri = uriBuilder.getDataStoreUri("HL7v2_${headers[CamelHL7MessageType]}");
-        String messagingUri = uriBuilder.getMessagingUri();
 
         Processor setHl7Metadata = new Hl7v2MetadataProcessor();
-        Processor formatMessage = new FormatMessageProcessor();
-        Processor formatNotification = new FormatNotificationProcessor();
-        Processor formatError = new FormatErrorProcessor();
 
         from(consumerUri)
-                .routeId("hl7-v2-mllp")
+                .routeId(HL7_V2_MLLP_ROUTE_ID)
                 .unmarshal().hl7()
                 .process(setHl7Metadata)
                 .to("direct:storeandnotify");

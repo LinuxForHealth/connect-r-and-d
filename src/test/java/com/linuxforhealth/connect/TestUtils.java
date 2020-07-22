@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package com.linuxforhealth.connect.processor;
+package com.linuxforhealth.connect;
 
 import java.io.IOException;
 import java.nio.file.Files;

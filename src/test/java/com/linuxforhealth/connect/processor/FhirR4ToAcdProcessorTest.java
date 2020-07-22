@@ -1,8 +1,14 @@
+/*
+ * (C) Copyright IBM Corp. 2020
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.linuxforhealth.connect.processor;
 
 import java.io.IOException;
 import java.util.Properties;
 
+import com.linuxforhealth.connect.TestUtils;
 import org.apache.camel.Exchange;
 import org.apache.camel.ExtendedExchange;
 import org.apache.camel.support.DefaultExchange;
@@ -32,7 +38,7 @@ public class FhirR4ToAcdProcessorTest extends CamelTestSupport {
         mockedExchange.setProperty("dataFormat", "fhir-r4");
         mockedExchange.setProperty("uuid", "cd8c3a57-6fc8-4d33-be18-74f6d5b4cd79");
         
-        props = TestUtils.loadProperties("kafka-msg-fhir.properties");
+        props = TestUtils.loadProperties("acd.properties");
         String kafkaMsgStr = props.getProperty("kafka-msg-fhir-r4-document-reference");
         
         JSONObject jsonObj = new JSONObject(kafkaMsgStr);
