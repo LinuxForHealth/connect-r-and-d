@@ -8,10 +8,7 @@
 version: "3.7"
 services:
   kafdrop:
-    image: docker.io/obsidiandynamics/kafdrop
     restart: "always"
-    ports:
-      - "9000:9000"
     environment:
       KAFKA_BROKERCONNECT: "kafka:9092"
   kafka:
@@ -25,10 +22,10 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
   lfh:
     restart: "always"
-    image: docker.io/linuxforhealth/connect:0.48.0-beta
+    image: ${LFH_CONNECT_IMAGE}
     ports:
-      - "2575:2575"
-      - "8080:8080"
+      - ${LFH_CONNECT_MLLP_HOST_PORT}:${LFH_CONNECT_MLLP_CONTAINER_PORT}
+      - ${LFH_CONNECT_REST_HOST_PORT}:${LFH_CONNECT_REST_CONTAINER_PORT}
     volumes:
       - ${PWD}/application.properties:/opt/lfh/config/application.properties
     depends_on:
