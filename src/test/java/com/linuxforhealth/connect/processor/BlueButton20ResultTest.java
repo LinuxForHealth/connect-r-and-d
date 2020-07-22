@@ -8,6 +8,8 @@ package com.linuxforhealth.connect.processor;
 import ca.uhn.fhir.context.FhirContext;
 import java.io.IOException;
 import java.util.Properties;
+
+import com.linuxforhealth.connect.TestUtils;
 import org.apache.camel.Exchange;
 import org.apache.camel.ExtendedExchange;
 import org.apache.camel.support.DefaultExchange;
@@ -37,7 +39,7 @@ public class BlueButton20ResultTest extends CamelTestSupport {
         mockedExchange.setProperty("uuid", "cd8c3a57-6fc8-4d33-be18-74f6d5b4cd79");
 
         // Set the message body to an R3 Patient resource bundle json object
-        props = TestUtils.loadProperties("fhir.properties");
+        props = TestUtils.loadProperties("bluebutton.properties");
         String resourceStr = props.getProperty("fhir-r3-patient-bundle");
         Resource resource = FhirContext.forDstu3().newJsonParser().parseResource(Bundle.class, resourceStr);
         mockedExchange.getIn().setBody(resource);
