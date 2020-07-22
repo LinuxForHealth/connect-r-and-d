@@ -33,9 +33,7 @@ public class Hl7v2MetadataProcessor extends LinuxForHealthProcessor implements P
         exchange.setProperty("resourceType", resourceType);
 
         // Base64-encode the HL7v2 message to allow JSON parsing
-        Message msg = exchange.getIn().getBody(Message.class);
-        String msgStr = msg.encode();
-        String result = Base64.encodeBase64String(msgStr.getBytes());
+        String result = Base64.encodeBase64String(exchange.getIn().getBody(byte[].class));
         exchange.getIn().setBody(result);
     }
 }
