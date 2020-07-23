@@ -28,8 +28,6 @@ public class DirectRouteBuilder extends RouteBuilder {
 
     @Override
     public void configure() {
-        Processor formatMessage = new FormatMessageProcessor();
-        Processor formatNotification = new FormatNotificationProcessor();
         Processor formatError = new FormatErrorProcessor();
 
         // Store results in the data store and send a notification message
@@ -37,7 +35,7 @@ public class DirectRouteBuilder extends RouteBuilder {
                 .routeId(STORE_AND_NOTIFY_ROUTE_ID)
                 .doTry()
                     .setHeader(KafkaConstants.KEY, constant("Camel"))
-                    .process(formatMessage)
+                    .process(new FormatMessageProcessor())
                     .toD("${exchangeProperty[dataStoreUri]}")
                     .to("direct:notify")
                 .doCatch(Exception.class)
@@ -49,7 +47,7 @@ public class DirectRouteBuilder extends RouteBuilder {
         from("direct:store")
                 .routeId(STORE_ROUTE_ID)
                 .doTry()
-                    .process(formatMessage)
+                    .process(new FormatMessageProcessor())
                     .toD("${exchangeProperty[dataStoreUri]}")
                 .doCatch(Exception.class)
                     .setProperty("errorMessage", simple(exceptionMessage().toString()))
@@ -60,7 +58,7 @@ public class DirectRouteBuilder extends RouteBuilder {
         from("direct:notify")
                 .routeId(NOTIFY_ROUTE_ID)
                 .doTry()
-                    .process(formatNotification)
+                    .process(new FormatNotificationProcessor())
                     .to("{{lfh.connect.messaging.uri}}")
                 .doCatch(Exception.class)
                     .setProperty("errorMessage", simple(exceptionMessage().toString()))
@@ -71,7 +69,7 @@ public class DirectRouteBuilder extends RouteBuilder {
         from("direct:error")
                 .routeId(ERROR_ROUTE_ID)
                 .doTry()
-                    .process(formatError)
+                    .process(new FormatErrorProcessor())
                     .log(LoggingLevel.ERROR, logger, "${exchangeProperty[errorMessage]}")
                     .to("{{lfh.connect.messaging.uri}}")
                 .doCatch(Exception.class)

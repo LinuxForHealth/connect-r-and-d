@@ -48,12 +48,6 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
                 .resolveProperty("lfh.connect.bluebutton_20_rest.tokenUri")
                 .orElse("lfh.connect.bluebutton_20.cmsTokenUri");
 
-        Processor handleBlueButtonAuth =  new BlueButton20AuthProcessor();
-        Processor handleBlueButtonCallback =  new BlueButton20CallbackProcessor();
-        Processor setCMSRequestHeaders =  new BlueButton20RequestProcessor();
-        Processor setBlueButton20Metadata = new BlueButton20MetadataProcessor();
-        Processor convertR3ToR4 = new BlueButton20ResultProcessor();
-
         restConfiguration()
                 .host(blueButtonBaseUri.getHost())
                 .port(blueButtonBaseUri.getPort());
@@ -64,7 +58,7 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
                 .route()
                 .routeId(AUTHORIZE_ROUTE_ID)
                 .doTry()
-                    .process(handleBlueButtonAuth)
+                    .process( new BlueButton20AuthProcessor())
                     .toD("${exchangeProperty[location]}")
                 .doCatch(Exception.class)
                     .setProperty("errorMessage", simple(exceptionMessage().toString()))
@@ -77,7 +71,7 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
                 .route()
                 .routeId(CALLBACK_ROUTE_ID)
                 .doTry()
-                    .process(handleBlueButtonCallback)
+                    .process(new BlueButton20CallbackProcessor())
                     .to(cmsTokenURL)
                 .doCatch(Exception.class)
                     .setProperty("errorMessage", simple(exceptionMessage().toString()))
@@ -89,12 +83,12 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
                 .get("/{resource}")
                 .route()
                 .routeId(API_ROUTE_ID)
-                .process(setBlueButton20Metadata)
+                .process(new BlueButton20MetadataProcessor())
                 .doTry()
-                    .process(setCMSRequestHeaders)
+                    .process(new BlueButton20RequestProcessor())
                     .toD("${exchangeProperty[location]}")
                     .unmarshal().fhirJson("DSTU3")
-                    .process(convertR3ToR4)
+                    .process(new BlueButton20ResultProcessor())
                     .to("direct:storeandnotify")
                 .doCatch(Exception.class)
                     .setProperty("errorMessage", simple(exceptionMessage().toString()))

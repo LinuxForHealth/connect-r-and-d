@@ -6,7 +6,6 @@
 package com.linuxforhealth.connect.builder;
 
 import org.apache.camel.LoggingLevel;
-import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +24,6 @@ public class FhirR4ToAcdRouteBuilder extends RouteBuilder {
 	
 	private final Logger logger = LoggerFactory.getLogger(FhirR4ToAcdProcessor.class);
 	
-	Processor fhirR4ToAcdProcessor = new FhirR4ToAcdProcessor();
-
 	@Override
 	public void configure() {
 		
@@ -35,7 +32,7 @@ public class FhirR4ToAcdRouteBuilder extends RouteBuilder {
 		.log(LoggingLevel.DEBUG, logger, "Received message body: ${body}")
 		.choice()
 			.when(body().isNotNull())
-				.process(fhirR4ToAcdProcessor)
+				.process(new FhirR4ToAcdProcessor())
 			.otherwise()
 				.log(LoggingLevel.WARN, logger, "Received message body was null - unable to process message")
 		.end();

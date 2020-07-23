@@ -29,8 +29,6 @@ public class AcdAnalyzeRouteBuilder extends RouteBuilder {
 
 	private final Logger logger = LoggerFactory.getLogger(AcdAnalyzeRouteBuilder.class);
 
-	private final Processor acdAnalyzeProcessor = new AcdAnalyzeProcessor();
-
 	// Choice predicates for ACD request pre-conditions
 	private final Predicate baseUriNotSet = simple("${properties:lfh.connect.acd_rest.baseUri} == ''");
 	private final Predicate versionNotSet = simple("${properties:lfh.connect.acd_rest.version} == ''");
@@ -95,7 +93,7 @@ public class AcdAnalyzeRouteBuilder extends RouteBuilder {
 		            .log(LoggingLevel.DEBUG, logger, "ACD response code: ${header.CamelHttpResponseCode}")
 		            .unmarshal().json()
 		            .log(LoggingLevel.DEBUG, logger, "ACD response messge body: ${body}")
-		            .process(acdAnalyzeProcessor)
+		            .process(new AcdAnalyzeProcessor())
 		            .to("direct:storeandnotify")
 
 		        .doCatch(HttpOperationFailedException.class) // ACD error response handling
