@@ -33,7 +33,7 @@ public final class App {
 
     private final static String APPLICATION_PROPERTIES_FILE_NAME = "application.properties";
     private final static String EXTERNAL_PROPERTY_FILE_PATH = "config/application.properties";
-    private final static String COMPONENT_PROPERTY_NAMESPACE = "linuxforhealth.connect.component";
+    private final static String BEAN_PROPERTY_NAMESPACE = "lfh.connect.bean";
     private final static String ROUTE_BUILDER_PACKAGE = "com.linuxforhealth.connect.builder";
 
     private final Logger logger = LoggerFactory.getLogger(App.class);
@@ -41,26 +41,26 @@ public final class App {
     private final Main camelMain = new Main();
 
     /**
-     * Binds Camel components, or beans, to Camel's registry
+     * Binds Camel processing beans, to the Camel registry
      * @param appProperties The application properties
      * @throws ReflectiveOperationException if an error occurs creating new component instances
      */
     private void bindBeans(Properties appProperties) throws ReflectiveOperationException {
 
-        Set<String> componentPropertyKeys = appProperties
+        Set<String> beanPropertyKeys = appProperties
                 .stringPropertyNames()
                 .stream()
-                .filter(prop -> prop.startsWith(App.COMPONENT_PROPERTY_NAMESPACE))
+                .filter(prop -> prop.startsWith(App.BEAN_PROPERTY_NAMESPACE))
                 .collect(Collectors.toSet());
 
-        for (String componentKey : componentPropertyKeys) {
-            String componentName = componentKey.replace(App.COMPONENT_PROPERTY_NAMESPACE.concat("."), "");
-            String componentClass = appProperties.getProperty(componentKey);
+        for (String beanPropertyKey : beanPropertyKeys) {
+            String beanName = beanPropertyKey.replace(App.BEAN_PROPERTY_NAMESPACE.concat("."), "");
+            String beanClass = appProperties.getProperty(beanPropertyKey);
 
-            logger.debug("adding component name = {} value = {} to registry", componentName, componentClass);
+            logger.debug("adding bean name = {}, class = {} to registry", beanName, beanClass);
 
-            Constructor<?> componentConstructor = Class.forName(componentClass).getConstructor();
-            camelMain.bind(componentName, componentConstructor.newInstance());
+            Constructor<?> componentConstructor = Class.forName(beanClass).getConstructor();
+            camelMain.bind(beanName, componentConstructor.newInstance());
         }
 
         logger.debug("adding endpoint uri builder to registry");
@@ -86,7 +86,7 @@ public final class App {
 
         properties.load(ClassLoader.getSystemResourceAsStream(App.APPLICATION_PROPERTIES_FILE_NAME));
         logger.info("loading properties from classpath:{}", App.APPLICATION_PROPERTIES_FILE_NAME);
-        camelPropertiesComponent.setLocation("classpath:"+App.APPLICATION_PROPERTIES_FILE_NAME);
+        camelPropertiesComponent.setLocation("classpath:" + App.APPLICATION_PROPERTIES_FILE_NAME);
 
         Path externalPropertyPath = Paths.get(App.EXTERNAL_PROPERTY_FILE_PATH);
 
