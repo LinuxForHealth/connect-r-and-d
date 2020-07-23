@@ -5,7 +5,6 @@
  */
 package com.linuxforhealth.connect;
 
-import com.linuxforhealth.connect.configuration.EndpointUriBuilder;
 import org.apache.camel.component.jasypt.JasyptPropertiesParser;
 import org.apache.camel.component.properties.PropertiesComponent;
 import org.apache.camel.main.Main;
@@ -62,9 +61,6 @@ public final class App {
             Constructor<?> componentConstructor = Class.forName(beanClass).getConstructor();
             camelMain.bind(beanName, componentConstructor.newInstance());
         }
-
-        logger.debug("adding endpoint uri builder to registry");
-        camelMain.bind(EndpointUriBuilder.BEAN_NAME, new EndpointUriBuilder(appProperties));
     }
 
     /**

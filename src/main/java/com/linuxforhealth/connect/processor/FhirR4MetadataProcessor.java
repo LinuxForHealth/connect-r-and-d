@@ -7,24 +7,30 @@ package com.linuxforhealth.connect.processor;
 
 
 import ca.uhn.fhir.context.FhirContext;
-import com.linuxforhealth.connect.configuration.EndpointUriBuilder;
 import java.time.Instant;
 import java.util.UUID;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.camel.builder.SimpleBuilder;
 import org.hl7.fhir.r4.model.Resource;
 
 /**
  * Set the headers used by downstream processors and components
  */
-public class FhirR4MetadataProcessor extends LinuxForHealthProcessor implements Processor {
+public class FhirR4MetadataProcessor implements Processor {
 
     @Override
     public void process(Exchange exchange)  {
-        EndpointUriBuilder uriBuilder = getEndpointUriBuilder(exchange);
-        String fhirBaseUri = uriBuilder.getFhirR4RestUri();
+        String fhirBaseUri = SimpleBuilder
+                .simple("{{lfh.connect.fhir_r4_rest.uri}}")
+                .evaluate(exchange, String.class);
+
         String resourceType = exchange.getIn().getHeader("resource", String.class);
-        String kafkaDataStoreUri = uriBuilder.getDataStoreUri("FHIR_R4_"+resourceType.toUpperCase());
+        String kafkaDataStoreUri = SimpleBuilder
+                .simple("{{lfh.connect.datastore.uri}}")
+                .evaluate(exchange, String.class)
+                .replaceAll("<topicName>", "FHIR_R4_" + resourceType);
+
         String routeUrl = fhirBaseUri+"/"+resourceType;
 
         exchange.setProperty("timestamp", Instant.now().getEpochSecond());

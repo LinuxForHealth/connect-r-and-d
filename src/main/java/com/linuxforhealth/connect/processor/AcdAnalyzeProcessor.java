@@ -10,19 +10,21 @@ import java.util.UUID;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.camel.builder.SimpleBuilder;
 
-import com.linuxforhealth.connect.configuration.EndpointUriBuilder;
-
-public class AcdAnalyzeProcessor extends LinuxForHealthProcessor implements Processor {
-
-	public AcdAnalyzeProcessor() { }
+public class AcdAnalyzeProcessor implements Processor {
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
-		
-        EndpointUriBuilder uriBuilder = getEndpointUriBuilder(exchange);
-        String kafkaDataStoreUri = uriBuilder.getDataStoreUri("ACD_INSIGHTS");
-        String routeUrl = uriBuilder.getAcdRestUri();
+
+        String kafkaDataStoreUri = SimpleBuilder
+                .simple("{{lfh.connect.datastore.uri}}")
+                .evaluate(exchange, String.class)
+                .replaceAll("<topicName>", "ACD_INSIGHTS");
+
+        String routeUrl = SimpleBuilder
+                .simple("{{lfh.connect.acd_rest.baseUri}}")
+                .evaluate(exchange, String.class);
         
         exchange.setProperty("timestamp", Instant.now().getEpochSecond());
         exchange.setProperty("routeUrl", routeUrl);

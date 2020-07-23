@@ -5,37 +5,48 @@
  */
 package com.linuxforhealth.connect.builder;
 
-import com.linuxforhealth.connect.configuration.EndpointUriBuilder;
 import com.linuxforhealth.connect.processor.BlueButton20AuthProcessor;
 import com.linuxforhealth.connect.processor.BlueButton20CallbackProcessor;
 import com.linuxforhealth.connect.processor.BlueButton20MetadataProcessor;
 import com.linuxforhealth.connect.processor.BlueButton20RequestProcessor;
 import com.linuxforhealth.connect.processor.BlueButton20ResultProcessor;
 import java.net.URI;
-import org.apache.camel.LoggingLevel;
 import org.apache.camel.Processor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.spi.PropertiesComponent;
 
 /**
  * Defines a FHIR R4 REST Processing route
  */
-public class BlueButton20RestRouteBuilder extends LinuxForHealthRouteBuilder {
+public class BlueButton20RestRouteBuilder extends RouteBuilder {
 
     public final static String AUTHORIZE_ROUTE_ID = "bluebutton-20-rest-authorize";
     public final static String CALLBACK_ROUTE_ID = "bluebutton-20-rest-callback";
     public final static String API_ROUTE_ID = "bluebutton-20-rest";
 
-    private final Logger logger = LoggerFactory.getLogger(BlueButton20RestRouteBuilder.class);
-
     @Override
     public void configure() {
-        EndpointUriBuilder uriBuilder = getEndpointUriBuilder();
-        URI blueButtonBaseUri = URI.create(uriBuilder.getBlueButton20RestUri());
-        URI blueButtonAuthorizeUri = URI.create(uriBuilder.getBlueButton20RestAuthorizeUri());
-        URI blueButtonCallbackUri = URI.create(uriBuilder.getBlueButton20RestCallbackUri());
-        String cmsTokenURL = uriBuilder.getBlueButton20CmsTokenUri();
-        String messagingUri = uriBuilder.getMessagingUri();
+
+        PropertiesComponent contextProperties = getContext().getPropertiesComponent();
+
+        URI blueButtonBaseUri = URI.create(
+                contextProperties
+                .resolveProperty("lfh.connect.fhir_r4_rest.uri")
+                .orElse("http://0.0.0.0:8080/fhir/r4"));
+
+        URI blueButtonAuthorizeUri = URI.create(
+                contextProperties
+                .resolveProperty("lfh.connect.bluebutton_20_rest.authorizeUri")
+                .orElse("http://0.0.0.0:8080/bluebutton/authorize"));
+
+        URI blueButtonCallbackUri = URI.create(
+                contextProperties
+                .resolveProperty("lfh.connect.bluebutton_20_rest.callbackUri")
+                .orElse("http://localhost:8080/bluebutton/handler"));
+
+        String cmsTokenURL = contextProperties
+                .resolveProperty("lfh.connect.bluebutton_20_rest.tokenUri")
+                .orElse("lfh.connect.bluebutton_20.cmsTokenUri");
 
         Processor handleBlueButtonAuth =  new BlueButton20AuthProcessor();
         Processor handleBlueButtonCallback =  new BlueButton20CallbackProcessor();

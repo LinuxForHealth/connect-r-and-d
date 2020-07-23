@@ -7,6 +7,7 @@ package com.linuxforhealth.connect.builder;
 
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.Processor;
+import org.apache.camel.builder.RouteBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +19,7 @@ import com.linuxforhealth.connect.processor.FhirR4ToAcdProcessor;
  * INPUT: FHIR R4 Resources: DocumentReference, more to come ...
  * OUTPUT: unstructured text/plain text
  */
-public class FhirR4ToAcdRouteBuilder extends LinuxForHealthRouteBuilder {
+public class FhirR4ToAcdRouteBuilder extends RouteBuilder {
 
 	public final static String FHIR_R4_TO_ACD_ROUTE_ID = "fhir-r4-to-acd";
 	

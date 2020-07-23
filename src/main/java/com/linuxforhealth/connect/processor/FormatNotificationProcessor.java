@@ -13,7 +13,7 @@ import org.apache.camel.component.kafka.KafkaConstants;
 /**
  * Format the message for data storage notification 
  */
-public class FormatNotificationProcessor extends LinuxForHealthProcessor implements Processor {
+public class FormatNotificationProcessor implements Processor {
 
     @Override
     public void process(Exchange exchange)  {

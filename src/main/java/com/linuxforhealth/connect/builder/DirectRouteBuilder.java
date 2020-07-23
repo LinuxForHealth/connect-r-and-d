@@ -5,10 +5,10 @@
  */
 package com.linuxforhealth.connect.builder;
 
-import com.linuxforhealth.connect.configuration.EndpointUriBuilder;
 import com.linuxforhealth.connect.processor.FormatMessageProcessor;
 import com.linuxforhealth.connect.processor.FormatNotificationProcessor;
 import com.linuxforhealth.connect.processor.FormatErrorProcessor;
+import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.kafka.KafkaConstants;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.Processor;
@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Defines the Linux for Health direct routes
  */
-public class DirectRouteBuilder extends LinuxForHealthRouteBuilder {
+public class DirectRouteBuilder extends RouteBuilder {
     public final static String STORE_AND_NOTIFY_ROUTE_ID = "store-and-notify";
     public final static String STORE_ROUTE_ID = "store";
     public final static String NOTIFY_ROUTE_ID = "notify";
@@ -28,9 +28,6 @@ public class DirectRouteBuilder extends LinuxForHealthRouteBuilder {
 
     @Override
     public void configure() {
-        EndpointUriBuilder uriBuilder = getEndpointUriBuilder();
-        String messagingUri = uriBuilder.getMessagingUri();
-
         Processor formatMessage = new FormatMessageProcessor();
         Processor formatNotification = new FormatNotificationProcessor();
         Processor formatError = new FormatErrorProcessor();
@@ -64,7 +61,7 @@ public class DirectRouteBuilder extends LinuxForHealthRouteBuilder {
                 .routeId(NOTIFY_ROUTE_ID)
                 .doTry()
                     .process(formatNotification)
-                    .to(messagingUri)
+                    .to("{{lfh.connect.messaging.uri}}")
                 .doCatch(Exception.class)
                     .setProperty("errorMessage", simple(exceptionMessage().toString()))
                     .to("direct:error")
@@ -76,7 +73,7 @@ public class DirectRouteBuilder extends LinuxForHealthRouteBuilder {
                 .doTry()
                     .process(formatError)
                     .log(LoggingLevel.ERROR, logger, "${exchangeProperty[errorMessage]}")
-                    .to(messagingUri)
+                    .to("{{lfh.connect.messaging.uri}}")
                 .doCatch(Exception.class)
                     .log(LoggingLevel.ERROR, logger, exceptionMessage().toString())
                 .end();

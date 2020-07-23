@@ -5,10 +5,8 @@
  */
 package com.linuxforhealth.connect.processor;
 
-import com.linuxforhealth.connect.configuration.EndpointUriBuilder;
 import org.apache.camel.builder.SimpleBuilder;
 import org.apache.camel.Exchange;
-import org.apache.camel.LoggingLevel;
 import org.apache.camel.Processor;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
@@ -17,22 +15,29 @@ import org.slf4j.LoggerFactory;
 /**
  * Set up request for Blue Button 2.0 authorization code
  */
-public class BlueButton20AuthProcessor extends LinuxForHealthProcessor implements Processor {
+public class BlueButton20AuthProcessor implements Processor {
 
     private final Logger logger = LoggerFactory.getLogger(BlueButton20AuthProcessor.class);
 
     @Override
     public void process(Exchange exchange) throws Exception {
-        EndpointUriBuilder uriBuilder = getEndpointUriBuilder(exchange);
-        String callbackURL = uriBuilder.getBlueButton20RestCallbackUri();
-        String cmsAuthorizeURL = uriBuilder.getBlueButton20CmsAuthorizeUri();
-        String clientId = SimpleBuilder.simple("${properties:linuxforhealth.connect.endpoint.bluebutton_20_rest.clientId}")
-            .evaluate(exchange, String.class);
+        String callbackURL = SimpleBuilder
+                .simple("{{lfh.connect.bluebutton_20_rest.callbackUri}}")
+                .evaluate(exchange, String.class);
+
+        String cmsAuthorizeURL = SimpleBuilder
+                .simple("{{lfh.connect.bluebutton_20.cmsAuthorizeUri}}")
+                .evaluate(exchange, String.class);
+
+        String clientId = SimpleBuilder
+                .simple("{{lfh.connect.bluebutton_20_rest.clientId}}")
+                .evaluate(exchange, String.class);
 
         // Set up call to redirect to Blue Button API so the user can authenticate this application
-        String authorizeURL = cmsAuthorizeURL+
-            "?client_id="+clientId+
-            "&redirect_uri="+callbackURL+
+
+        String authorizeURL = cmsAuthorizeURL +
+            "?client_id=" + clientId+
+            "&redirect_uri=" + callbackURL +
             "&response_type=code";
         logger.info("Authorize URL: "+authorizeURL);
 

@@ -11,7 +11,7 @@ import org.apache.camel.Processor;
 /**
  * Format the message for data storage
  */
-public class FormatMessageProcessor extends LinuxForHealthProcessor implements Processor {
+public class FormatMessageProcessor implements Processor {
 
     @Override
     public void process(Exchange exchange)  {

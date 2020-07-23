@@ -5,32 +5,25 @@
  */
 package com.linuxforhealth.connect.builder;
 
-import com.linuxforhealth.connect.configuration.EndpointUriBuilder;
 import com.linuxforhealth.connect.processor.FhirR4MetadataProcessor;
-import com.linuxforhealth.connect.processor.FormatMessageProcessor;
-import com.linuxforhealth.connect.processor.FormatNotificationProcessor;
-import com.linuxforhealth.connect.processor.FormatErrorProcessor;
-import org.apache.camel.LoggingLevel;
-import org.apache.camel.Processor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.camel.builder.RouteBuilder;
 
 import java.net.URI;
 
 /**
  * Defines a FHIR R4 REST Processing route
  */
-public class FhirR4RestRouteBuilder extends LinuxForHealthRouteBuilder {
+public class FhirR4RestRouteBuilder extends RouteBuilder {
 
     public final static String FHIR_R4_ROUTE_ID = "fhir-r4-rest";
 
-    private final Logger logger = LoggerFactory.getLogger(FhirR4RestRouteBuilder.class);
-
     @Override
     public void configure() {
-        EndpointUriBuilder uriBuilder = getEndpointUriBuilder();
-        URI fhirBaseUri = URI.create(uriBuilder.getFhirR4RestUri());
-        Processor setFhirR4Metadata = new FhirR4MetadataProcessor();
+        URI fhirBaseUri = URI.create(
+                getContext()
+                .getPropertiesComponent()
+                .resolveProperty("lfh.connect.fhir_r4_rest.uri")
+                .orElse("http://0.0.0.0:8080/fhir/r4"));
 
         restConfiguration()
                 .host(fhirBaseUri.getHost())
@@ -41,7 +34,7 @@ public class FhirR4RestRouteBuilder extends LinuxForHealthRouteBuilder {
                 .route()
                 .routeId(FHIR_R4_ROUTE_ID)
                 .unmarshal().fhirJson("R4")
-                .process(setFhirR4Metadata)
+                .process(new FhirR4MetadataProcessor())
                 .to("direct:storeandnotify");
     }
 }

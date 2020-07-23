@@ -5,29 +5,25 @@
  */
 package com.linuxforhealth.connect.processor;
 
-import com.linuxforhealth.connect.configuration.EndpointUriBuilder;
 import org.apache.camel.builder.SimpleBuilder;
 import org.apache.camel.Exchange;
-import org.apache.camel.LoggingLevel;
 import org.apache.camel.Processor;
 import org.apache.commons.codec.binary.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Set up Blue Button 2.0 request for an authorization code
  */
-public class BlueButton20CallbackProcessor extends LinuxForHealthProcessor implements Processor {
-
-    private final Logger logger = LoggerFactory.getLogger(BlueButton20CallbackProcessor.class);
+public class BlueButton20CallbackProcessor implements Processor {
 
     @Override
-    public void process(Exchange exchange) throws Exception {
-        EndpointUriBuilder uriBuilder = getEndpointUriBuilder(exchange);
-        String clientId = SimpleBuilder.simple("${properties:linuxforhealth.connect.endpoint.bluebutton_20_rest.clientId}") 
-            .evaluate(exchange, String.class);
-        String clientSecret = SimpleBuilder.simple("${properties:linuxforhealth.connect.endpoint.bluebutton_20_rest.clientSecret}") 
-            .evaluate(exchange, String.class);
+    public void process(Exchange exchange)  {
+        String clientId = SimpleBuilder
+                .simple("${properties:lfh.connect.bluebutton_20_rest.clientId}")
+                .evaluate(exchange, String.class);
+
+        String clientSecret = SimpleBuilder
+                .simple("${properties:lfh.connect.bluebutton_20_rest.clientSecre}")
+                .evaluate(exchange, String.class);
 
         // Setting up call to Blue Button 2.0 to exchange the code for a token
         String code  = exchange.getIn().getHeader("code", String.class);
