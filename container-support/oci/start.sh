@@ -2,6 +2,10 @@
 # start.sh
 # starts Linux for Health OCI containers
 
+set -o errexit
+set -o nounset
+set -o pipefail
+
 # load environment variables from compose stack and the oci tools
 source ../compose/.env
 source .env
