@@ -30,17 +30,15 @@ public class AcdAnalyzeRouteBuilder extends LinuxForHealthRouteBuilder {
 	
 	private final Processor acdAnalyzeProcessor = new AcdAnalyzeProcessor();
 	
-	// Choice predicates for ACD request pre-conditions
-	private final Predicate baseUriNotSet = simple("${properties:linuxforhealth.connect.endpoint.acd_rest.baseUri} == ''");
-	private final Predicate versionParamNotSet = simple("${properties:linuxforhealth.connect.endpoint.acd_rest.version} == ''");
-	private final Predicate flowNotSet = simple("${properties:linuxforhealth.connect.endpoint.acd_rest.flow} == ''");
-	private final Predicate keyNotSet = simple("${properties:linuxforhealth.connect.endpoint.acd_rest.key} == ''");
-	private final Predicate contentTypeNotSet = header("content-type").isNull();
+	// Validate required content-type header
 	private final Predicate invalidContentType = PredicateBuilder.not(
 													PredicateBuilder.or(
 															header("content-type").contains("text/plain"),
 															header("content-type").contains("application/json")));
 
+	// Create predicates to check empty property settings
+	Predicate isPropertyNotSet(String propertyName) { return simple("${" + propertyName + "} == ''"); }
+	
 	@Override
 	public void configure() throws Exception {
         
@@ -51,32 +49,25 @@ public class AcdAnalyzeRouteBuilder extends LinuxForHealthRouteBuilder {
         
         .choice()
         
-        	/*
-        	 * QUESTION: should there be an on/off property for whether to enable ACD?
-        	 * 	If this property was set to false or not set at all, we could just check that first
-        	 * 	and stop message processing with only a debug statement instead of these
-        	 * 	warning messages (users will only see one per message route).
-        	 */
-        
         	// ACD request pre-conditions
         
-        	.when(baseUriNotSet)
+        	.when(isPropertyNotSet("properties:linuxforhealth.connect.endpoint.acd_rest.baseUri"))
         		.log(LoggingLevel.WARN, logger, "ACD service endpoint not configured - message will not be processed")
         		.stop()
         		
-        	.when(flowNotSet)
+        	.when(isPropertyNotSet("properties:linuxforhealth.connect.endpoint.acd_rest.version"))
         		.log(LoggingLevel.WARN, logger, "ACD service annotator flow not configured - message will not be processed")
         		.stop()
         		
-        	.when(versionParamNotSet)
+        	.when(isPropertyNotSet("properties:linuxforhealth.connect.endpoint.acd_rest.flow"))
         		.log(LoggingLevel.WARN, logger, "ACD service version param not configured - message will not be processed")
         		.stop()
         		
-        	.when(keyNotSet)
+        	.when(isPropertyNotSet("properties:linuxforhealth.connect.endpoint.acd_rest.key"))
         		.log(LoggingLevel.WARN, logger, "ACD service apikey not configured - message will not be processed")
         		.stop()
         
-        	.when(contentTypeNotSet)
+        	.when(header("content-type").isNull())
         		.log(LoggingLevel.WARN, logger, "ACD request content-type header not set in previous route - message will not be processed")
         		.stop()
         		
