@@ -11,7 +11,6 @@ import com.linuxforhealth.connect.processor.BlueButton20MetadataProcessor;
 import com.linuxforhealth.connect.processor.BlueButton20RequestProcessor;
 import com.linuxforhealth.connect.processor.BlueButton20ResultProcessor;
 import java.net.URI;
-import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.spi.PropertiesComponent;
 
@@ -29,28 +28,29 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
 
         PropertiesComponent contextProperties = getContext().getPropertiesComponent();
 
-        URI blueButtonBaseUri = URI.create(
+        URI blueButtonUri = URI.create(
                 contextProperties
                 .resolveProperty("lfh.connect.fhir_r4_rest.uri")
-                .orElse("http://0.0.0.0:8080/fhir/r4"));
+                .orElseThrow(() -> new RuntimeException("property lfh.connect.fhir_r4_rest.uri not found")));
 
         URI blueButtonAuthorizeUri = URI.create(
                 contextProperties
                 .resolveProperty("lfh.connect.bluebutton_20_rest.authorizeUri")
-                .orElse("http://0.0.0.0:8080/bluebutton/authorize"));
+                .orElseThrow(() -> new RuntimeException("property lfh.connect.bluebutton_20_rest.authorizeUri not found")));
 
         URI blueButtonCallbackUri = URI.create(
                 contextProperties
                 .resolveProperty("lfh.connect.bluebutton_20_rest.callbackUri")
-                .orElse("http://localhost:8080/bluebutton/handler"));
+                .orElseThrow(() -> new RuntimeException("property lfh.connect.bluebutton_20_rest.callbackUri not found")));
 
-        String cmsTokenURL = contextProperties
+        URI cmsTokenURL = URI.create(
+                contextProperties
                 .resolveProperty("lfh.connect.bluebutton_20_rest.tokenUri")
-                .orElse("lfh.connect.bluebutton_20.cmsTokenUri");
+                .orElseThrow(() -> new RuntimeException("property lfh.connect.bluebutton_20_rest.tokenUri not found")));
 
         restConfiguration()
-                .host(blueButtonBaseUri.getHost())
-                .port(blueButtonBaseUri.getPort());
+                .host(blueButtonUri.getHost())
+                .port(blueButtonUri.getPort());
 
         // Blue Button OAuth2 - Authorize route in Blue Button 2.0 & get code
         rest(blueButtonAuthorizeUri.getPath())
@@ -72,14 +72,14 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
                 .routeId(CALLBACK_ROUTE_ID)
                 .doTry()
                     .process(new BlueButton20CallbackProcessor())
-                    .to(cmsTokenURL)
+                    .to(cmsTokenURL.toString())
                 .doCatch(Exception.class)
                     .setProperty("errorMessage", simple(exceptionMessage().toString()))
                     .to("direct:error")
                 .end();
         
         // Blue Button 2.0 route - Retrieve patient resources
-        rest(blueButtonBaseUri.getPath())
+        rest(blueButtonUri.getPath())
                 .get("/{resource}")
                 .route()
                 .routeId(API_ROUTE_ID)

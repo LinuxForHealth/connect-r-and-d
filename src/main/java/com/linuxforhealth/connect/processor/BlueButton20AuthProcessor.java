@@ -20,7 +20,7 @@ public class BlueButton20AuthProcessor implements Processor {
     private final Logger logger = LoggerFactory.getLogger(BlueButton20AuthProcessor.class);
 
     @Override
-    public void process(Exchange exchange) throws Exception {
+    public void process(Exchange exchange) {
         String callbackURL = SimpleBuilder
                 .simple("{{lfh.connect.bluebutton_20_rest.callbackUri}}")
                 .evaluate(exchange, String.class);

@@ -22,7 +22,7 @@ public class BlueButton20CallbackProcessor implements Processor {
                 .evaluate(exchange, String.class);
 
         String clientSecret = SimpleBuilder
-                .simple("${properties:lfh.connect.bluebutton_20_rest.clientSecre}")
+                .simple("${properties:lfh.connect.bluebutton_20_rest.clientSecret}")
                 .evaluate(exchange, String.class);
 
         // Setting up call to Blue Button 2.0 to exchange the code for a token
