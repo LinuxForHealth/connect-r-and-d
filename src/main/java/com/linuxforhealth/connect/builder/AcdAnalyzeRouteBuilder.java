@@ -5,6 +5,7 @@
  */
 package com.linuxforhealth.connect.builder;
 
+import com.linuxforhealth.connect.processor.AcdAnalyzeProcessor;
 import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.Predicate;
@@ -13,8 +14,6 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.http.base.HttpOperationFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.linuxforhealth.connect.processor.AcdAnalyzeProcessor;
 
 /**
  * Annotator for Clinical Data (ACD) Route for detecting medical concepts in unstructured text via NLP analysis

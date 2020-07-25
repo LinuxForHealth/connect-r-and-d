@@ -10,9 +10,10 @@ import com.linuxforhealth.connect.processor.BlueButton20CallbackProcessor;
 import com.linuxforhealth.connect.processor.BlueButton20MetadataProcessor;
 import com.linuxforhealth.connect.processor.BlueButton20RequestProcessor;
 import com.linuxforhealth.connect.processor.BlueButton20ResultProcessor;
-import java.net.URI;
+import com.linuxforhealth.connect.support.CamelContextSupport;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.spi.PropertiesComponent;
+
+import java.net.URI;
 
 /**
  * Defines a FHIR R4 REST Processing route
@@ -26,27 +27,13 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
     @Override
     public void configure() {
 
-        PropertiesComponent contextProperties = getContext().getPropertiesComponent();
+        CamelContextSupport contextSupport = new CamelContextSupport(getContext());
 
-        URI blueButtonUri = URI.create(
-                contextProperties
-                .resolveProperty("lfh.connect.fhir_r4_rest.uri")
-                .orElseThrow(() -> new RuntimeException("property lfh.connect.fhir_r4_rest.uri not found")));
 
-        URI blueButtonAuthorizeUri = URI.create(
-                contextProperties
-                .resolveProperty("lfh.connect.bluebutton_20_rest.authorizeUri")
-                .orElseThrow(() -> new RuntimeException("property lfh.connect.bluebutton_20_rest.authorizeUri not found")));
-
-        URI blueButtonCallbackUri = URI.create(
-                contextProperties
-                .resolveProperty("lfh.connect.bluebutton_20_rest.callbackUri")
-                .orElseThrow(() -> new RuntimeException("property lfh.connect.bluebutton_20_rest.callbackUri not found")));
-
-        URI cmsTokenURL = URI.create(
-                contextProperties
-                .resolveProperty("lfh.connect.bluebutton_20_rest.tokenUri")
-                .orElseThrow(() -> new RuntimeException("property lfh.connect.bluebutton_20_rest.tokenUri not found")));
+        URI blueButtonUri = URI.create(contextSupport.getProperty("lfh.connect.fhir_r4_rest.uri"));
+        URI blueButtonAuthorizeUri = URI.create(contextSupport.getProperty("lfh.connect.bluebutton_20_rest.authorizeUri"));
+        URI blueButtonCallbackUri = URI.create(contextSupport.getProperty("lfh.connect.bluebutton_20_rest.callbackUri"));
+        URI cmsTokenURL = URI.create(contextSupport.getProperty("lfh.connect.bluebutton_20_rest.tokenUri"));
 
         restConfiguration()
                 .host(blueButtonUri.getHost())

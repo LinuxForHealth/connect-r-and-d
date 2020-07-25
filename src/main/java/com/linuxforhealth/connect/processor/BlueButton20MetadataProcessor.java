@@ -5,11 +5,12 @@
  */
 package com.linuxforhealth.connect.processor;
 
-import java.time.Instant;
-import java.util.UUID;
+import com.linuxforhealth.connect.support.CamelContextSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.camel.builder.SimpleBuilder;
+
+import java.time.Instant;
+import java.util.UUID;
 
 /**
  * Set the headers used by downstream processors and components
@@ -18,15 +19,13 @@ public class BlueButton20MetadataProcessor implements Processor {
 
     @Override
     public void process(Exchange exchange) {
-        String blueButtonBaseUri = SimpleBuilder
-                .simple("${lfh.connect.bluebutton_20_rest.baseUri}")
-                .evaluate(exchange, String.class);
+        CamelContextSupport contextSupport = new CamelContextSupport(exchange.getContext());
 
+        String blueButtonBaseUri = contextSupport.getProperty("lfh.connect.bluebutton_20_rest.baseUri");
         String resourceType = exchange.getIn().getHeader("resource", String.class);
 
-        String kafkaDataStoreUri = SimpleBuilder
-                .simple("{{lfh.connect.datastore.uri}}")
-                .evaluate(exchange, String.class)
+        String kafkaDataStoreUri = contextSupport
+                .getProperty("lfh.connect.datastore.uri")
                 .replaceAll("<topicName>", "FHIR_R4_" + resourceType);
 
         // Form the incoming route url for the message property routeUrl

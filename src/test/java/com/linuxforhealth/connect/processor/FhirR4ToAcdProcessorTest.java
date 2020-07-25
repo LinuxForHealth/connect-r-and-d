@@ -5,9 +5,7 @@
  */
 package com.linuxforhealth.connect.processor;
 
-import java.io.IOException;
-import java.util.Properties;
-
+import ca.uhn.fhir.context.FhirContext;
 import com.linuxforhealth.connect.TestUtils;
 import org.apache.camel.Exchange;
 import org.apache.camel.ExtendedExchange;
@@ -19,7 +17,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import ca.uhn.fhir.context.FhirContext;
+import java.io.IOException;
+import java.util.Properties;
 
 public class FhirR4ToAcdProcessorTest extends CamelTestSupport {
 	

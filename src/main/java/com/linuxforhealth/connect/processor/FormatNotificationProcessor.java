@@ -5,10 +5,11 @@
  */
 package com.linuxforhealth.connect.processor;
 
-import java.util.ArrayList;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.component.kafka.KafkaConstants;
+
+import java.util.ArrayList;
 
 /**
  * Format the message for data storage notification 

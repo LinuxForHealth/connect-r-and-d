@@ -5,7 +5,7 @@
  */
 package com.linuxforhealth.connect.processor;
 
-import org.apache.camel.builder.SimpleBuilder;
+import com.linuxforhealth.connect.support.CamelContextSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.commons.codec.binary.Base64;
@@ -17,13 +17,10 @@ public class BlueButton20CallbackProcessor implements Processor {
 
     @Override
     public void process(Exchange exchange)  {
-        String clientId = SimpleBuilder
-                .simple("${properties:lfh.connect.bluebutton_20_rest.clientId}")
-                .evaluate(exchange, String.class);
+        CamelContextSupport contextSupport = new CamelContextSupport(exchange.getContext());
 
-        String clientSecret = SimpleBuilder
-                .simple("${properties:lfh.connect.bluebutton_20_rest.clientSecret}")
-                .evaluate(exchange, String.class);
+        String clientId = contextSupport.getProperty("lfh.connect.bluebutton_20_rest.clientId");
+        String clientSecret = contextSupport.getProperty("lfh.connect.bluebutton_20_rest.clientSecret");
 
         // Setting up call to Blue Button 2.0 to exchange the code for a token
         String code  = exchange.getIn().getHeader("code", String.class);

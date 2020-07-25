@@ -5,12 +5,11 @@
  */
 package com.linuxforhealth.connect.builder;
 
+import com.linuxforhealth.connect.processor.FhirR4ToAcdProcessor;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.linuxforhealth.connect.processor.FhirR4ToAcdProcessor;
 
 /**
  * Extract unstructured data for Annotator for Clinical Data (ACD) analysis

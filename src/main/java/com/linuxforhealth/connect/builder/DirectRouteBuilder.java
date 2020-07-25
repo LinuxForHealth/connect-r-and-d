@@ -5,13 +5,13 @@
  */
 package com.linuxforhealth.connect.builder;
 
+import com.linuxforhealth.connect.processor.FormatErrorProcessor;
 import com.linuxforhealth.connect.processor.FormatMessageProcessor;
 import com.linuxforhealth.connect.processor.FormatNotificationProcessor;
-import com.linuxforhealth.connect.processor.FormatErrorProcessor;
-import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.component.kafka.KafkaConstants;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.Processor;
+import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.kafka.KafkaConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -6,9 +6,6 @@
 package com.linuxforhealth.connect.processor;
 
 import ca.uhn.fhir.context.FhirContext;
-import java.io.IOException;
-import java.util.Properties;
-
 import com.linuxforhealth.connect.TestUtils;
 import org.apache.camel.Exchange;
 import org.apache.camel.ExtendedExchange;
@@ -19,6 +16,9 @@ import org.hl7.fhir.dstu3.model.Resource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.util.Properties;
 
 /**
  * Tests {@link BlueButton20ResultProcessor} processor

@@ -6,6 +6,7 @@
 package com.linuxforhealth.connect.builder;
 
 import com.linuxforhealth.connect.processor.FhirR4MetadataProcessor;
+import com.linuxforhealth.connect.support.CamelContextSupport;
 import org.apache.camel.builder.RouteBuilder;
 
 import java.net.URI;
@@ -19,11 +20,9 @@ public class FhirR4RestRouteBuilder extends RouteBuilder {
 
     @Override
     public void configure() {
-        URI fhirBaseUri = URI.create(
-                getContext()
-                .getPropertiesComponent()
-                .resolveProperty("lfh.connect.fhir_r4_rest.uri")
-                .orElse("http://0.0.0.0:8080/fhir/r4"));
+
+        CamelContextSupport contextSupport = new CamelContextSupport(getContext());
+        URI fhirBaseUri = URI.create(contextSupport.getProperty("lfh.connect.fhir_r4_rest.uri"));
 
         restConfiguration()
                 .host(fhirBaseUri.getHost())

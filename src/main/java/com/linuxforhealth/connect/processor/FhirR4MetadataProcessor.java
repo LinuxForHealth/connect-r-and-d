@@ -7,12 +7,13 @@ package com.linuxforhealth.connect.processor;
 
 
 import ca.uhn.fhir.context.FhirContext;
-import java.time.Instant;
-import java.util.UUID;
+import com.linuxforhealth.connect.support.CamelContextSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.camel.builder.SimpleBuilder;
 import org.hl7.fhir.r4.model.Resource;
+
+import java.time.Instant;
+import java.util.UUID;
 
 /**
  * Set the headers used by downstream processors and components
@@ -21,14 +22,12 @@ public class FhirR4MetadataProcessor implements Processor {
 
     @Override
     public void process(Exchange exchange)  {
-        String fhirBaseUri = SimpleBuilder
-                .simple("{{lfh.connect.fhir_r4_rest.uri}}")
-                .evaluate(exchange, String.class);
+        CamelContextSupport contextSupport = new CamelContextSupport(exchange.getContext());
 
+        String fhirBaseUri = contextSupport.getProperty("lfh.connect.fhir_r4_rest.uri");
         String resourceType = exchange.getIn().getHeader("resource", String.class);
-        String kafkaDataStoreUri = SimpleBuilder
-                .simple("{{lfh.connect.datastore.uri}}")
-                .evaluate(exchange, String.class)
+        String kafkaDataStoreUri = contextSupport
+                .getProperty("lfh.connect.datastore.uri")
                 .replaceAll("<topicName>", "FHIR_R4_" + resourceType);
 
         String routeUrl = fhirBaseUri+"/"+resourceType;

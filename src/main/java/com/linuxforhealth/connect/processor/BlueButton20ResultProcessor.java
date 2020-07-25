@@ -6,9 +6,9 @@
 package com.linuxforhealth.connect.processor;
 
 import ca.uhn.fhir.context.FhirContext;
+import com.linuxforhealth.connect.support.CamelContextSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.camel.builder.SimpleBuilder;
 import org.hl7.fhir.convertors.VersionConvertor_30_40;
 import org.hl7.fhir.dstu3.model.Resource;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -23,7 +23,8 @@ public class BlueButton20ResultProcessor implements Processor {
     private final Logger logger = LoggerFactory.getLogger(BlueButton20ResultProcessor.class);
 
     @Override
-    public void process(Exchange exchange) throws Exception {
+    public void process(Exchange exchange) {
+        CamelContextSupport contextSupport = new CamelContextSupport(exchange.getContext());
         Resource resource = (Resource) exchange.getIn().getBody();
         String result;
 
@@ -38,9 +39,8 @@ public class BlueButton20ResultProcessor implements Processor {
             // Set the message attributes for data format back to r3 and change the Kafka queue
             String resourceType = exchange.getProperty("resourceType", String.class);
 
-            String kafkaDataStoreUri = SimpleBuilder
-                    .simple("{{lfh.connect.datastore.uri}}")
-                    .evaluate(exchange, String.class)
+            String kafkaDataStoreUri = contextSupport
+                    .getProperty("lfh.connect.datastore.uri")
                     .replaceAll("<topicName>", "FHIR_R3_" + resourceType);
 
             exchange.setProperty("dataStoreUri", kafkaDataStoreUri);

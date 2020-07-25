@@ -5,9 +5,9 @@
  */
 package com.linuxforhealth.connect.processor;
 
+import com.linuxforhealth.connect.support.CamelContextSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.camel.builder.SimpleBuilder;
 
 /**
  * Set up the Blue Button 2.0 API query
@@ -15,11 +15,11 @@ import org.apache.camel.builder.SimpleBuilder;
 public class BlueButton20RequestProcessor implements Processor {
 
     @Override
-    public void process(Exchange exchange) throws Exception {
-        String cmsBaseURI = SimpleBuilder
-                .simple("${lfh.connect.bluebutton_20.cmsBaseUri}")
-                .evaluate(exchange, String.class);
-        
+    public void process(Exchange exchange)  {
+        CamelContextSupport contextSupport = new CamelContextSupport(exchange.getContext());
+
+        String cmsBaseURI = contextSupport.getProperty("lfh.connect.bluebutton_20.cmsBaseUri");
+
         // Set up Blue Button 2.0 query
         String authorizationHdr =  exchange.getIn().getHeader("Authorization", String.class);
         String httpMethod = exchange.getIn().getHeader("CamelHttpMethod", String.class);

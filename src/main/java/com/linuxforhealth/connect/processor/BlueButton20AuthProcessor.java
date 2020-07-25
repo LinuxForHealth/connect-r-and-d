@@ -5,7 +5,7 @@
  */
 package com.linuxforhealth.connect.processor;
 
-import org.apache.camel.builder.SimpleBuilder;
+import com.linuxforhealth.connect.support.CamelContextSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.commons.lang3.SystemUtils;
@@ -21,20 +21,13 @@ public class BlueButton20AuthProcessor implements Processor {
 
     @Override
     public void process(Exchange exchange) {
-        String callbackURL = SimpleBuilder
-                .simple("{{lfh.connect.bluebutton_20_rest.callbackUri}}")
-                .evaluate(exchange, String.class);
+        CamelContextSupport contextSupport = new CamelContextSupport(exchange.getContext());
 
-        String cmsAuthorizeURL = SimpleBuilder
-                .simple("{{lfh.connect.bluebutton_20.cmsAuthorizeUri}}")
-                .evaluate(exchange, String.class);
-
-        String clientId = SimpleBuilder
-                .simple("{{lfh.connect.bluebutton_20_rest.clientId}}")
-                .evaluate(exchange, String.class);
+        String callbackURL = contextSupport.getProperty("lfh.connect.bluebutton_20_rest.callbackUri");
+        String cmsAuthorizeURL = contextSupport.getProperty("lfh.connect.bluebutton_20.cmsAuthorizeUri");
+        String clientId = contextSupport.getProperty("lfh.connect.bluebutton_20_rest.clientId");
 
         // Set up call to redirect to Blue Button API so the user can authenticate this application
-
         String authorizeURL = cmsAuthorizeURL +
             "?client_id=" + clientId+
             "&redirect_uri=" + callbackURL +
