@@ -18,7 +18,7 @@ public class BlueButton20RequestProcessor implements Processor {
     public void process(Exchange exchange)  {
         CamelContextSupport contextSupport = new CamelContextSupport(exchange.getContext());
 
-        String cmsBaseURI = contextSupport.getProperty("lfh.connect.bluebutton_20.cmsBaseUri");
+        String cmsBaseURI = contextSupport.getProperty("lfh.connect.bluebutton_20.cms.baseUri");
 
         // Set up Blue Button 2.0 query
         String authorizationHdr =  exchange.getIn().getHeader("Authorization", String.class);

@@ -23,9 +23,9 @@ public class BlueButton20AuthProcessor implements Processor {
     public void process(Exchange exchange) {
         CamelContextSupport contextSupport = new CamelContextSupport(exchange.getContext());
 
-        String callbackURL = contextSupport.getProperty("lfh.connect.bluebutton_20_rest.callbackUri");
-        String cmsAuthorizeURL = contextSupport.getProperty("lfh.connect.bluebutton_20.cmsAuthorizeUri");
-        String clientId = contextSupport.getProperty("lfh.connect.bluebutton_20_rest.clientId");
+        String callbackURL = contextSupport.getProperty("lfh.connect.bluebutton_20.callbackUri");
+        String cmsAuthorizeURL = contextSupport.getProperty("lfh.connect.bluebutton_20.cms.authorizeUri");
+        String clientId = contextSupport.getProperty("lfh.connect.bluebutton_20.cms.clientId");
 
         // Set up call to redirect to Blue Button API so the user can authenticate this application
         String authorizeURL = cmsAuthorizeURL +

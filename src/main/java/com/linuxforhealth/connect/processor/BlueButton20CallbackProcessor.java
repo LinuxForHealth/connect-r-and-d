@@ -19,8 +19,8 @@ public class BlueButton20CallbackProcessor implements Processor {
     public void process(Exchange exchange)  {
         CamelContextSupport contextSupport = new CamelContextSupport(exchange.getContext());
 
-        String clientId = contextSupport.getProperty("lfh.connect.bluebutton_20_rest.clientId");
-        String clientSecret = contextSupport.getProperty("lfh.connect.bluebutton_20_rest.clientSecret");
+        String clientId = contextSupport.getProperty("lfh.connect.bluebutton_20.cms.clientId");
+        String clientSecret = contextSupport.getProperty("lfh.connect.bluebutton_20.cms.clientSecret");
 
         // Setting up call to Blue Button 2.0 to exchange the code for a token
         String code  = exchange.getIn().getHeader("code", String.class);

@@ -21,7 +21,7 @@ public class BlueButton20MetadataProcessor implements Processor {
     public void process(Exchange exchange) {
         CamelContextSupport contextSupport = new CamelContextSupport(exchange.getContext());
 
-        String blueButtonBaseUri = contextSupport.getProperty("lfh.connect.bluebutton_20_rest.baseUri");
+        String blueButtonUri = contextSupport.getProperty("lfh.connect.bluebutton_20.rest.uri");
         String resourceType = exchange.getIn().getHeader("resource", String.class);
 
         String kafkaDataStoreUri = contextSupport
@@ -29,7 +29,7 @@ public class BlueButton20MetadataProcessor implements Processor {
                 .replaceAll("<topicName>", "FHIR_R4_" + resourceType);
 
         // Form the incoming route url for the message property routeUrl
-        String routeUrl = blueButtonBaseUri+"/"+resourceType;
+        String routeUrl = blueButtonUri+"/"+resourceType;
         String queryStr = exchange.getIn().getHeader("CamelHttpQuery", String.class);
         if (queryStr != null && queryStr != "") routeUrl += "?"+queryStr;
 

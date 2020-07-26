@@ -29,17 +29,13 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
 
         CamelContextSupport contextSupport = new CamelContextSupport(getContext());
 
-
-        URI blueButtonUri = URI.create(contextSupport.getProperty("lfh.connect.fhir_r4_rest.uri"));
-        URI blueButtonAuthorizeUri = URI.create(contextSupport.getProperty("lfh.connect.bluebutton_20_rest.authorizeUri"));
-        URI blueButtonCallbackUri = URI.create(contextSupport.getProperty("lfh.connect.bluebutton_20_rest.callbackUri"));
-        URI cmsTokenURL = URI.create(contextSupport.getProperty("lfh.connect.bluebutton_20_rest.tokenUri"));
-
+        URI blueButtonUri = URI.create(contextSupport.getProperty("lfh.connect.bluebutton_20.rest.uri"));
         restConfiguration()
                 .host(blueButtonUri.getHost())
                 .port(blueButtonUri.getPort());
 
         // Blue Button OAuth2 - Authorize route in Blue Button 2.0 & get code
+        URI blueButtonAuthorizeUri = URI.create(contextSupport.getProperty("lfh.connect.bluebutton_20.authorizeUri"));
         rest(blueButtonAuthorizeUri.getPath())
                 .get()
                 .route()
@@ -53,7 +49,9 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
                 .end();
 
         // Blue Button OAuth2 - Callback to exchange code for token (displayed in the browser)
-        rest(blueButtonCallbackUri.getPath())
+        URI blueButtonHandlerUri = URI.create(contextSupport.getProperty("lfh.connect.bluebutton_20.handlerUri"));
+        URI cmsTokenURL = URI.create(contextSupport.getProperty("lfh.connect.bluebutton_20.tokenUri"));
+        rest(blueButtonHandlerUri.getPath())
                 .get()
                 .route()
                 .routeId(CALLBACK_ROUTE_ID)
