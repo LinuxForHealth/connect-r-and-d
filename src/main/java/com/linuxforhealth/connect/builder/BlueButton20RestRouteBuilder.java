@@ -50,7 +50,7 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
 
         // Blue Button OAuth2 - Callback to exchange code for token (displayed in the browser)
         URI blueButtonHandlerUri = URI.create(contextSupport.getProperty("lfh.connect.bluebutton_20.handlerUri"));
-        URI cmsTokenURL = URI.create(contextSupport.getProperty("lfh.connect.bluebutton_20.tokenUri"));
+        URI cmsTokenURL = URI.create(contextSupport.getProperty("lfh.connect.bluebutton_20.cms.tokenUri"));
         rest(blueButtonHandlerUri.getPath())
                 .get()
                 .route()

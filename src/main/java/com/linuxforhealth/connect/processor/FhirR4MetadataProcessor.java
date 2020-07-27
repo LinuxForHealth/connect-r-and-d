@@ -25,7 +25,7 @@ public class FhirR4MetadataProcessor implements Processor {
         CamelContextSupport contextSupport = new CamelContextSupport(exchange.getContext());
 
         String fhirBaseUri = contextSupport.getProperty("lfh.connect.fhir_r4_rest.uri");
-        String resourceType = exchange.getIn().getHeader("resource", String.class);
+        String resourceType = exchange.getIn().getHeader("resource", String.class).toUpperCase();
         String kafkaDataStoreUri = contextSupport
                 .getProperty("lfh.connect.datastore.uri")
                 .replaceAll("<topicName>", "FHIR_R4_" + resourceType);

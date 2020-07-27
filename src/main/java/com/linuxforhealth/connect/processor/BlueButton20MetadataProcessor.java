@@ -22,7 +22,7 @@ public class BlueButton20MetadataProcessor implements Processor {
         CamelContextSupport contextSupport = new CamelContextSupport(exchange.getContext());
 
         String blueButtonUri = contextSupport.getProperty("lfh.connect.bluebutton_20.rest.uri");
-        String resourceType = exchange.getIn().getHeader("resource", String.class);
+        String resourceType = exchange.getIn().getHeader("resource", String.class).toUpperCase();
 
         String kafkaDataStoreUri = contextSupport
                 .getProperty("lfh.connect.datastore.uri")

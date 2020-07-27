@@ -9,27 +9,24 @@ import com.linuxforhealth.connect.processor.FormatErrorProcessor;
 import com.linuxforhealth.connect.processor.FormatMessageProcessor;
 import com.linuxforhealth.connect.processor.FormatNotificationProcessor;
 import org.apache.camel.LoggingLevel;
-import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.kafka.KafkaConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Defines the Linux for Health direct routes
+ * Defines the Linux for Health direct routes for data storage, notification, and error handling
  */
-public class DirectRouteBuilder extends RouteBuilder {
+public class LinuxForHealthDirectRouteBuilder extends RouteBuilder {
     public final static String STORE_AND_NOTIFY_ROUTE_ID = "store-and-notify";
     public final static String STORE_ROUTE_ID = "store";
     public final static String NOTIFY_ROUTE_ID = "notify";
     public final static String ERROR_ROUTE_ID = "error";
 
-    private final Logger logger = LoggerFactory.getLogger(DirectRouteBuilder.class);
+    private final Logger logger = LoggerFactory.getLogger(LinuxForHealthDirectRouteBuilder.class);
 
     @Override
     public void configure() {
-        Processor formatError = new FormatErrorProcessor();
-
         // Store results in the data store and send a notification message
         from("direct:storeandnotify")
                 .routeId(STORE_AND_NOTIFY_ROUTE_ID)

@@ -37,7 +37,7 @@ public class BlueButton20ResultProcessor implements Processor {
             result = FhirContext.forDstu3().newJsonParser().encodeResourceToString(resource);
 
             // Set the message attributes for data format back to r3 and change the Kafka queue
-            String resourceType = exchange.getProperty("resourceType", String.class);
+            String resourceType = exchange.getProperty("resourceType", String.class).toUpperCase();
 
             String kafkaDataStoreUri = contextSupport
                     .getProperty("lfh.connect.datastore.uri")
