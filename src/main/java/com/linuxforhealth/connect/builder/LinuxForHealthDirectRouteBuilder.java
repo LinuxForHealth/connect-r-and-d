@@ -5,42 +5,34 @@
  */
 package com.linuxforhealth.connect.builder;
 
-import com.linuxforhealth.connect.configuration.EndpointUriBuilder;
+import com.linuxforhealth.connect.processor.FormatErrorProcessor;
 import com.linuxforhealth.connect.processor.FormatMessageProcessor;
 import com.linuxforhealth.connect.processor.FormatNotificationProcessor;
-import com.linuxforhealth.connect.processor.FormatErrorProcessor;
-import org.apache.camel.component.kafka.KafkaConstants;
 import org.apache.camel.LoggingLevel;
-import org.apache.camel.Processor;
+import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.kafka.KafkaConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Defines the Linux for Health direct routes
+ * Defines the Linux for Health direct routes for data storage, notification, and error handling
  */
-public class DirectRouteBuilder extends LinuxForHealthRouteBuilder {
+public class LinuxForHealthDirectRouteBuilder extends RouteBuilder {
     public final static String STORE_AND_NOTIFY_ROUTE_ID = "store-and-notify";
     public final static String STORE_ROUTE_ID = "store";
     public final static String NOTIFY_ROUTE_ID = "notify";
     public final static String ERROR_ROUTE_ID = "error";
 
-    private final Logger logger = LoggerFactory.getLogger(DirectRouteBuilder.class);
+    private final Logger logger = LoggerFactory.getLogger(LinuxForHealthDirectRouteBuilder.class);
 
     @Override
     public void configure() {
-        EndpointUriBuilder uriBuilder = getEndpointUriBuilder();
-        String messagingUri = uriBuilder.getMessagingUri();
-
-        Processor formatMessage = new FormatMessageProcessor();
-        Processor formatNotification = new FormatNotificationProcessor();
-        Processor formatError = new FormatErrorProcessor();
-
         // Store results in the data store and send a notification message
         from("direct:storeandnotify")
                 .routeId(STORE_AND_NOTIFY_ROUTE_ID)
                 .doTry()
                     .setHeader(KafkaConstants.KEY, constant("Camel"))
-                    .process(formatMessage)
+                    .process(new FormatMessageProcessor())
                     .toD("${exchangeProperty[dataStoreUri]}")
                     .to("direct:notify")
                 .doCatch(Exception.class)
@@ -52,7 +44,7 @@ public class DirectRouteBuilder extends LinuxForHealthRouteBuilder {
         from("direct:store")
                 .routeId(STORE_ROUTE_ID)
                 .doTry()
-                    .process(formatMessage)
+                    .process(new FormatMessageProcessor())
                     .toD("${exchangeProperty[dataStoreUri]}")
                 .doCatch(Exception.class)
                     .setProperty("errorMessage", simple(exceptionMessage().toString()))
@@ -63,8 +55,8 @@ public class DirectRouteBuilder extends LinuxForHealthRouteBuilder {
         from("direct:notify")
                 .routeId(NOTIFY_ROUTE_ID)
                 .doTry()
-                    .process(formatNotification)
-                    .to(messagingUri)
+                    .process(new FormatNotificationProcessor())
+                    .to("{{lfh.connect.messaging.uri}}")
                 .doCatch(Exception.class)
                     .setProperty("errorMessage", simple(exceptionMessage().toString()))
                     .to("direct:error")
@@ -74,9 +66,9 @@ public class DirectRouteBuilder extends LinuxForHealthRouteBuilder {
         from("direct:error")
                 .routeId(ERROR_ROUTE_ID)
                 .doTry()
-                    .process(formatError)
+                    .process(new FormatErrorProcessor())
                     .log(LoggingLevel.ERROR, logger, "${exchangeProperty[errorMessage]}")
-                    .to(messagingUri)
+                    .to("{{lfh.connect.messaging.uri}}")
                 .doCatch(Exception.class)
                     .log(LoggingLevel.ERROR, logger, exceptionMessage().toString())
                 .end();

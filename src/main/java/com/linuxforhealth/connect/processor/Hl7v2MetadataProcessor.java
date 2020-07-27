@@ -5,25 +5,32 @@
  */
 package com.linuxforhealth.connect.processor;
 
-import ca.uhn.hl7v2.model.Message;
-import com.linuxforhealth.connect.configuration.EndpointUriBuilder;
-import java.time.Instant;
-import java.util.UUID;
+import com.linuxforhealth.connect.support.CamelContextSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.commons.codec.binary.Base64;
 
+import java.time.Instant;
+import java.util.UUID;
+
 /**
  * Set the headers used by downstream processors and components
  */
-public class Hl7v2MetadataProcessor extends LinuxForHealthProcessor implements Processor {
+public class Hl7v2MetadataProcessor implements Processor {
 
     @Override
-    public void process(Exchange exchange) throws Exception {
-        EndpointUriBuilder uriBuilder = getEndpointUriBuilder(exchange);
-        String consumerUrl = uriBuilder.getHl7V2MllpUri();
-        String resourceType = exchange.getIn().getHeader("CamelHL7MessageType", String.class);
-        String dataStoreUri = uriBuilder.getDataStoreUri("HL7v2_"+resourceType.toUpperCase());
+    public void process(Exchange exchange) {
+        CamelContextSupport contextSupport = new CamelContextSupport(exchange.getContext());
+
+        String consumerUrl = contextSupport.getProperty("lfh.connect.hl7_v2_mllp.uri");
+
+        String resourceType = exchange.getIn()
+                .getHeader("CamelHL7MessageType", String.class)
+                .toUpperCase();
+
+        String dataStoreUri = contextSupport
+                .getProperty("lfh.connect.datastore.uri")
+                .replaceAll("<topicName>", "HL7v2_" + resourceType);
 
         exchange.setProperty("timestamp", Instant.now().getEpochSecond());
         exchange.setProperty("routeUrl", consumerUrl);

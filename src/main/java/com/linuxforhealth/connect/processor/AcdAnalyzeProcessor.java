@@ -5,25 +5,25 @@
  */
 package com.linuxforhealth.connect.processor;
 
-import java.time.Instant;
-import java.util.UUID;
-
+import com.linuxforhealth.connect.support.CamelContextSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 
-import com.linuxforhealth.connect.configuration.EndpointUriBuilder;
+import java.time.Instant;
+import java.util.UUID;
 
-public class AcdAnalyzeProcessor extends LinuxForHealthProcessor implements Processor {
-
-	public AcdAnalyzeProcessor() { }
+public class AcdAnalyzeProcessor implements Processor {
 
 	@Override
-	public void process(Exchange exchange) throws Exception {
-		
-        EndpointUriBuilder uriBuilder = getEndpointUriBuilder(exchange);
-        String kafkaDataStoreUri = uriBuilder.getDataStoreUri("ACD_INSIGHTS");
-        String routeUrl = uriBuilder.getAcdRestUri();
-        
+	public void process(Exchange exchange) {
+	    CamelContextSupport contextSupport = new CamelContextSupport(exchange.getContext());
+
+        String kafkaDataStoreUri = contextSupport
+                .getProperty("lfh.connect.datastore.uri")
+                .replaceAll("<topicName>", "ACD_INSIGHTS");
+
+        String routeUrl = contextSupport.getProperty("lfh.connect.acd_rest.baseUri");
+
         exchange.setProperty("timestamp", Instant.now().getEpochSecond());
         exchange.setProperty("routeUrl", routeUrl);
         exchange.setProperty("dataStoreUri", kafkaDataStoreUri);

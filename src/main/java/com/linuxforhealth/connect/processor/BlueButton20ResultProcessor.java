@@ -6,9 +6,8 @@
 package com.linuxforhealth.connect.processor;
 
 import ca.uhn.fhir.context.FhirContext;
-import com.linuxforhealth.connect.configuration.EndpointUriBuilder;
+import com.linuxforhealth.connect.support.CamelContextSupport;
 import org.apache.camel.Exchange;
-import org.apache.camel.LoggingLevel;
 import org.apache.camel.Processor;
 import org.hl7.fhir.convertors.VersionConvertor_30_40;
 import org.hl7.fhir.dstu3.model.Resource;
@@ -19,13 +18,13 @@ import org.slf4j.LoggerFactory;
 /**
  * Convert the Blue Button 2.0 query result from R3 to R4.
  */
-public class BlueButton20ResultProcessor extends LinuxForHealthProcessor implements Processor {
+public class BlueButton20ResultProcessor implements Processor {
 
     private final Logger logger = LoggerFactory.getLogger(BlueButton20ResultProcessor.class);
 
     @Override
-    public void process(Exchange exchange) throws Exception {
-        EndpointUriBuilder uriBuilder = getEndpointUriBuilder(exchange);
+    public void process(Exchange exchange) {
+        CamelContextSupport contextSupport = new CamelContextSupport(exchange.getContext());
         Resource resource = (Resource) exchange.getIn().getBody();
         String result;
 
@@ -38,8 +37,12 @@ public class BlueButton20ResultProcessor extends LinuxForHealthProcessor impleme
             result = FhirContext.forDstu3().newJsonParser().encodeResourceToString(resource);
 
             // Set the message attributes for data format back to r3 and change the Kafka queue
-            String resourceType = exchange.getProperty("resourceType", String.class);
-            String kafkaDataStoreUri = uriBuilder.getDataStoreUri("FHIR_R3_"+resourceType.toUpperCase());
+            String resourceType = exchange.getProperty("resourceType", String.class).toUpperCase();
+
+            String kafkaDataStoreUri = contextSupport
+                    .getProperty("lfh.connect.datastore.uri")
+                    .replaceAll("<topicName>", "FHIR_R3_" + resourceType);
+
             exchange.setProperty("dataStoreUri", kafkaDataStoreUri);
             exchange.setProperty("dataFormat", "fhir-r3");
         }

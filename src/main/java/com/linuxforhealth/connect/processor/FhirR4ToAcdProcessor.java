@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Extract unstructured text from applicable FHIR R4 resources
  */
-public class FhirR4ToAcdProcessor extends LinuxForHealthProcessor implements Processor {
+public class FhirR4ToAcdProcessor implements Processor {
 	
 	private final Logger logger = LoggerFactory.getLogger(FhirR4ToAcdProcessor.class);
 

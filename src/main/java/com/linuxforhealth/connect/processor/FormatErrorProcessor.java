@@ -11,7 +11,7 @@ import org.apache.camel.Processor;
 /**
  * Format the message for error notification 
  */
-public class FormatErrorProcessor extends LinuxForHealthProcessor implements Processor {
+public class FormatErrorProcessor implements Processor {
 
     @Override
     public void process(Exchange exchange)  {

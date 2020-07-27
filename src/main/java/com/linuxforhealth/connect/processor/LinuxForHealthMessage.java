@@ -5,21 +5,20 @@
  */
 package com.linuxforhealth.connect.processor;
 
-import java.util.Arrays;
-import java.util.List;
 import org.apache.camel.Exchange;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Extend JSONObject to override toString to print attributes in a specific order.
  */
 public class LinuxForHealthMessage extends JSONObject {
     private JSONObject meta;
-
-    public LinuxForHealthMessage() {}
 
     // Set up JSON structure and common fields
     public LinuxForHealthMessage(Exchange exchange) {

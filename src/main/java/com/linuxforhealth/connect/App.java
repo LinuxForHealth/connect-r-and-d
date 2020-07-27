@@ -5,7 +5,6 @@
  */
 package com.linuxforhealth.connect;
 
-import com.linuxforhealth.connect.configuration.EndpointUriBuilder;
 import org.apache.camel.component.jasypt.JasyptPropertiesParser;
 import org.apache.camel.component.properties.PropertiesComponent;
 import org.apache.camel.main.Main;
@@ -33,7 +32,7 @@ public final class App {
 
     private final static String APPLICATION_PROPERTIES_FILE_NAME = "application.properties";
     private final static String EXTERNAL_PROPERTY_FILE_PATH = "config/application.properties";
-    private final static String COMPONENT_PROPERTY_NAMESPACE = "linuxforhealth.connect.component";
+    private final static String BEAN_PROPERTY_NAMESPACE = "lfh.connect.bean";
     private final static String ROUTE_BUILDER_PACKAGE = "com.linuxforhealth.connect.builder";
 
     private final Logger logger = LoggerFactory.getLogger(App.class);
@@ -41,57 +40,64 @@ public final class App {
     private final Main camelMain = new Main();
 
     /**
-     * Binds Camel components, or beans, to Camel's registry
+     * Binds Camel processing beans, to the Camel registry
      * @param appProperties The application properties
      * @throws ReflectiveOperationException if an error occurs creating new component instances
      */
     private void bindBeans(Properties appProperties) throws ReflectiveOperationException {
 
-        Set<String> componentPropertyKeys = appProperties
+        Set<String> beanPropertyKeys = appProperties
                 .stringPropertyNames()
                 .stream()
-                .filter(prop -> prop.startsWith(App.COMPONENT_PROPERTY_NAMESPACE))
+                .filter(prop -> prop.startsWith(App.BEAN_PROPERTY_NAMESPACE))
                 .collect(Collectors.toSet());
 
-        for (String componentKey : componentPropertyKeys) {
-            String componentName = componentKey.replace(App.COMPONENT_PROPERTY_NAMESPACE.concat("."), "");
-            String componentClass = appProperties.getProperty(componentKey);
+        for (String beanPropertyKey : beanPropertyKeys) {
+            String beanName = beanPropertyKey.replace(App.BEAN_PROPERTY_NAMESPACE.concat("."), "");
+            String beanClass = appProperties.getProperty(beanPropertyKey);
 
-            logger.debug("adding component name = {} value = {} to registry", componentName, componentClass);
+            logger.debug("adding bean name = {}, class = {} to registry", beanName, beanClass);
 
-            Constructor<?> componentConstructor = Class.forName(componentClass).getConstructor();
-            camelMain.bind(componentName, componentConstructor.newInstance());
+            Constructor<?> componentConstructor = Class.forName(beanClass).getConstructor();
+            camelMain.bind(beanName, componentConstructor.newInstance());
         }
-
-        logger.debug("adding endpoint uri builder to registry");
-        camelMain.bind(EndpointUriBuilder.BEAN_NAME, new EndpointUriBuilder(appProperties));
     }
 
     /**
      * Loads application properties.
-     * Properties are loaded from an external file if available, otherwise properties are loaded from
-     * the classpath. If an external file is available, the camel context is updated to use it as the
-     * default properties file for the application.
+     *
+     * Properties are loaded from the classpath and may be overridden using an external file located in
+     * config/application.properties.
+     *
+     * Properties are registered with the camel context and returned from this method for bootstrap processing.
+     * This "double-evaluation" is required as the app has to configure some components prior to the camel context
+     * being available.
      *
      * @return {@link Properties} instance
      * @throws IOException if an error occurs reading application.properties
      */
     private Properties loadProperties() throws IOException {
         Properties properties = new Properties();
-        PropertiesComponent pc = configurePropertyParser();
+        PropertiesComponent camelPropertiesComponent = configurePropertyParser();
 
-        Path path = Paths.get(App.EXTERNAL_PROPERTY_FILE_PATH);
+        properties.load(ClassLoader.getSystemResourceAsStream(App.APPLICATION_PROPERTIES_FILE_NAME));
+        logger.info("loading properties from classpath:{}", App.APPLICATION_PROPERTIES_FILE_NAME);
+        camelPropertiesComponent.setLocation("classpath:" + App.APPLICATION_PROPERTIES_FILE_NAME);
 
-        if (Files.exists(path)) {
-            properties.load(Files.newInputStream(path));
-            String absolutePath = path.toAbsolutePath().toString();
-            logger.info("loading properties from file:{}", absolutePath);
-            camelMain.setDefaultPropertyPlaceholderLocation("file:" + absolutePath);
-            pc.setLocation("file:" + absolutePath);
-        } else {
-            properties.load(ClassLoader.getSystemResourceAsStream(App.APPLICATION_PROPERTIES_FILE_NAME));
-            logger.info("loading properties from classpath:{}", App.APPLICATION_PROPERTIES_FILE_NAME);
-            pc.setLocation("classpath:"+App.APPLICATION_PROPERTIES_FILE_NAME);
+        Path externalPropertyPath = Paths.get(App.EXTERNAL_PROPERTY_FILE_PATH);
+
+        if (Files.exists(externalPropertyPath)) {
+            String absolutePath = externalPropertyPath.toAbsolutePath().toString();
+            logger.info("loading override properties from file:{}", absolutePath);
+
+            Properties overrideProperties = new Properties();
+            overrideProperties.load(Files.newInputStream(externalPropertyPath));
+            camelPropertiesComponent.setOverrideProperties(overrideProperties);
+
+            // set override properties
+            overrideProperties.forEach((k, v) -> {
+                properties.setProperty(k.toString(), v.toString());
+            });
         }
 
         return properties;

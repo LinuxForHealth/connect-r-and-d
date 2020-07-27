@@ -5,27 +5,31 @@
  */
 package com.linuxforhealth.connect.processor;
 
-import com.linuxforhealth.connect.configuration.EndpointUriBuilder;
-import java.net.URI;
-import java.time.Instant;
-import java.util.UUID;
+import com.linuxforhealth.connect.support.CamelContextSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+
+import java.time.Instant;
+import java.util.UUID;
 
 /**
  * Set the headers used by downstream processors and components
  */
-public class BlueButton20MetadataProcessor extends LinuxForHealthProcessor implements Processor {
+public class BlueButton20MetadataProcessor implements Processor {
 
     @Override
     public void process(Exchange exchange) {
-        EndpointUriBuilder uriBuilder = getEndpointUriBuilder(exchange);
-        String blueButtonBaseUri = uriBuilder.getBlueButton20RestUri();
-        String resourceType = exchange.getIn().getHeader("resource", String.class);
-        String kafkaDataStoreUri = uriBuilder.getDataStoreUri("FHIR_R4_"+resourceType.toUpperCase());
+        CamelContextSupport contextSupport = new CamelContextSupport(exchange.getContext());
+
+        String blueButtonUri = contextSupport.getProperty("lfh.connect.bluebutton_20.rest.uri");
+        String resourceType = exchange.getIn().getHeader("resource", String.class).toUpperCase();
+
+        String kafkaDataStoreUri = contextSupport
+                .getProperty("lfh.connect.datastore.uri")
+                .replaceAll("<topicName>", "FHIR_R4_" + resourceType);
 
         // Form the incoming route url for the message property routeUrl
-        String routeUrl = blueButtonBaseUri+"/"+resourceType;
+        String routeUrl = blueButtonUri+"/"+resourceType;
         String queryStr = exchange.getIn().getHeader("CamelHttpQuery", String.class);
         if (queryStr != null && queryStr != "") routeUrl += "?"+queryStr;
 
