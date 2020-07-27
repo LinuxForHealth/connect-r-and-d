@@ -9,6 +9,7 @@ import com.linuxforhealth.connect.processor.AcdAnalyzeProcessor;
 import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.Predicate;
+import org.apache.camel.Processor;
 import org.apache.camel.builder.PredicateBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.http.base.HttpOperationFailedException;
@@ -27,16 +28,14 @@ public class AcdAnalyzeRouteBuilder extends RouteBuilder {
 
 	private final Logger logger = LoggerFactory.getLogger(AcdAnalyzeRouteBuilder.class);
 
-	// Choice predicates for ACD request pre-conditions
-	private final Predicate baseUriNotSet = simple("${properties:lfh.connect.acd_rest.baseUri} == ''");
-	private final Predicate versionNotSet = simple("${properties:lfh.connect.acd_rest.version} == ''");
-	private final Predicate flowNotSet = simple("${properties:lfh.connect.acd_rest.flow} == ''");
-	private final Predicate authNotSet = simple("${properties:lfh.connect.acd_rest.auth} == ''");
-	private final Predicate contentTypeNotSet = header("content-type").isNull();
+	// Validate required content-type header
 	private final Predicate isInvalidContentType = PredicateBuilder.not(
-													PredicateBuilder.or(
-															header("content-type").contains("text/plain"),
-															header("content-type").contains("application/json")));
+			PredicateBuilder.or(
+					header("content-type").contains("text/plain"),
+					header("content-type").contains("application/json")));
+
+	// Create predicates to check empty property settings
+	Predicate isPropertyNotSet(String propertyName) { return simple("${properties:" + propertyName + "} == ''"); }
 
 	@Override
 	public void configure() throws Exception {
@@ -48,32 +47,25 @@ public class AcdAnalyzeRouteBuilder extends RouteBuilder {
 
         .choice()
 
-        	/*
-        	 * QUESTION: should there be an on/off property for whether to enable ACD?
-        	 * 	If this property was set to false or not set at all, we could just check that first
-        	 * 	and stop message processing with only a debug statement instead of these
-        	 * 	warning messages (users will only see one per message route).
-        	 */
-
         	// ACD request pre-conditions
-
-        	.when(baseUriNotSet)
+        
+        	.when(isPropertyNotSet("lfh.connect.acd_rest.baseUri"))
         		.log(LoggingLevel.WARN, logger, "ACD service endpoint not configured - message will not be processed")
         		.stop()
-
-        	.when(flowNotSet)
+        		
+        	.when(isPropertyNotSet("lfh.connect.acd_rest.version"))
         		.log(LoggingLevel.WARN, logger, "ACD service annotator flow not configured - message will not be processed")
         		.stop()
-
-        	.when(versionNotSet)
+        		
+        	.when(isPropertyNotSet("lfh.connect.acd_rest.flow"))
         		.log(LoggingLevel.WARN, logger, "ACD service version param not configured - message will not be processed")
         		.stop()
-
-        	.when(authNotSet)
-        		.log(LoggingLevel.WARN, logger, "ACD service apikey not configured - message will not be processed")
+        		
+        	.when(isPropertyNotSet("lfh.connect.acd_rest.auth"))
+        		.log(LoggingLevel.WARN, logger, "ACD service authentication not configured - message will not be processed")
         		.stop()
-
-        	.when(contentTypeNotSet)
+        
+        	.when(header("content-type").isNull())
         		.log(LoggingLevel.WARN, logger, "ACD request content-type header not set in previous route - message will not be processed")
         		.stop()
 
@@ -82,20 +74,15 @@ public class AcdAnalyzeRouteBuilder extends RouteBuilder {
         		.stop()
 
         	.otherwise() // Cleared to make ACD request
-
 	        	.setHeader(Exchange.HTTP_METHOD, constant("POST")) // POST /analyze/{flow_id}
-
 	        	.doTry()
-
 		            .to("{{lfh.connect.acd_rest.uri}}")
 		            .log(LoggingLevel.DEBUG, logger, "ACD response code: ${header.CamelHttpResponseCode}")
 		            .unmarshal().json()
 		            .log(LoggingLevel.DEBUG, logger, "ACD response messge body: ${body}")
 		            .process(new AcdAnalyzeProcessor())
 		            .to("direct:storeandnotify")
-
 		        .doCatch(HttpOperationFailedException.class) // ACD error response handling
-
 		        	.log(LoggingLevel.ERROR, logger, "ACD error response code: ${header.CamelHttpResponseCode}")
 		        	.log(LoggingLevel.ERROR, logger, "ACD error response message: ${header.CamelHttpResponseText}")
 		        	.stop()
