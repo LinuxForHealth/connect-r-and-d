@@ -32,12 +32,12 @@ public class AcdAnalyzeRouteBuilder extends LinuxForHealthRouteBuilder {
 	
 	// Validate required content-type header
 	private final Predicate invalidContentType = PredicateBuilder.not(
-													PredicateBuilder.or(
-															header("content-type").contains("text/plain"),
-															header("content-type").contains("application/json")));
+			PredicateBuilder.or(
+					header("content-type").contains("text/plain"),
+					header("content-type").contains("application/json")));
 
 	// Create predicates to check empty property settings
-	Predicate isPropertyNotSet(String propertyName) { return simple("${" + propertyName + "} == ''"); }
+	Predicate isPropertyNotSet(String propertyName) { return simple("${properties:" + propertyName + "} == ''"); }
 	
 	@Override
 	public void configure() throws Exception {
@@ -51,19 +51,19 @@ public class AcdAnalyzeRouteBuilder extends LinuxForHealthRouteBuilder {
         
         	// ACD request pre-conditions
         
-        	.when(isPropertyNotSet("properties:linuxforhealth.connect.endpoint.acd_rest.baseUri"))
+        	.when(isPropertyNotSet("linuxforhealth.connect.endpoint.acd_rest.baseUri"))
         		.log(LoggingLevel.WARN, logger, "ACD service endpoint not configured - message will not be processed")
         		.stop()
         		
-        	.when(isPropertyNotSet("properties:linuxforhealth.connect.endpoint.acd_rest.version"))
+        	.when(isPropertyNotSet("linuxforhealth.connect.endpoint.acd_rest.version"))
         		.log(LoggingLevel.WARN, logger, "ACD service annotator flow not configured - message will not be processed")
         		.stop()
         		
-        	.when(isPropertyNotSet("properties:linuxforhealth.connect.endpoint.acd_rest.flow"))
+        	.when(isPropertyNotSet("linuxforhealth.connect.endpoint.acd_rest.flow"))
         		.log(LoggingLevel.WARN, logger, "ACD service version param not configured - message will not be processed")
         		.stop()
         		
-        	.when(isPropertyNotSet("properties:linuxforhealth.connect.endpoint.acd_rest.key"))
+        	.when(isPropertyNotSet("linuxforhealth.connect.endpoint.acd_rest.key"))
         		.log(LoggingLevel.WARN, logger, "ACD service apikey not configured - message will not be processed")
         		.stop()
         
