@@ -152,7 +152,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://0.0.0.0:8080/bluebutton/v1/Patient?-19990000002151",
+					"raw": "http://0.0.0.0:8080/bluebutton/v1/Patient?-19990000002154",
 					"protocol": "http",
 					"host": [
 						"0",
@@ -168,12 +168,12 @@
 					],
 					"query": [
 						{
-							"key": "-19990000002151",
+							"key": "-19990000002154",
 							"value": null
 						}
 					]
 				},
-				"description": "Get patient details"
+				"description": "Get the patient FHIR resources for the beneficiary."
 			},
 			"response": [
 				{
@@ -255,7 +255,7 @@
 			]
 		},
 		{
-			"name": "Get an EOB",
+			"name": "Get EOB details",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true,
 				"disabledSystemHeaders": {
@@ -278,7 +278,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://0.0.0.0:8080/bluebutton/v1/ExplanationOfBenefit/?patient=-19990000002151",
+					"raw": "http://0.0.0.0:8080/bluebutton/v1/ExplanationOfBenefit/?patient=-19990000002154",
 					"protocol": "http",
 					"host": [
 						"0",
@@ -296,11 +296,11 @@
 					"query": [
 						{
 							"key": "patient",
-							"value": "-19990000002151"
+							"value": "-19990000002154"
 						}
 					]
 				},
-				"description": "Get a patient resource"
+				"description": "Get the explanation of benefits FHIR resources for the beneficiary."
 			},
 			"response": [
 				{
@@ -405,7 +405,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://0.0.0.0:8080/bluebutton/v1/Coverage/?beneficiary=-19990000002151",
+					"raw": "http://0.0.0.0:8080/bluebutton/v1/Coverage/?beneficiary=-19990000002154",
 					"protocol": "http",
 					"host": [
 						"0",
@@ -423,11 +423,11 @@
 					"query": [
 						{
 							"key": "beneficiary",
-							"value": "-19990000002151"
+							"value": "-19990000002154"
 						}
 					]
 				},
-				"description": "Get a patient resource"
+				"description": "Get the coverage FHIR resources for the beneficiary."
 			},
 			"response": [
 				{
@@ -514,7 +514,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "jdRD4e3LPWJ7lhCmXQVVwyjRW2v5Kz",
+				"value": "bCgQuffovijuKFDoZG4RENgmmwRrul",
 				"type": "string"
 			}
 		]

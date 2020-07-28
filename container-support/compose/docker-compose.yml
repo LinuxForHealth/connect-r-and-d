@@ -1,5 +1,13 @@
 version: "3.7"
 services:
+  nats-server:
+    image: ${LFH_NATS_IMAGE}
+    restart: "always"
+    container_name: nats-server
+    ports:
+      - ${LFH_NATS_CLIENT_HOST_PORT}:${LFH_NATS_CLIENT_CONTAINER_PORT}
+      - ${LFH_NATS_CLUSTER_HOST_PORT}:${LFH_NATS_CLUSTER_CONTAINER_PORT}
+      - ${LFH_NATS_MANAGEMENT_HOST_PORT}:${LFH_NATS_MANAGEMENT_CONTAINER_PORT}
   zookeeper:
     image: ${LFH_ZOOKEEPER_IMAGE}
     ports:
@@ -28,10 +36,13 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: ${LFH_KAFKA_INTER_BROKER_LISTENER_NAME}
     depends_on:
       - "zookeeper"
-  nats-server:
-    image: ${LFH_NATS_IMAGE}
-    container_name: nats-server
-    ports:
-      - ${LFH_NATS_CLIENT_HOST_PORT}:${LFH_NATS_CLIENT_CONTAINER_PORT}
-      - ${LFH_NATS_CLUSTER_HOST_PORT}:${LFH_NATS_CLUSTER_CONTAINER_PORT}
-      - ${LFH_NATS_MANAGEMENT_HOST_PORT}:${LFH_NATS_MANAGEMENT_CONTAINER_PORT}
+  nats-subscriber:
+    image: ${LFH_NATS_SUBSCRIBER_IMAGE}
+    restart: "always"
+    container_name: nats-subscriber
+    environment:
+      LFH_NATS_SUBSCRIBER_HOST: ${LFH_NATS_SUBSCRIBER_HOST}
+      LFH_NATS_SUBSCRIBER_PORT: ${LFH_NATS_SUBSCRIBER_PORT}
+      LFH_NATS_SUBSCRIBER_TOPIC: ${LFH_NATS_SUBSCRIBER_TOPIC}
+    depends_on:
+      - "nats-server"
