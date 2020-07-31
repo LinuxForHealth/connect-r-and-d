@@ -45,3 +45,4 @@ bin
 # this file is ignored to allow users to customize as necessary
 # if a configuration is compelling we will force add the update back to the repo
 container-support/compose/docker-compose.override
+container-support/compose/docker-compose.override.yml
