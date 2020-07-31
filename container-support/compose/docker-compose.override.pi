@@ -5,6 +5,9 @@
 # To include Linux For Health in the compose stack rename this file to docker-compose.override.yml and execute:
 # cd container-support/compose
 # docker-compose up -d
+#
+# This file provides KAFKA_HEAP_OPTS that work with Raspberry Pi IoT devices.
+
 version: "3.7"
 services:
   kafdrop:
@@ -20,6 +23,7 @@ services:
       KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka:9092"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT"
       KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
+      KAFKA_HEAP_OPTS: "-Xmx256M -Xms128M"
   lfh:
     restart: "always"
     image: ${LFH_CONNECT_IMAGE}
