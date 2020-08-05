@@ -21,6 +21,6 @@ public class Hl7v2MllpRouteBuilder extends RouteBuilder {
                 .routeId(HL7_V2_MLLP_ROUTE_ID)
                 .unmarshal().hl7()
                 .process(new Hl7v2MetadataProcessor())
-                .to("direct:storeandnotify");
+                .to(LinuxForHealthDirectRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI);
     }
 }
