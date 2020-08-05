@@ -40,7 +40,7 @@ public class BlueButton20ResultProcessor implements Processor {
             String resourceType = exchange.getProperty("resourceType", String.class).toUpperCase();
 
             String kafkaDataStoreUri = contextSupport
-                    .getProperty("lfh.connect.datastore.uri")
+                    .getProperty("lfh.connect.dataStore.uri")
                     .replaceAll("<topicName>", "FHIR_R3_" + resourceType);
 
             exchange.setProperty("dataStoreUri", kafkaDataStoreUri);

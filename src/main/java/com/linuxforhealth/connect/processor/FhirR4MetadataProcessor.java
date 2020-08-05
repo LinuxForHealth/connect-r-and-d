@@ -27,7 +27,7 @@ public class FhirR4MetadataProcessor implements Processor {
         String fhirBaseUri = contextSupport.getProperty("lfh.connect.fhir_r4_rest.uri");
         String resourceType = exchange.getIn().getHeader("resource", String.class).toUpperCase();
         String kafkaDataStoreUri = contextSupport
-                .getProperty("lfh.connect.datastore.uri")
+                .getProperty("lfh.connect.dataStore.uri")
                 .replaceAll("<topicName>", "FHIR_R4_" + resourceType);
 
         String routeUrl = fhirBaseUri+"/"+resourceType;

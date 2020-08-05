@@ -29,7 +29,7 @@ public class Hl7v2MetadataProcessor implements Processor {
                 .toUpperCase();
 
         String dataStoreUri = contextSupport
-                .getProperty("lfh.connect.datastore.uri")
+                .getProperty("lfh.connect.dataStore.uri")
                 .replaceAll("<topicName>", "HL7v2_" + resourceType);
 
         exchange.setProperty("timestamp", Instant.now().getEpochSecond());

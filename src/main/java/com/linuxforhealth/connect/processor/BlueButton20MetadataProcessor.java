@@ -25,7 +25,7 @@ public class BlueButton20MetadataProcessor implements Processor {
         String resourceType = exchange.getIn().getHeader("resource", String.class).toUpperCase();
 
         String kafkaDataStoreUri = contextSupport
-                .getProperty("lfh.connect.datastore.uri")
+                .getProperty("lfh.connect.dataStore.uri")
                 .replaceAll("<topicName>", "FHIR_R4_" + resourceType);
 
         // Form the incoming route url for the message property routeUrl
