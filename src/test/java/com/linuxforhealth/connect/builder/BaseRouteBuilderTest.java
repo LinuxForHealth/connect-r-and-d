@@ -1,0 +1,68 @@
+package com.linuxforhealth.connect.builder;
+
+import org.apache.camel.ProducerTemplate;
+import org.apache.camel.RoutesBuilder;
+import org.apache.camel.component.mock.MockEndpoint;
+import org.apache.camel.impl.engine.DefaultProducerTemplate;
+import org.apache.camel.test.junit5.CamelTestSupport;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.util.Properties;
+
+/**
+ * Tests {@link BaseRouteBuilder} with a default implementation
+ */
+public class BaseRouteBuilderTest extends CamelTestSupport {
+
+    private MockEndpoint mockResult;
+    private ProducerTemplate producerTemplate;
+
+    /**
+     * Sets properties for the unit test
+     * @return {@link Properties}
+     */
+    @Override
+    protected Properties useOverridePropertiesWithPropertiesComponent() {
+        Properties props = new Properties();
+        props.setProperty("lfh.connect.default.uri", "direct:start");
+        props.setProperty("lfh.connect.default.dataFormat", "csv");
+        props.setProperty("lfh.connect.default.messageType", "person");
+        return props;
+    }
+
+    @Override
+    protected RoutesBuilder createRouteBuilder()  {
+        return new DefaultRouteBuilder();
+    }
+
+    @BeforeEach
+    void setupFixtures() {
+        mockResult = MockEndpoint.resolve(context, "mock:result");
+        producerTemplate = new DefaultProducerTemplate(context);
+        producerTemplate.start();
+    }
+
+    @Test
+    void testRoute() throws InterruptedException{
+        producerTemplate.sendBody("direct:start", "test");
+        mockResult.expectedMessageCount(1);
+        mockResult.expectedBodiesReceived("test");
+        mockResult.assertIsSatisfied();
+    }
+}
+
+class DefaultRouteBuilder extends BaseRouteBuilder {
+
+    @Override
+    protected String getRoutePropertyNamespace() {
+        return "lfh.connect.default";
+    }
+
+    @Override
+    protected void buildRoute(String routePropertyNamespace) {
+
+        from("{{lfh.connect.default.uri}}")
+        .to("mock:result");
+    }
+}
