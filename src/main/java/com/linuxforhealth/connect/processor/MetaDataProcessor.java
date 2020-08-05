@@ -32,6 +32,32 @@ public final class MetaDataProcessor implements Processor {
 
     private final String routePropertyNamespace;
 
+    /**
+     * Supports recursive parsing of Camel simple/{@link SimpleBuilder} expressions.
+     * Recursive parsing is useful when a property is used to specify a simple expression.
+     *
+     * lfh.connect.myprop=\${header.foo}
+     *
+     * @param simpleExpression The simple expression to parse.
+     * @param exchange The current message {@link Exchange}
+     * @return the parsed expression as a string.
+     */
+    private String parseSimpleExpression(String simpleExpression, Exchange exchange) {
+        String parsedValue = SimpleBuilder
+                .simple(simpleExpression)
+                .evaluate(exchange, String.class);
+
+        if (parsedValue != null && parsedValue.startsWith("${") && parsedValue.endsWith("}")) {
+            return parseSimpleExpression(parsedValue, exchange);
+        }
+        return parsedValue;
+    }
+
+    /**
+     * Sets metadata fields on the exchange
+     * @param exchange The current {@link Exchange}
+     * @throws Exception If an error occurs parsing simple expressions
+     */
     @Override
     public void process(Exchange exchange) throws Exception {
 
@@ -40,19 +66,17 @@ public final class MetaDataProcessor implements Processor {
         exchange.setProperty("routeUri", URLDecoder.decode(exchange.getFromEndpoint().getEndpointUri(), StandardCharsets.UTF_8.name()));
         exchange.setProperty("timestamp", Instant.now().getEpochSecond());
 
-        exchange.setProperty("dataFormat",
-                SimpleBuilder.simple("${properties:" + routePropertyNamespace + ".dataFormat}")
-                        .evaluate(exchange, String.class).toUpperCase());
+        String dataFormatExpression = "${properties:" + routePropertyNamespace + ".dataFormat}";
+        exchange.setProperty("dataFormat", parseSimpleExpression(dataFormatExpression, exchange).toUpperCase());
 
-        exchange.setProperty("messageType",
-                SimpleBuilder.simple("${properties:" + routePropertyNamespace + ".messageType}")
-                        .evaluate(exchange, String.class).toUpperCase());
+        String messageTypeExpression = "${properties:" + routePropertyNamespace + ".messageType}";
+        exchange.setProperty("messageType", parseSimpleExpression(messageTypeExpression, exchange).toUpperCase());
+
+        String topicName = exchange.getProperty("dataFormat") + "_" + exchange.getProperty("messageType");
 
         exchange.setProperty("dataStoreUri",
-                SimpleBuilder.simple("${properties:lfh.connect.dataStore.uri}")
-                        .evaluate(exchange, String.class)
-                        .replaceAll("<topicName>",
-                                exchange.getProperty("dataFormat") + "_" + exchange.getProperty("messageType")));
+                parseSimpleExpression("${properties:lfh.connect.dataStore.uri}", exchange)
+                .replaceAll("<topicName>", topicName));
 
         String exchangeBody = exchange.getIn().getBody(String.class);
         String result = Base64.getEncoder().encodeToString(exchangeBody.getBytes(StandardCharsets.UTF_8));

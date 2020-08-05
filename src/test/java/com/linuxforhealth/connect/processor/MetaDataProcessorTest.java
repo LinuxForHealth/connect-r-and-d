@@ -11,7 +11,6 @@ import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.impl.engine.DefaultProducerTemplate;
-import org.apache.camel.support.DefaultExchange;
 import org.apache.camel.test.junit5.CamelTestSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,9 +21,11 @@ import java.util.Base64;
 import java.util.Properties;
 import java.util.UUID;
 
+/**
+ * Tests {@link MetaDataProcessor}
+ */
 class MetaDataProcessorTest extends CamelTestSupport {
 
-    private MetaDataProcessor metaDataProcessor;
     private MockEndpoint mockResult;
     private ProducerTemplate producerTemplate;
 
@@ -64,7 +65,6 @@ class MetaDataProcessorTest extends CamelTestSupport {
         String csvData = "1,Oscar,Whitmire\n2,Emmie,Whitmire";
         String expectedData = Base64.getEncoder().encodeToString(csvData.getBytes(StandardCharsets.UTF_8));
 
-        metaDataProcessor = new MetaDataProcessor("lfh.connect.meta");
         producerTemplate.sendBody("direct:start", csvData);
 
         mockResult.expectedMessageCount(1);
