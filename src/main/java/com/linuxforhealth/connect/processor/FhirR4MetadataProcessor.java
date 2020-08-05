@@ -33,7 +33,7 @@ public class FhirR4MetadataProcessor implements Processor {
         String routeUrl = fhirBaseUri+"/"+resourceType;
 
         exchange.setProperty("timestamp", Instant.now().getEpochSecond());
-        exchange.setProperty("routeUrl", routeUrl);
+        exchange.setProperty("routeUri", routeUrl);
         exchange.setProperty("dataStoreUri", kafkaDataStoreUri);
         exchange.setProperty("dataFormat", "fhir-r4");
         exchange.setProperty("uuid", UUID.randomUUID());

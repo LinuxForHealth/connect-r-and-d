@@ -33,7 +33,7 @@ public class Hl7v2MetadataProcessor implements Processor {
                 .replaceAll("<topicName>", "HL7v2_" + resourceType);
 
         exchange.setProperty("timestamp", Instant.now().getEpochSecond());
-        exchange.setProperty("routeUrl", consumerUrl);
+        exchange.setProperty("routeUri", consumerUrl);
         exchange.setProperty("dataStoreUri", dataStoreUri);
         exchange.setProperty("dataFormat", "hl7-v2");
         exchange.setProperty("uuid",  UUID.randomUUID());

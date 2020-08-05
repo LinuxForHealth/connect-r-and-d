@@ -34,7 +34,7 @@ public class FhirR4ToAcdProcessorTest extends CamelTestSupport {
 		Exchange mockedExchange = new DefaultExchange(context);
 		mockedExchange.setProperty("timestamp", 1593705267);
         mockedExchange.adapt(ExtendedExchange.class).setFromRouteId("bluebutton-20-rest");
-        mockedExchange.setProperty("routeUrl", "direct:fhir-r4-to-acd");
+        mockedExchange.setProperty("routeUri", "direct:fhir-r4-to-acd");
         mockedExchange.setProperty("dataStoreUri", "kafka:FHIR_R4_DOCUMENTREFERENCE?brokers=localhost:9092");
         mockedExchange.setProperty("dataFormat", "fhir-r4");
         mockedExchange.setProperty("uuid", "cd8c3a57-6fc8-4d33-be18-74f6d5b4cd79");

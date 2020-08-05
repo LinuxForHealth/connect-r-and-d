@@ -25,7 +25,7 @@ public class FormatErrorTest extends CamelTestSupport {
         Exchange mockedExchange = new DefaultExchange(context);
         mockedExchange.setProperty("timestamp", 1592514822);
         mockedExchange.adapt(ExtendedExchange.class).setFromRouteId("hl7-v2-mllp");
-        mockedExchange.setProperty("routeUrl", "netty:tcp://localhost:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder");
+        mockedExchange.setProperty("routeUri", "netty:tcp://localhost:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder");
         mockedExchange.setProperty("dataStoreUri", "kafka:HL7v2_ADT?brokers=localhost:9092");
         mockedExchange.setProperty("dataFormat", "hl7-v2");
         mockedExchange.setProperty("uuid", "123e4567-e89b-42d3-a456-556642441234");
@@ -52,7 +52,7 @@ public class FormatErrorTest extends CamelTestSupport {
         formatError.process(mockedExchange);
         String expectedBody = "{\"meta\":{\"routeId\":\"hl7-v2-mllp\","+
             "\"uuid\":\"123e4567-e89b-42d3-a456-556642441234\","+
-            "\"routeUrl\":\"netty:tcp://localhost:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder\","+
+            "\"routeUri\":\"netty:tcp://localhost:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder\","+
             "\"dataFormat\":\"hl7-v2\",\"timestamp\":1592514822,"+
             "\"dataStoreUri\":\"kafka:HL7v2_ADT?brokers=localhost:9092\","+
             "\"status\":\"error\"},\"data\":\"An error occurred\"}";

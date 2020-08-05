@@ -25,7 +25,7 @@ public class AcdAnalyzeProcessor implements Processor {
         String routeUrl = contextSupport.getProperty("lfh.connect.acd_rest.baseUri");
 
         exchange.setProperty("timestamp", Instant.now().getEpochSecond());
-        exchange.setProperty("routeUrl", routeUrl);
+        exchange.setProperty("routeUri", routeUrl);
         exchange.setProperty("dataStoreUri", kafkaDataStoreUri);
         exchange.setProperty("dataFormat", "acd-container");
         exchange.setProperty("uuid", UUID.randomUUID());
