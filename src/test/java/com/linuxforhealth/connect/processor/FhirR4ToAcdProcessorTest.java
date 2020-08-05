@@ -6,7 +6,7 @@
 package com.linuxforhealth.connect.processor;
 
 import ca.uhn.fhir.context.FhirContext;
-import com.linuxforhealth.connect.TestUtils;
+import com.linuxforhealth.connect.support.TestUtils;
 import org.apache.camel.Exchange;
 import org.apache.camel.ExtendedExchange;
 import org.apache.camel.support.DefaultExchange;
@@ -15,11 +15,13 @@ import org.hl7.fhir.r4.model.DocumentReference;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Properties;
 
+@Disabled
 public class FhirR4ToAcdProcessorTest extends CamelTestSupport {
 	
 	private Exchange mockedExchange;
