@@ -29,12 +29,12 @@ public class BlueButton20MetadataProcessor implements Processor {
                 .replaceAll("<topicName>", "FHIR_R4_" + resourceType);
 
         // Form the incoming route url for the message property routeUrl
-        String routeUrl = blueButtonUri+"/"+resourceType;
+        String routeUri = blueButtonUri+"/"+resourceType;
         String queryStr = exchange.getIn().getHeader("CamelHttpQuery", String.class);
-        if (queryStr != null && queryStr != "") routeUrl += "?"+queryStr;
+        if (queryStr != null && queryStr != "") routeUri += "?"+queryStr;
 
         exchange.setProperty("timestamp", Instant.now().getEpochSecond());
-        exchange.setProperty("routeUri", routeUrl);
+        exchange.setProperty("routeUri", routeUri);
         exchange.setProperty("dataStoreUri", kafkaDataStoreUri);
         exchange.setProperty("dataFormat", "fhir-r4");
         exchange.setProperty("uuid", UUID.randomUUID());
