@@ -54,6 +54,21 @@ public final class MetaDataProcessor implements Processor {
     }
 
     /**
+     * Replaces a uri placeholder such as <code>{foo}</code> with a simple expression header placeholder such as
+     * <code>${header.foo}</code> within an URI.
+     *
+     * @param uri The URI to process
+     * @return the updated URI string
+     */
+    private String replacePlacholderWithSimpleExpression(String uri) {
+        int startingIndex = uri.indexOf("{");
+        int endingIndex = uri.indexOf("}");
+
+        String fieldName = uri.substring(startingIndex + 1, endingIndex);
+        return uri.replaceAll("\\{" + fieldName + "\\}", "\\$\\{header." + fieldName + "\\}");
+    }
+
+    /**
      * Sets metadata fields on the exchange
      * @param exchange The current {@link Exchange}
      * @throws Exception If an error occurs parsing simple expressions
@@ -63,8 +78,15 @@ public final class MetaDataProcessor implements Processor {
 
         exchange.setProperty("routeId", exchange.getFromRouteId());
         exchange.setProperty("uuid", UUID.randomUUID());
-        exchange.setProperty("routeUri", URLDecoder.decode(exchange.getFromEndpoint().getEndpointUri(), StandardCharsets.UTF_8.name()));
         exchange.setProperty("timestamp", Instant.now().getEpochSecond());
+
+        String routeUri = URLDecoder.decode(exchange.getFromEndpoint().getEndpointUri(), StandardCharsets.UTF_8.name());
+        if (routeUri.contains("{") && routeUri.contains("}")) {
+            routeUri = replacePlacholderWithSimpleExpression(routeUri);
+            routeUri = parseSimpleExpression(routeUri, exchange);
+        }
+
+        exchange.setProperty("routeUri", routeUri);
 
         String dataFormatExpression = "${properties:" + routePropertyNamespace + ".dataFormat}";
         exchange.setProperty("dataFormat", parseSimpleExpression(dataFormatExpression, exchange).toUpperCase());
