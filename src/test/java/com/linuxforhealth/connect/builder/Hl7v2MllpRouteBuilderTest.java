@@ -4,6 +4,8 @@ import com.linuxforhealth.connect.support.LinuxForHealthAssertions;
 import com.linuxforhealth.connect.support.TestUtils;
 import org.apache.camel.Exchange;
 import org.apache.camel.RoutesBuilder;
+import org.apache.camel.component.hl7.HL7MLLPNettyDecoderFactory;
+import org.apache.camel.component.hl7.HL7MLLPNettyEncoderFactory;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,12 +28,18 @@ public class Hl7v2MllpRouteBuilderTest extends RouteBuilderTestSupport {
     }
 
     /**
-     * Overriden to intercept the "store and notify" producer uri
+     * Overriden to register beans, apply advice, and register a mock endpoint
      * @throws Exception if an error occurs applying advice
      */
     @BeforeEach
     @Override
     protected void configureContext() throws Exception {
+        HL7MLLPNettyEncoderFactory hl7encoder = new HL7MLLPNettyEncoderFactory();
+        HL7MLLPNettyDecoderFactory hl7decoder = new HL7MLLPNettyDecoderFactory();
+
+        context.getRegistry().bind("hl7encoder", hl7encoder);
+        context.getRegistry().bind("hl7decoder", hl7decoder);
+
         applyAdvice(
                 Hl7v2MllpRouteBuilder.ROUTE_ID,
                 LinuxForHealthDirectRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI,

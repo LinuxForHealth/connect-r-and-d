@@ -103,14 +103,6 @@ abstract class RouteBuilderTestSupport extends CamelTestSupport {
      */
     @BeforeEach
     protected void configureContext() throws Exception  {
-        HL7MLLPNettyEncoderFactory hl7encoder = new HL7MLLPNettyEncoderFactory();
-        HL7MLLPNettyDecoderFactory hl7decoder = new HL7MLLPNettyDecoderFactory();
-
-        context.getRegistry().bind("hl7encoder", hl7encoder);
-        context.getRegistry().bind("hl7decoder", hl7decoder);
-        context.getRegistry().bind("kafka", new KafkaComponent());
-        context.getRegistry().bind("nats", new NatsComponent());
-
         context.start();
 
         producerTemplate = new DefaultProducerTemplate(context);
