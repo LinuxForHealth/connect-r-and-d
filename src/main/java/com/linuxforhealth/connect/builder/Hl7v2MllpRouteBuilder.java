@@ -12,7 +12,7 @@ import com.linuxforhealth.connect.processor.MetaDataProcessor;
  */
 public class Hl7v2MllpRouteBuilder extends BaseRouteBuilder {
 
-    public final static String HL7_V2_MLLP_ROUTE_ID = "hl7-v2-mllp";
+    public final static String ROUTE_ID = "hl7-v2-mllp";
     private final static String ROUTE_PROPERTY_NAMESPACE = "lfh.connect.hl7_v2_mllp";
 
     @Override
@@ -23,7 +23,7 @@ public class Hl7v2MllpRouteBuilder extends BaseRouteBuilder {
     @Override
     protected void buildRoute(String propertyNamespace) {
         from("{{lfh.connect.hl7_v2_mllp.uri}}")
-                .routeId(HL7_V2_MLLP_ROUTE_ID)
+                .routeId(ROUTE_ID)
                 .unmarshal().hl7()
                 .process(new MetaDataProcessor(propertyNamespace))
                 .to(LinuxForHealthDirectRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI);
