@@ -80,7 +80,7 @@ public class AcdAnalyzeRouteBuilder extends RouteBuilder {
 		            .unmarshal().json()
 		            .log(LoggingLevel.DEBUG, logger, "ACD response messge body: ${body}")
 		            .process(new AcdAnalyzeProcessor())
-		            .to(LinuxForHealthDirectRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
+		            .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
 		        .doCatch(HttpOperationFailedException.class) // ACD error response handling
 		        	.log(LoggingLevel.ERROR, logger, "ACD error response code: ${header.CamelHttpResponseCode}")
 		        	.log(LoggingLevel.ERROR, logger, "ACD error response message: ${header.CamelHttpResponseText}")

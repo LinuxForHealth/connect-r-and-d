@@ -42,7 +42,7 @@ public class Hl7v2MllpRouteBuilderTest extends RouteBuilderTestSupport {
 
         applyAdvice(
                 Hl7v2MllpRouteBuilder.ROUTE_ID,
-                LinuxForHealthDirectRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI,
+                LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI,
                 "mock:result"
         );
 

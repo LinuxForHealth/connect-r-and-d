@@ -26,6 +26,6 @@ public class Hl7v2MllpRouteBuilder extends BaseRouteBuilder {
                 .routeId(ROUTE_ID)
                 .unmarshal().hl7()
                 .process(new MetaDataProcessor(propertyNamespace))
-                .to(LinuxForHealthDirectRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI);
+                .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI);
     }
 }

@@ -1,3 +1,8 @@
+/*
+ * (C) Copyright IBM Corp. 2020
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.linuxforhealth.connect.builder;
 
 import org.apache.camel.ProducerTemplate;
@@ -33,7 +38,18 @@ public class BaseRouteBuilderTest extends CamelTestSupport {
 
     @Override
     protected RoutesBuilder createRouteBuilder()  {
-        return new DefaultRouteBuilder();
+        return new BaseRouteBuilder() {
+            @Override
+            protected String getRoutePropertyNamespace() {
+                return "lfh.connect.default";
+            }
+
+            @Override
+            protected void buildRoute(String routePropertyNamespace) {
+                from("{{lfh.connect.default.uri}}")
+                .to("mock:result");
+            }
+        };
     }
 
     @BeforeEach
@@ -49,20 +65,5 @@ public class BaseRouteBuilderTest extends CamelTestSupport {
         mockResult.expectedMessageCount(1);
         mockResult.expectedBodiesReceived("test");
         mockResult.assertIsSatisfied();
-    }
-}
-
-class DefaultRouteBuilder extends BaseRouteBuilder {
-
-    @Override
-    protected String getRoutePropertyNamespace() {
-        return "lfh.connect.default";
-    }
-
-    @Override
-    protected void buildRoute(String routePropertyNamespace) {
-
-        from("{{lfh.connect.default.uri}}")
-        .to("mock:result");
     }
 }

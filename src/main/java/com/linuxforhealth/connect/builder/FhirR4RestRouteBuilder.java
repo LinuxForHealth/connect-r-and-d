@@ -39,6 +39,6 @@ public class FhirR4RestRouteBuilder extends BaseRouteBuilder {
                 .unmarshal().fhirJson("R4")
                 .marshal().fhirJson("R4")
                 .process(new MetaDataProcessor(routePropertyNamespace))
-                .to(LinuxForHealthDirectRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI);
+                .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI);
     }
 }

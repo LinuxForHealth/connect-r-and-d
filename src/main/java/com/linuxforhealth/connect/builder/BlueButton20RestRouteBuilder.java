@@ -45,7 +45,7 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
                     .toD("${exchangeProperty[location]}")
                 .doCatch(Exception.class)
                     .setProperty("errorMessage", simple(exceptionMessage().toString()))
-                    .to(LinuxForHealthDirectRouteBuilder.ERROR_CONSUMER_URI)
+                    .to(LinuxForHealthRouteBuilder.ERROR_CONSUMER_URI)
                 .end();
 
         // Blue Button OAuth2 - Callback to exchange code for token (displayed in the browser)
@@ -60,7 +60,7 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
                     .to(cmsTokenURL.toString())
                 .doCatch(Exception.class)
                     .setProperty("errorMessage", simple(exceptionMessage().toString()))
-                    .to(LinuxForHealthDirectRouteBuilder.ERROR_CONSUMER_URI)
+                    .to(LinuxForHealthRouteBuilder.ERROR_CONSUMER_URI)
                 .end();
         
         // Blue Button 2.0 route - Retrieve patient resources
@@ -74,10 +74,10 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
                     .toD("${exchangeProperty[location]}")
                     .unmarshal().fhirJson("DSTU3")
                     .process(new BlueButton20ResultProcessor())
-                    .to(LinuxForHealthDirectRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
+                    .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
                 .doCatch(Exception.class)
                     .setProperty("errorMessage", simple(exceptionMessage().toString()))
-                    .to(LinuxForHealthDirectRouteBuilder.ERROR_CONSUMER_URI)
+                    .to(LinuxForHealthRouteBuilder.ERROR_CONSUMER_URI)
                 .end();
     }
 }

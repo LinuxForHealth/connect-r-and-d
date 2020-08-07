@@ -1,3 +1,8 @@
+/*
+ * (C) Copyright IBM Corp. 2020
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.linuxforhealth.connect.builder;
 
 import com.linuxforhealth.connect.support.CamelContextSupport;
@@ -6,7 +11,9 @@ import org.apache.camel.builder.RouteBuilder;
 import java.util.Arrays;
 
 /**
- * Base class for Linux for Health {@link RouteBuilder} implementations
+ * Base class for Linux for Health {@link RouteBuilder} implementations.
+ * Provides basic property validation and error handling.
+ * Route implementations are provided by overriding <code>BaseRouteBuilder.buildRoute</code>.
  */
 public abstract class BaseRouteBuilder extends RouteBuilder {
 
@@ -41,10 +48,20 @@ public abstract class BaseRouteBuilder extends RouteBuilder {
     protected abstract void buildRoute(String routePropertyNamespace);
 
     /**
-     * Validates required properties and then builds the data processing route
+     * Configures the Camel {@link org.apache.camel.builder.ErrorHandlerBuilder} for the context.
+     * The default implementation uses the dead letter channel error handler, directing failed messages
+     * to {@link LinuxForHealthRouteBuilder#ERROR_CONSUMER_URI}
+     */
+    protected void configureErrorHandling() {
+        errorHandler(deadLetterChannel(LinuxForHealthRouteBuilder.ERROR_CONSUMER_URI));
+    }
+
+    /**
+     * Provides base route processing and configuration
      */
     @Override
-    public void configure() {
+    public final void configure() {
+        configureErrorHandling();
         validateRequiredProperties();
         buildRoute(getRoutePropertyNamespace());
     }

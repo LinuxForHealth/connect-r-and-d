@@ -8,10 +8,6 @@ package com.linuxforhealth.connect.builder;
 import com.linuxforhealth.connect.support.TestUtils;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
-import org.apache.camel.component.hl7.HL7MLLPNettyDecoderFactory;
-import org.apache.camel.component.hl7.HL7MLLPNettyEncoderFactory;
-import org.apache.camel.component.kafka.KafkaComponent;
-import org.apache.camel.component.nats.NatsComponent;
 import org.apache.camel.impl.engine.DefaultProducerTemplate;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.test.junit5.CamelTestSupport;
@@ -20,7 +16,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 /**

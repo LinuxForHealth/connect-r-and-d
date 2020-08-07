@@ -4,8 +4,6 @@ import com.linuxforhealth.connect.support.LinuxForHealthAssertions;
 import com.linuxforhealth.connect.support.TestUtils;
 import org.apache.camel.Exchange;
 import org.apache.camel.RoutesBuilder;
-import org.apache.camel.component.hl7.HL7MLLPNettyDecoderFactory;
-import org.apache.camel.component.hl7.HL7MLLPNettyEncoderFactory;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +34,7 @@ public class FhirR4RestRouteBuilderTest extends RouteBuilderTestSupport {
     protected void configureContext() throws Exception {
         applyAdvice(
                 FhirR4RestRouteBuilder.ROUTE_ID,
-                LinuxForHealthDirectRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI,
+                LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI,
                 "mock:result"
         );
 
