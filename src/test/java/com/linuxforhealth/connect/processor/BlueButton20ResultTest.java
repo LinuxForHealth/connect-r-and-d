@@ -6,7 +6,7 @@
 package com.linuxforhealth.connect.processor;
 
 import ca.uhn.fhir.context.FhirContext;
-import com.linuxforhealth.connect.TestUtils;
+import com.linuxforhealth.connect.support.TestUtils;
 import org.apache.camel.Exchange;
 import org.apache.camel.ExtendedExchange;
 import org.apache.camel.support.DefaultExchange;
@@ -33,7 +33,7 @@ public class BlueButton20ResultTest extends CamelTestSupport {
         Exchange mockedExchange = new DefaultExchange(context);
         mockedExchange.setProperty("timestamp", 1593705267);
         mockedExchange.adapt(ExtendedExchange.class).setFromRouteId("bluebutton-20-rest");
-        mockedExchange.setProperty("routeUrl", "http://0.0.0.0:8080/bluebutton/v1/Patient?-19990000002151");
+        mockedExchange.setProperty("routeUri", "http://0.0.0.0:8080/bluebutton/v1/Patient?-19990000002151");
         mockedExchange.setProperty("dataStoreUri", "kafka:FHIR_R4_PATIENT?brokers=localhost:9092");
         mockedExchange.setProperty("dataFormat", "fhir-r4");
         mockedExchange.setProperty("uuid", "cd8c3a57-6fc8-4d33-be18-74f6d5b4cd79");

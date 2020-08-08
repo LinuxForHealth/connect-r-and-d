@@ -9,7 +9,6 @@ import com.linuxforhealth.connect.processor.AcdAnalyzeProcessor;
 import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.Predicate;
-import org.apache.camel.Processor;
 import org.apache.camel.builder.PredicateBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.http.base.HttpOperationFailedException;
@@ -81,7 +80,7 @@ public class AcdAnalyzeRouteBuilder extends RouteBuilder {
 		            .unmarshal().json()
 		            .log(LoggingLevel.DEBUG, logger, "ACD response messge body: ${body}")
 		            .process(new AcdAnalyzeProcessor())
-		            .to("direct:storeandnotify")
+		            .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
 		        .doCatch(HttpOperationFailedException.class) // ACD error response handling
 		        	.log(LoggingLevel.ERROR, logger, "ACD error response code: ${header.CamelHttpResponseCode}")
 		        	.log(LoggingLevel.ERROR, logger, "ACD error response message: ${header.CamelHttpResponseText}")

@@ -19,13 +19,13 @@ public class AcdAnalyzeProcessor implements Processor {
 	    CamelContextSupport contextSupport = new CamelContextSupport(exchange.getContext());
 
         String kafkaDataStoreUri = contextSupport
-                .getProperty("lfh.connect.datastore.uri")
+                .getProperty("lfh.connect.dataStore.uri")
                 .replaceAll("<topicName>", "ACD_INSIGHTS");
 
-        String routeUrl = contextSupport.getProperty("lfh.connect.acd_rest.baseUri");
+        String routeUri = contextSupport.getProperty("lfh.connect.acd_rest.baseUri");
 
         exchange.setProperty("timestamp", Instant.now().getEpochSecond());
-        exchange.setProperty("routeUrl", routeUrl);
+        exchange.setProperty("routeUri", routeUri);
         exchange.setProperty("dataStoreUri", kafkaDataStoreUri);
         exchange.setProperty("dataFormat", "acd-container");
         exchange.setProperty("uuid", UUID.randomUUID());

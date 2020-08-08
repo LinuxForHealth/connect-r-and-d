@@ -16,6 +16,8 @@ public class CamelContextSupport {
 
     /**
      * Lookups a property in the camel context, returning the property value.
+     * This method is typically used in contexts, such as the REST DSL, where simple expressions are not
+     * available.
      * @param propertyName The property name/key to lookup.
      * @return The property value
      * @raises {@link RuntimeException} if the property is not found

@@ -5,22 +5,26 @@
  */
 package com.linuxforhealth.connect.builder;
 
-import com.linuxforhealth.connect.processor.FhirR4MetadataProcessor;
+import com.linuxforhealth.connect.processor.MetaDataProcessor;
 import com.linuxforhealth.connect.support.CamelContextSupport;
-import org.apache.camel.builder.RouteBuilder;
 
 import java.net.URI;
 
 /**
  * Defines a FHIR R4 REST Processing route
  */
-public class FhirR4RestRouteBuilder extends RouteBuilder {
+public class FhirR4RestRouteBuilder extends BaseRouteBuilder {
 
-    public final static String FHIR_R4_ROUTE_ID = "fhir-r4-rest";
+    public final static String ROUTE_ID = "fhir-r4-rest";
 
     @Override
-    public void configure() {
+    protected String getRoutePropertyNamespace() {
+        return "lfh.connect.fhir_r4_rest";
+    }
 
+
+    @Override
+    protected void buildRoute(String routePropertyNamespace) {
         CamelContextSupport contextSupport = new CamelContextSupport(getContext());
         URI fhirBaseUri = URI.create(contextSupport.getProperty("lfh.connect.fhir_r4_rest.uri"));
 
@@ -31,9 +35,10 @@ public class FhirR4RestRouteBuilder extends RouteBuilder {
         rest(fhirBaseUri.getPath())
                 .post("/{resource}")
                 .route()
-                .routeId(FHIR_R4_ROUTE_ID)
+                .routeId(ROUTE_ID)
                 .unmarshal().fhirJson("R4")
-                .process(new FhirR4MetadataProcessor())
-                .to("direct:storeandnotify");
+                .marshal().fhirJson("R4")
+                .process(new MetaDataProcessor(routePropertyNamespace))
+                .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI);
     }
 }

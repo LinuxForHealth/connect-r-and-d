@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
  */
 public class FhirR4ToAcdRouteBuilder extends RouteBuilder {
 
+	public final static String FHIR_R4_TO_ACD_CONSUMER_URI = "direct:fhir-r4-to-acd";
 	public final static String FHIR_R4_TO_ACD_ROUTE_ID = "fhir-r4-to-acd";
 	
 	private final Logger logger = LoggerFactory.getLogger(FhirR4ToAcdProcessor.class);
@@ -26,7 +27,7 @@ public class FhirR4ToAcdRouteBuilder extends RouteBuilder {
 	@Override
 	public void configure() {
 		
-		from("direct:fhir-r4-to-acd")
+		from(FHIR_R4_TO_ACD_CONSUMER_URI)
 		.routeId(FHIR_R4_TO_ACD_ROUTE_ID)
 		.log(LoggingLevel.DEBUG, logger, "Received message body: ${body}")
 		.choice()
@@ -36,5 +37,4 @@ public class FhirR4ToAcdRouteBuilder extends RouteBuilder {
 				.log(LoggingLevel.WARN, logger, "Received message body was null - unable to process message")
 		.end();
 	}
-
 }
