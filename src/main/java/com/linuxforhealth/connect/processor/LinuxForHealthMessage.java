@@ -27,6 +27,7 @@ public class LinuxForHealthMessage extends JSONObject {
         meta.put("uuid", exchange.getProperty("uuid", String.class));
         meta.put("routeUri", exchange.getProperty("routeUri", String.class));
         meta.put("dataFormat", exchange.getProperty("dataFormat", String.class));
+        meta.put("messageType", exchange.getProperty("messageType", String.class));
         meta.put("timestamp", exchange.getProperty("timestamp", String.class));
         meta.put("dataStoreUri", exchange.getProperty("dataStoreUri", String.class));
         this.put("meta", meta);
@@ -69,6 +70,7 @@ public class LinuxForHealthMessage extends JSONObject {
         if (meta.has("uuid")) result += ","+getString(meta, "uuid");
         if (meta.has("routeUri")) result += ","+getString(meta, "routeUri");
         if (meta.has("dataFormat")) result += ","+getString(meta, "dataFormat");
+        if (meta.has("messageType")) result += ","+getString(meta, "messageType");
         if (meta.has("timestamp")) result += ","+getObject(meta, "timestamp");
         if (meta.has("dataStoreUri")) result += ","+getString(meta, "dataStoreUri");
         if (meta.has("status")) result += ","+getString(meta, "status");
