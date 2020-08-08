@@ -21,11 +21,11 @@ public class Hl7v2MllpRouteBuilder extends BaseRouteBuilder {
     }
 
     @Override
-    protected void buildRoute(String propertyNamespace) {
+    protected void buildRoute(String routePropertyNamespace) {
         from("{{lfh.connect.hl7_v2_mllp.uri}}")
                 .routeId(ROUTE_ID)
                 .unmarshal().hl7()
-                .process(new MetaDataProcessor(propertyNamespace))
+                .process(new MetaDataProcessor(routePropertyNamespace))
                 .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI);
     }
 }

@@ -38,13 +38,8 @@ public final class LinuxForHealthRouteBuilder extends RouteBuilder {
         // Store results in the data store and send a notification message
         from(STORE_AND_NOTIFY_CONSUMER_URI)
         .routeId(STORE_AND_NOTIFY_ROUTE_ID)
-        .process(exchange -> {
-            LinuxForHealthMessage msg = new LinuxForHealthMessage(exchange);
-            msg.setData(exchange.getIn().getBody());
-            exchange.getIn().setBody(msg.toString());
-        })
-        .toD("${exchangeProperty[dataStoreUri]}")
-        .to("direct:notify");
+        .to(STORE_CONSUMER_URI)
+        .to(NOTIFY_CONSUMER_URI);
 
         // Store results in the data store
         from(STORE_CONSUMER_URI)
