@@ -46,3 +46,10 @@ services:
       LFH_NATS_SUBSCRIBER_TOPIC: ${LFH_NATS_SUBSCRIBER_TOPIC}
     depends_on:
       - "nats-server"
+  orthanc:
+    image: ${LFH_ORTHANC_IMAGE}
+    restart: "always"
+    container_name: orthanc
+    ports:
+      - ${LFH_ORTHANC_DICOM_HOST_PORT}:${LFH_ORTHANC_DICOM_CONTAINER_PORT}
+      - ${LFH_ORTHANC_HTTP_HOST_PORT}:${LFH_ORTHANC_HTTP_CONTAINER_PORT}
