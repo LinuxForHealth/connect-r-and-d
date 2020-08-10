@@ -22,7 +22,7 @@ import java.util.Properties;
 /**
  * Tests {@link LinuxForHealthRouteBuilder#STORE_CONSUMER_URI}
  */
-public class LinuxForHealthStoreRouteBuilderTest extends RouteBuilderTestSupport {
+public class LinuxForHealthStoreTest extends RouteTestSupport {
 
     private MockEndpoint mockDataStoreResult;
 

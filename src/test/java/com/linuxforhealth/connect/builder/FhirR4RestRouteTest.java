@@ -16,7 +16,7 @@ import java.util.UUID;
 /**
  * Tests {@link FhirR4RestRouteBuilder}
  */
-public class FhirR4RestRouteBuilderTest extends RouteBuilderTestSupport {
+public class FhirR4RestRouteTest extends RouteTestSupport {
 
     private MockEndpoint mockResult;
 

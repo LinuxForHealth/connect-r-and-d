@@ -30,7 +30,7 @@ import java.util.Properties;
  *
  * {@link AdviceWithRouteBuilder} is used to  redirect a route's producer uri(s) to a MockEndpoint.
  *
- * Test case implementations will typically override {@link RouteBuilderTestSupport#configureContext()} to apply route
+ * Test case implementations will typically override {@link RouteTestSupport#configureContext()} to apply route
  * advice and configure a mock endpoint. Note that advice is applied prior to executing the base implementation, which
  * starts the {@link org.apache.camel.CamelContext}.
  * <code>
@@ -43,7 +43,7 @@ import java.util.Properties;
  * </code>
  *
  */
-abstract class RouteBuilderTestSupport extends CamelTestSupport {
+abstract class RouteTestSupport extends CamelTestSupport {
 
     protected ProducerTemplate producerTemplate;
 

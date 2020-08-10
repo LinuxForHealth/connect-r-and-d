@@ -18,7 +18,7 @@ import java.util.UUID;
 /**
  * Tests {@link Hl7v2MllpRouteBuilder}
  */
-public class Hl7v2MllpRouteBuilderTest extends RouteBuilderTestSupport {
+public class Hl7v2MllpRouteTest extends RouteTestSupport {
 
     private MockEndpoint mockResult;
 

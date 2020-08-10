@@ -5,8 +5,8 @@
  */
 package com.linuxforhealth.connect.builder;
 
-import com.linuxforhealth.connect.support.TestUtils;
 import org.apache.camel.RoutesBuilder;
+import org.apache.camel.builder.SimpleBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,23 +14,23 @@ import org.junit.jupiter.api.Test;
 import java.util.Properties;
 
 /**
- * Tests {@link LinuxForHealthRouteBuilder#ERROR_CONSUMER_URI}
+ * Tests {@link LinuxForHealthRouteBuilder#STORE_AND_NOTIFY_CONSUMER_URI}
  */
-public class LinuxForHealthErrorRouteBuilderTest extends RouteBuilderTestSupport {
+public class LinuxForHealthStoreAndNotifyTest extends RouteTestSupport {
 
     private MockEndpoint mockDataStoreResult;
     private MockEndpoint mockMessagingResult;
-    private MockEndpoint mockUnreachableResult;
 
     /**
      * Provides properties to support mocking data and messaging components.
+     *
      * @return {@link Properties}
      */
     @Override
     protected Properties useOverridePropertiesWithPropertiesComponent() {
         Properties props = super.useOverridePropertiesWithPropertiesComponent();
 
-        props.setProperty("lfh.connect.test.uri", "direct:test-error");
+        props.setProperty("lfh.connect.test.uri", "direct:test-store-notify");
         props.setProperty("lfh.connect.test.dataFormat", "csv");
         props.setProperty("lfh.connect.test.messageType", "person");
 
@@ -41,6 +41,7 @@ public class LinuxForHealthErrorRouteBuilderTest extends RouteBuilderTestSupport
 
     /**
      * Creates routes for unit tests.
+     *
      * @return {@link org.apache.camel.builder.RouteBuilder}
      */
     @Override
@@ -55,11 +56,15 @@ public class LinuxForHealthErrorRouteBuilderTest extends RouteBuilderTestSupport
 
                     @Override
                     protected void buildRoute(String routePropertyNamespace) {
-                        // define a route which will throw an exception, triggering the error route
                         from("{{lfh.connect.test.uri}}")
-                        .routeId("test-error-handler")
-                        .throwException(RuntimeException.class, "runtime exception")
-                        .to("mock:test-error");
+                                .routeId("test-store-notify")
+                                .process(exchange -> {
+                                    String dataStoreUri = SimpleBuilder
+                                            .simple("${properties:lfh.connect.dataStore.uri}")
+                                            .evaluate(exchange, String.class);
+                                    exchange.setProperty("dataStoreUri", dataStoreUri);
+                                })
+                                .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI);
                     }
                 }
         };
@@ -74,29 +79,16 @@ public class LinuxForHealthErrorRouteBuilderTest extends RouteBuilderTestSupport
         super.configureContext();
         mockDataStoreResult = MockEndpoint.resolve(context, "mock:data-store");
         mockMessagingResult = MockEndpoint.resolve(context, "mock:messaging");
-        mockUnreachableResult = MockEndpoint.resolve(context, "mock:test-error");
     }
 
-    /**
-     * Tests {@link LinuxForHealthRouteBuilder#ERROR_CONSUMER_URI}
-      * @throws Exception
-     */
     @Test
-    void testErrorRoute() throws Exception {
-        mockUnreachableResult.expectedMessageCount(0);
-        mockDataStoreResult.expectedMessageCount(0);
-
-        String expectedMsg = context
-                .getTypeConverter()
-                .convertTo(String.class, TestUtils.getMessage("lfh", "error.json"));
-
-        mockMessagingResult.expectedBodiesReceived(expectedMsg);
+    void testStoreRoute() throws Exception {
+        mockDataStoreResult.expectedMessageCount(1);
         mockMessagingResult.expectedMessageCount(1);
 
-        producerTemplate.sendBody("direct:test-error", "1,Donald,Duck");
+        producerTemplate.sendBody("direct:test-store-notify", "test message");
 
-        mockUnreachableResult.assertIsSatisfied();
         mockDataStoreResult.assertIsSatisfied();
         mockMessagingResult.assertIsSatisfied();
-   }
+    }
 }

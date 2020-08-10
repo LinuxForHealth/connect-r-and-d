@@ -18,7 +18,7 @@ import java.util.Properties;
 /**
  * Tests {@link BaseRouteBuilder} with a default implementation
  */
-public class BaseRouteBuilderTest extends CamelTestSupport {
+public class BaseRouteTest extends CamelTestSupport {
 
     private MockEndpoint mockResult;
     private ProducerTemplate producerTemplate;
