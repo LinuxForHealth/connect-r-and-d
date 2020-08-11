@@ -22,7 +22,7 @@ import java.util.Properties;
 /**
  * Tests {@link LinuxForHealthRouteBuilder#STORE_CONSUMER_URI}
  */
-public class LinuxForHealthStoreRouteBuilderTest extends RouteBuilderTestSupport {
+public class LinuxForHealthStoreTest extends RouteTestSupport {
 
     private MockEndpoint mockDataStoreResult;
 
@@ -110,7 +110,9 @@ public class LinuxForHealthStoreRouteBuilderTest extends RouteBuilderTestSupport
                 .getTypeConverter()
                 .convertTo(String.class, TestUtils.getMessage("fhir", "fhir-r4-patient-bundle.json"));
 
-        producerTemplate.sendBody("direct:test-store", inputMsg);
+        fluentTemplate.to("direct:test-store")
+                .withBody(inputMsg)
+                .send();
 
         mockDataStoreResult.assertIsSatisfied();
     }

@@ -16,7 +16,7 @@ import java.util.Properties;
 /**
  * Tests {@link LinuxForHealthRouteBuilder#STORE_AND_NOTIFY_CONSUMER_URI}
  */
-public class LinuxForHealthStoreAndNotifyBuilderTest extends RouteBuilderTestSupport {
+public class LinuxForHealthStoreAndNotifyTest extends RouteTestSupport {
 
     private MockEndpoint mockDataStoreResult;
     private MockEndpoint mockMessagingResult;
@@ -86,7 +86,9 @@ public class LinuxForHealthStoreAndNotifyBuilderTest extends RouteBuilderTestSup
         mockDataStoreResult.expectedMessageCount(1);
         mockMessagingResult.expectedMessageCount(1);
 
-        producerTemplate.sendBody("direct:test-store-notify", "test message");
+        fluentTemplate.to("direct:test-store-notify")
+                .withBody("test message")
+                .send();
 
         mockDataStoreResult.assertIsSatisfied();
         mockMessagingResult.assertIsSatisfied();
