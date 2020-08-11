@@ -110,7 +110,9 @@ public class LinuxForHealthStoreTest extends RouteTestSupport {
                 .getTypeConverter()
                 .convertTo(String.class, TestUtils.getMessage("fhir", "fhir-r4-patient-bundle.json"));
 
-        producerTemplate.sendBody("direct:test-store", inputMsg);
+        fluentTemplate.to("direct:test-store")
+                .withBody(inputMsg)
+                .send();
 
         mockDataStoreResult.assertIsSatisfied();
     }

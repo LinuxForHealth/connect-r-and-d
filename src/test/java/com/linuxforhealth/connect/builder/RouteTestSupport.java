@@ -6,10 +6,9 @@
 package com.linuxforhealth.connect.builder;
 
 import com.linuxforhealth.connect.support.TestUtils;
-import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
-import org.apache.camel.impl.engine.DefaultProducerTemplate;
 import org.apache.camel.model.RouteDefinition;
+import org.apache.camel.model.ToDynamicDefinition;
 import org.apache.camel.test.junit5.CamelTestSupport;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -23,29 +22,24 @@ import java.util.Properties;
  * Features includes:
  * <ul>
  *     <li>Loading application.properties from the classpath</li>
- *     <li>{@link BeforeEach} method for the {@link org.apache.camel.CamelContext and {@link ProducerTemplate}}</li>
+ *     <li>{@link BeforeEach} method for the {@link org.apache.camel.CamelContext and {@link this#fluentTemplate()}}</li>
  *     <li>{@link AfterEach} method for the {@link org.apache.camel.CamelContext}</li>
- *     <li>Convenience method for applying "route advice" with {@link AdviceWithRouteBuilder}</li>
+ *     <li>Convenience method for mocking endpoints using {@link AdviceWithRouteBuilder}</li>
  * </ul>
  *
- * {@link AdviceWithRouteBuilder} is used to  redirect a route's producer uri(s) to a MockEndpoint.
- *
- * Test case implementations will typically override {@link RouteTestSupport#configureContext()} to apply route
- * advice and configure a mock endpoint. Note that advice is applied prior to executing the base implementation, which
- * starts the {@link org.apache.camel.CamelContext}.
+ * Test case implementations will typically override {@link RouteTestSupport#configureContext()} to mock an endpoint.
+ * Note that mocks/advice are applied prior to executing the base implementation, which starts the
+ * {@link org.apache.camel.CamelContext}.
  * <code>
  *  @Override
  *  protected void configureContext() {
- *      applyAdvice("myRouteId", "producerUri", "mock:result");
+ *      mockProducerEndpoint("myRouteId", "producerUri", "mock:result");
  *      super.configureContext();
  *      mockResult = MockEndpoint.resolve(context, "mock:result");
  *  }
  * </code>
- *
  */
 abstract class RouteTestSupport extends CamelTestSupport {
-
-    protected ProducerTemplate producerTemplate;
 
     /**
      * Loads {@link Properties} into the {@link org.apache.camel.CamelContext}
@@ -63,24 +57,24 @@ abstract class RouteTestSupport extends CamelTestSupport {
     }
 
     /**
-     * @return true to signal to {@link CamelTestSupport} that route advice is applied.
+     * @return true to signal to {@link CamelTestSupport} that route advice is used to mock endpoints.
      * When {@link CamelTestSupport#isUseAdviceWith()} is true, the {@link org.apache.camel.CamelContext} is not started
      * by {@link CamelTestSupport}, requiring the test case to manage the Camel Context.
      */
     @Override
-    public boolean isUseAdviceWith() { return true;}
+    public boolean isUseAdviceWith() {
+        return true;
+    }
 
     /**
-     * Applies a {@link AdviceWithRouteBuilder} to a route, redirecting the specified producer to a mock endpoint.
-     * {@link AdviceWithRouteBuilder} advises that a route is only "adviced" once. "Advicing" a route more than once
-     * may lead to unexpected results.
+     * Mocks a producer endpoint using a {@link AdviceWithRouteBuilder}.
      *
-     * @param routeId The route id to update.
-     * @param producerUri The producer uri to intercept.
-     * @param mockUri The mock uri which replaces the producer uri.
+     * @param routeId     The route id to update.
+     * @param producerUri The producer uri to mock.
+     * @param mockUri     The mock uri which replaces the producer uri.
      * @throws Exception If an error occurs during processing.
      */
-    protected void applyAdvice(String routeId, String producerUri, String mockUri) throws Exception  {
+    protected void mockProducerEndpoint(String routeId, String producerUri, String mockUri) throws Exception {
 
         RouteDefinition routeDefinition = context.getRouteDefinition(routeId);
         AdviceWithRouteBuilder advice = new AdviceWithRouteBuilder() {
@@ -94,18 +88,33 @@ abstract class RouteTestSupport extends CamelTestSupport {
     }
 
     /**
+     * Mocks a dynamic producer endpoint using a {@link AdviceWithRouteBuilder}.
+     *
+     * @param mockUri The mock uri used for the dynamic endpoint.
+     */
+    protected void mockDynamicProducer(String routeId, String mockUri) throws Exception {
+        RouteDefinition routeDefinition = context.getRouteDefinition(routeId);
+        AdviceWithRouteBuilder advice = new AdviceWithRouteBuilder() {
+            @Override
+            public void configure() {
+                weaveByType(ToDynamicDefinition.class).replace().to(mockUri);
+            }
+        };
+        context.adviceWith(routeDefinition, advice);
+    }
+
+    /**
      * Configures the {@link org.apache.camel.CamelContext} prior to test case execution.
      */
     @BeforeEach
-    protected void configureContext() throws Exception  {
+    protected void configureContext() throws Exception {
         context.start();
-
-        producerTemplate = new DefaultProducerTemplate(context);
-        producerTemplate.start();
+        fluentTemplate.start();
     }
 
     @AfterEach
     protected void stopContext() {
+        fluentTemplate.stop();
         context.stop();
     }
 }

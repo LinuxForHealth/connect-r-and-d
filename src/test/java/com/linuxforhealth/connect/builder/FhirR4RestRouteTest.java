@@ -32,7 +32,7 @@ public class FhirR4RestRouteTest extends RouteTestSupport {
     @BeforeEach
     @Override
     protected void configureContext() throws Exception {
-        applyAdvice(
+        mockProducerEndpoint(
                 FhirR4RestRouteBuilder.ROUTE_ID,
                 LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI,
                 "mock:result"
@@ -53,16 +53,15 @@ public class FhirR4RestRouteTest extends RouteTestSupport {
         String expectedMessage = Base64.getEncoder().encodeToString(testMessage.getBytes(StandardCharsets.UTF_8));
 
         mockResult.expectedMessageCount(1);
-        // the camel hl7 data format removes trailing delimiters from segments and fields
-        // test files do not include trailing delimiters to simplify test assertions
-        // the data format will include a terminating carriage return, \r, which is translated above from a new line \n
         mockResult.expectedBodiesReceived(expectedMessage);
         mockResult.expectedPropertyReceived("dataStoreUri", "kafka:FHIR-R4_PATIENT?brokers=localhost:9092");
         mockResult.expectedPropertyReceived("dataFormat", "FHIR-R4");
         mockResult.expectedPropertyReceived("messageType", "PATIENT");
         mockResult.expectedPropertyReceived("routeId", "fhir-r4-rest");
 
-        producerTemplate.sendBody("{{lfh.connect.fhir_r4_rest.uri}}/Patient", testMessage);
+        fluentTemplate.to("{{lfh.connect.fhir_r4_rest.uri}}/Patient")
+                .withBody(testMessage)
+                .send();
 
         mockResult.assertIsSatisfied();
 

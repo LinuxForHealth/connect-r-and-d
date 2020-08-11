@@ -94,7 +94,9 @@ public class LinuxForHealthNotifyTest extends RouteTestSupport {
         mockMessagingResult.expectedMessageCount(1);
         mockMessagingResult.expectedBodiesReceived(expectedMsg);
 
-        producerTemplate.sendBody("direct:test-notify", "notify test message");
+        fluentTemplate.to("direct:test-notify")
+                .withBody("notify test message")
+                .send();
         mockMessagingResult.assertIsSatisfied();
     }
 }

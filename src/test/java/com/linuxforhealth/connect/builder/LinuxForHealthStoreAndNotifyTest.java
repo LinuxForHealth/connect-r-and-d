@@ -86,7 +86,9 @@ public class LinuxForHealthStoreAndNotifyTest extends RouteTestSupport {
         mockDataStoreResult.expectedMessageCount(1);
         mockMessagingResult.expectedMessageCount(1);
 
-        producerTemplate.sendBody("direct:test-store-notify", "test message");
+        fluentTemplate.to("direct:test-store-notify")
+                .withBody("test message")
+                .send();
 
         mockDataStoreResult.assertIsSatisfied();
         mockMessagingResult.assertIsSatisfied();
