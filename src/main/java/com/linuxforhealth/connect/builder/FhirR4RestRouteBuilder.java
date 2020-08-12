@@ -22,7 +22,6 @@ public class FhirR4RestRouteBuilder extends BaseRouteBuilder {
         return "lfh.connect.fhir_r4_rest";
     }
 
-
     @Override
     protected void buildRoute(String routePropertyNamespace) {
         CamelContextSupport contextSupport = new CamelContextSupport(getContext());

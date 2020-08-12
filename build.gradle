@@ -25,6 +25,7 @@ dependencies {
     implementation group: 'org.apache.camel', name: 'camel-fhir', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-dataformat', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-exec', version: project.camelVersion
+    implementation group: 'org.apache.camel', name: 'camel-mail', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-kafka', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-http', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-jackson', version: project.camelVersion
