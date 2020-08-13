@@ -53,3 +53,11 @@ services:
     ports:
       - ${LFH_ORTHANC_DICOM_HOST_PORT}:${LFH_ORTHANC_DICOM_CONTAINER_PORT}
       - ${LFH_ORTHANC_HTTP_HOST_PORT}:${LFH_ORTHANC_HTTP_CONTAINER_PORT}
+  postgres:
+    image: ${LFH_PG_IMAGE}
+    restart: "always"
+    container_name: postgres
+    ports:
+      - ${LFH_PG_SERVER_HOST_PORT}:${LFH_PG_SERVER_CONTAINER_PORT}
+    environment:
+      PGDATA: ${LFH_PG_DATA}
