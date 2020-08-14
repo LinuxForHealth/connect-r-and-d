@@ -46,6 +46,7 @@ echo "create lfh network"
 ${OCI_COMMAND} network create "${LFH_NETWORK_NAME}"
 
 # launch containers
+${OCI_COMMAND} pull "${LFH_NATS_IMAGE}"
 echo "launch nats container"
 ${OCI_COMMAND} run -d \
               --network "${LFH_NETWORK_NAME}" \
@@ -59,7 +60,19 @@ is_ready localhost "${LFH_NATS_CLIENT_HOST_PORT}"
 is_ready localhost "${LFH_NATS_MANAGEMENT_HOST_PORT}"
 is_ready localhost "${LFH_NATS_CLUSTER_HOST_PORT}"
 
+echo "launch nats subscriber"
+echo "${LFH_NATS_SUBSCRIBER_SERVICE_NAME}"
+${OCI_COMMAND} pull "${LFH_NATS_SUBSCRIBER_IMAGE}"
+${OCI_COMMAND} run -d \
+              --network "${LFH_NETWORK_NAME}" \
+              --name "${LFH_NATS_SUBSCRIBER_SERVICE_NAME}" \
+              --env LFH_NATS_SUBSCRIBER_HOST="${LFH_NATS_SUBSCRIBER_HOST}" \
+              --env LFH_NATS_SUBSCRIBER_PORT="${LFH_NATS_SUBSCRIBER_PORT}" \
+              --env LFH_NATS_SUBSCRIBER_TOPIC="${LFH_NATS_SUBSCRIBER_TOPIC}" \
+              "${LFH_NATS_SUBSCRIBER_IMAGE}"
+
 echo "launch zookeeper container"
+${OCI_COMMAND} pull "${LFH_ZOOKEEPER_IMAGE}"
 ${OCI_COMMAND} run -d \
               --network "${LFH_NETWORK_NAME}" \
               --name "${LFH_ZOOKEEPER_SERVICE_NAME}" \
@@ -69,6 +82,7 @@ ${OCI_COMMAND} run -d \
 is_ready localhost "${LFH_ZOOKEEPER_HOST_PORT}"
 
 echo "launch kafka container"
+${OCI_COMMAND} pull "${LFH_KAFKA_IMAGE}"
 ${OCI_COMMAND} run -d \
               --network "${LFH_NETWORK_NAME}" \
               --name "${LFH_KAFKA_SERVICE_NAME}" \
@@ -85,6 +99,7 @@ is_ready localhost "${LFH_KAFKA_INTERNAL_HOST_PORT}"
 is_ready localhost "${LFH_KAFKA_EXTERNAL_HOST_PORT}"
 
 echo "launch kafdrop"
+${OCI_COMMAND} pull "${LFH_KAFDROP_IMAGE}"
 ${OCI_COMMAND} run -d \
               --network "${LFH_NETWORK_NAME}" \
               --name "${LFH_KAFDROP_SERVICE_NAME}" \
@@ -96,6 +111,7 @@ ${OCI_COMMAND} run -d \
 is_ready localhost "${LFH_KAFDROP_HOST_PORT}"
 
 echo "launch lfh connect"
+${OCI_COMMAND} pull "${LFH_CONNECT_IMAGE}"
 
 HOST_VOLUME_DIR=$(dirname "${PWD}")/compose
 echo "mounting application.properties from ${HOST_VOLUME_DIR}"

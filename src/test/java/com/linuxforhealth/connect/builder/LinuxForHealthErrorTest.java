@@ -16,7 +16,7 @@ import java.util.Properties;
 /**
  * Tests {@link LinuxForHealthRouteBuilder#ERROR_CONSUMER_URI}
  */
-public class LinuxForHealthErrorRouteBuilderTest extends RouteBuilderTestSupport {
+public class LinuxForHealthErrorTest extends RouteTestSupport {
 
     private MockEndpoint mockDataStoreResult;
     private MockEndpoint mockMessagingResult;
@@ -24,6 +24,7 @@ public class LinuxForHealthErrorRouteBuilderTest extends RouteBuilderTestSupport
 
     /**
      * Provides properties to support mocking data and messaging components.
+     *
      * @return {@link Properties}
      */
     @Override
@@ -41,6 +42,7 @@ public class LinuxForHealthErrorRouteBuilderTest extends RouteBuilderTestSupport
 
     /**
      * Creates routes for unit tests.
+     *
      * @return {@link org.apache.camel.builder.RouteBuilder}
      */
     @Override
@@ -57,9 +59,9 @@ public class LinuxForHealthErrorRouteBuilderTest extends RouteBuilderTestSupport
                     protected void buildRoute(String routePropertyNamespace) {
                         // define a route which will throw an exception, triggering the error route
                         from("{{lfh.connect.test.uri}}")
-                        .routeId("test-error-handler")
-                        .throwException(RuntimeException.class, "runtime exception")
-                        .to("mock:test-error");
+                                .routeId("test-error-handler")
+                                .throwException(RuntimeException.class, "runtime exception")
+                                .to("mock:test-error");
                     }
                 }
         };
@@ -79,7 +81,8 @@ public class LinuxForHealthErrorRouteBuilderTest extends RouteBuilderTestSupport
 
     /**
      * Tests {@link LinuxForHealthRouteBuilder#ERROR_CONSUMER_URI}
-      * @throws Exception
+     *
+     * @throws Exception
      */
     @Test
     void testErrorRoute() throws Exception {
@@ -93,10 +96,12 @@ public class LinuxForHealthErrorRouteBuilderTest extends RouteBuilderTestSupport
         mockMessagingResult.expectedBodiesReceived(expectedMsg);
         mockMessagingResult.expectedMessageCount(1);
 
-        producerTemplate.sendBody("direct:test-error", "1,Donald,Duck");
+        fluentTemplate.to("direct:test-error")
+                .withBody("1,Donald,Duck")
+                .send();
 
         mockUnreachableResult.assertIsSatisfied();
         mockDataStoreResult.assertIsSatisfied();
         mockMessagingResult.assertIsSatisfied();
-   }
+    }
 }

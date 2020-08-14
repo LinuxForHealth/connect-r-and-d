@@ -18,7 +18,7 @@ import java.util.UUID;
 /**
  * Tests {@link Hl7v2MllpRouteBuilder}
  */
-public class Hl7v2MllpRouteBuilderTest extends RouteBuilderTestSupport {
+public class Hl7v2MllpRouteTest extends RouteTestSupport {
 
     private MockEndpoint mockResult;
 
@@ -40,7 +40,7 @@ public class Hl7v2MllpRouteBuilderTest extends RouteBuilderTestSupport {
         context.getRegistry().bind("hl7encoder", hl7encoder);
         context.getRegistry().bind("hl7decoder", hl7decoder);
 
-        applyAdvice(
+        mockProducerEndpoint(
                 Hl7v2MllpRouteBuilder.ROUTE_ID,
                 LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI,
                 "mock:result"
@@ -70,7 +70,9 @@ public class Hl7v2MllpRouteBuilderTest extends RouteBuilderTestSupport {
         mockResult.expectedPropertyReceived("messageType", "ADT");
         mockResult.expectedPropertyReceived("routeId", "hl7-v2-mllp");
 
-        producerTemplate.sendBody("{{lfh.connect.hl7_v2_mllp.uri}}", testMessage);
+        fluentTemplate.to("{{lfh.connect.hl7_v2_mllp.uri}}")
+                .withBody(testMessage)
+                .send();
 
         mockResult.assertIsSatisfied();
 

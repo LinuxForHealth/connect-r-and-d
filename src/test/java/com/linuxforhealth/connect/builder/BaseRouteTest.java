@@ -18,10 +18,9 @@ import java.util.Properties;
 /**
  * Tests {@link BaseRouteBuilder} with a default implementation
  */
-public class BaseRouteBuilderTest extends CamelTestSupport {
+public class BaseRouteTest extends CamelTestSupport {
 
     private MockEndpoint mockResult;
-    private ProducerTemplate producerTemplate;
 
     /**
      * Sets properties for the unit test
@@ -55,13 +54,14 @@ public class BaseRouteBuilderTest extends CamelTestSupport {
     @BeforeEach
     void setupFixtures() {
         mockResult = MockEndpoint.resolve(context, "mock:result");
-        producerTemplate = new DefaultProducerTemplate(context);
-        producerTemplate.start();
+        fluentTemplate.start();
     }
 
     @Test
     void testRoute() throws InterruptedException{
-        producerTemplate.sendBody("direct:start", "test");
+        fluentTemplate.to("direct:start")
+                .withBody("test")
+                .send();
         mockResult.expectedMessageCount(1);
         mockResult.expectedBodiesReceived("test");
         mockResult.assertIsSatisfied();

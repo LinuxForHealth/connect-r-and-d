@@ -21,7 +21,7 @@ import java.util.Properties;
 /**
  * Tests {@link LinuxForHealthRouteBuilder#NOTIFY_CONSUMER_URI}
  */
-public class LinuxForHealthNotifyRouteBuilderTest extends RouteBuilderTestSupport {
+public class LinuxForHealthNotifyTest extends RouteTestSupport {
 
     private MockEndpoint mockMessagingResult;
 
@@ -94,7 +94,9 @@ public class LinuxForHealthNotifyRouteBuilderTest extends RouteBuilderTestSuppor
         mockMessagingResult.expectedMessageCount(1);
         mockMessagingResult.expectedBodiesReceived(expectedMsg);
 
-        producerTemplate.sendBody("direct:test-notify", "notify test message");
+        fluentTemplate.to("direct:test-notify")
+                .withBody("notify test message")
+                .send();
         mockMessagingResult.assertIsSatisfied();
     }
 }
