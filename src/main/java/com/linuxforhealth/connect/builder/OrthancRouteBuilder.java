@@ -23,6 +23,8 @@ public class OrthancRouteBuilder extends BaseRouteBuilder {
     private final Logger logger = LoggerFactory.getLogger(OrthancRouteBuilder.class);
 
     public final static String ROUTE_ID = "orthanc-post";
+    public final static String ORTHANIC_PRODUCER_POST_ID = "orthanic-producer-post";
+    public final static String ORTHANIC_PRODUCER_GET_ID = "orthanic-producer-get";
 
     @Override
     protected String getRoutePropertyNamespace() {
@@ -40,6 +42,7 @@ public class OrthancRouteBuilder extends BaseRouteBuilder {
             .removeHeaders("Camel*")
             .removeHeaders("Host")
             .to(orthancServerUri)
+            .id(ORTHANIC_PRODUCER_POST_ID)
             .process(exchange -> {
                 // Get the resulting image id & create uri for downstream image retrieval
                 String body = exchange.getIn().getBody(String.class);
@@ -54,6 +57,7 @@ public class OrthancRouteBuilder extends BaseRouteBuilder {
                 exchange.getIn().setHeader(Exchange.HTTP_METHOD, "GET");
             })
             .toD("${exchangeProperty[location]}")
+            .id(ORTHANIC_PRODUCER_GET_ID)
             .process(exchange -> {
                 JSONObject tags = new JSONObject(exchange.getIn().getBody(String.class));
                 JSONObject result = new JSONObject();

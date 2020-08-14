@@ -7,8 +7,10 @@ package com.linuxforhealth.connect.builder;
 
 import com.linuxforhealth.connect.support.TestUtils;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
+import org.apache.camel.model.DynamicRouterDefinition;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.model.ToDynamicDefinition;
+import org.apache.camel.model.language.ConstantExpression;
 import org.apache.camel.test.junit5.CamelTestSupport;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -98,6 +100,35 @@ abstract class RouteTestSupport extends CamelTestSupport {
             @Override
             public void configure() {
                 weaveByType(ToDynamicDefinition.class).replace().to(mockUri);
+            }
+        };
+        context.adviceWith(routeDefinition, advice);
+    }
+
+    /**
+     * Intercepts a producer endpoint using {@link AdviceWithRouteBuilder} to return a sample, or "mock" response.
+     * The sample of mock response is loaded from the file system using {@link TestUtils#getMessage(String, String)}
+     * Producer endpoints are matched using "id".
+     *
+     * @param routeId The route id where the producer is located.
+     * @param producerId The producer id
+     * @param messageDirectory The directory in the test source tree where the message is located.
+     * @param messageName The message file name
+     */
+    protected void setProducerResponse(String routeId,
+                                       String producerId,
+                                       String messageDirectory,
+                                       String messageName) throws Exception {
+
+        String mockedResponse = context
+                .getTypeConverter()
+                .convertTo(String.class, TestUtils.getMessage(messageDirectory, messageName));
+
+        RouteDefinition routeDefinition = context.getRouteDefinition(routeId);
+        AdviceWithRouteBuilder advice = new AdviceWithRouteBuilder() {
+            @Override
+            public void configure() {
+                weaveById(producerId).replace().setBody(new ConstantExpression(mockedResponse));
             }
         };
         context.adviceWith(routeDefinition, advice);

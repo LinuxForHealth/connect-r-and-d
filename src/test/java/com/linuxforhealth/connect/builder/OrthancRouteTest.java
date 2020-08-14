@@ -9,20 +9,32 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Base64;
+import java.util.Properties;
 import java.util.UUID;
 
 /**
  * Tests {@link FhirR4RestRouteBuilder}
  */
-public class OrthancRouteBuilderTest extends RouteBuilderTestSupport {
+public class OrthancRouteTest extends RouteTestSupport {
 
     private MockEndpoint mockResult;
 
     @Override
     protected RoutesBuilder createRouteBuilder() throws Exception {
         return new OrthancRouteBuilder();
+    }
+
+    @Override
+    protected Properties useOverridePropertiesWithPropertiesComponent() {
+        Properties props = super.useOverridePropertiesWithPropertiesComponent();
+        props.setProperty("lfh.connect.orthanc.uri", "direct:http://0.0.0.0:9090/orthanc/instances");
+        props.setProperty("lfh.connect.orthanc_server.uri", "http://localhost:8042/instances");
+        return props;
     }
 
     /**
@@ -32,7 +44,18 @@ public class OrthancRouteBuilderTest extends RouteBuilderTestSupport {
     @BeforeEach
     @Override
     protected void configureContext() throws Exception {
-        applyAdvice(
+
+        setProducerResponse(OrthancRouteBuilder.ROUTE_ID,
+                OrthancRouteBuilder.ORTHANIC_PRODUCER_POST_ID,
+                "orthanc",
+                "post-response.json");
+
+        setProducerResponse(OrthancRouteBuilder.ROUTE_ID,
+                OrthancRouteBuilder.ORTHANIC_PRODUCER_GET_ID,
+                "orthanc",
+                "get-response.json");
+
+        mockProducerEndpoint(
                 OrthancRouteBuilder.ROUTE_ID,
                 LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI,
                 "mock:result"
@@ -43,15 +66,17 @@ public class OrthancRouteBuilderTest extends RouteBuilderTestSupport {
         mockResult = MockEndpoint.resolve(context, "mock:result");
     }
 
+    /**
+     * Tests {@link OrthancRouteBuilder#ROUTE_ID}
+     * @throws Exception
+     */
     @Test
     void testRoute() throws Exception {
-        /*
-        String testMessage = context
+        String expectedMessage = context
                 .getTypeConverter()
-                .convertTo(String.class, TestUtils.getMessage("orthanc", "result.json"))
-                .replace("\n", "");
+                .convertTo(String.class, TestUtils.getMessage("orthanc", "result.json"));
 
-        String expectedMessage = Base64.getEncoder().encodeToString(testMessage.getBytes(StandardCharsets.UTF_8));
+        expectedMessage = Base64.getEncoder().encodeToString(expectedMessage.getBytes(StandardCharsets.UTF_8));
 
         mockResult.expectedMessageCount(1);
         mockResult.expectedBodiesReceived(expectedMessage);
@@ -60,15 +85,20 @@ public class OrthancRouteBuilderTest extends RouteBuilderTestSupport {
         mockResult.expectedPropertyReceived("messageType", "IMAGE");
         mockResult.expectedPropertyReceived("routeId", "orthanc-post");
 
-        producerTemplate.sendBody("{{lfh.connect.fhir_r4_rest.uri}}/Patient", testMessage);
+        File inputFile = TestUtils.getMessage("orthanc", "image-00020.dcm");
+        byte[] inputMessage = Files.readAllBytes(Paths.get(inputFile.toURI()));
+        fluentTemplate.to("{{lfh.connect.orthanc.uri}}")
+                .withBody(inputMessage)
+                .request();
 
         mockResult.assertIsSatisfied();
 
-        String expectedRouteUri = "jetty:http://0.0.0.0:8080/fhir/r4/Patient?httpMethodRestrict=POST";
-        String actualRouteUri = mockResult.getExchanges().get(0).getProperty("routeUri", String.class);
+        Exchange mockExchange = mockResult.getExchanges().get(0);
+
+        String expectedRouteUri = "direct://http://0.0.0.0:9090/orthanc/instances";
+        String actualRouteUri = mockExchange.getProperty("routeUri", String.class);
         LinuxForHealthAssertions.assertEndpointUriSame(expectedRouteUri, actualRouteUri);
 
-        Exchange mockExchange = mockResult.getExchanges().get(0);
 
         Long actualTimestamp = mockExchange.getProperty("timestamp", Long.class);
         Assertions.assertNotNull(actualTimestamp);
@@ -76,6 +106,5 @@ public class OrthancRouteBuilderTest extends RouteBuilderTestSupport {
 
         UUID actualUuid = UUID.fromString(mockExchange.getProperty("uuid", String.class));
         Assertions.assertEquals(36, actualUuid.toString().length());
-        */
     }
 }
