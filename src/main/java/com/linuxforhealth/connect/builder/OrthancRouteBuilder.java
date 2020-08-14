@@ -33,7 +33,6 @@ public class OrthancRouteBuilder extends BaseRouteBuilder {
     protected void buildRoute(String routePropertyNamespace) {
         CamelContextSupport contextSupport = new CamelContextSupport(getContext());
         String orthancServerUri = contextSupport.getProperty("lfh.connect.orthanc_server.uri");
-        URI orthancRestUri = URI.create(contextSupport.getProperty("lfh.connect.orthanc.rest.uri"));
 
         from("{{lfh.connect.orthanc.uri}}")
             .routeId(ROUTE_ID)
