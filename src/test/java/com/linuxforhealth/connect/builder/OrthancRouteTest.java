@@ -99,7 +99,6 @@ public class OrthancRouteTest extends RouteTestSupport {
         String actualRouteUri = mockExchange.getProperty("routeUri", String.class);
         LinuxForHealthAssertions.assertEndpointUriSame(expectedRouteUri, actualRouteUri);
 
-
         Long actualTimestamp = mockExchange.getProperty("timestamp", Long.class);
         Assertions.assertNotNull(actualTimestamp);
         Assertions.assertTrue(actualTimestamp > 0);

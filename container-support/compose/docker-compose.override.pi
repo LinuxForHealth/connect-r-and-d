@@ -30,6 +30,7 @@ services:
     ports:
       - ${LFH_CONNECT_MLLP_HOST_PORT}:${LFH_CONNECT_MLLP_CONTAINER_PORT}
       - ${LFH_CONNECT_REST_HOST_PORT}:${LFH_CONNECT_REST_CONTAINER_PORT}
+      - ${LFH_CONNECT_HTTP_HOST_PORT}:${LFH_CONNECT_HTTP_CONTAINER_PORT}
     volumes:
       - ${PWD}/application.properties:/opt/lfh/config/application.properties
     depends_on:
