@@ -26,8 +26,12 @@ import java.util.Base64;
 public class BlueButton20RestRouteBuilder extends RouteBuilder {
 
     public final static String AUTHORIZE_ROUTE_ID = "bluebutton-20-rest-authorize";
+    public final static String AUTHORIZE_PRODUCER_ID = "bluebutton-20-authorize-producer";
     public final static String CALLBACK_ROUTE_ID = "bluebutton-20-rest-callback";
+    public final static String CALLBACK_PRODUCER_ID = "bluebutton-20-callback-producer";
     public final static String API_ROUTE_ID = "bluebutton-20-rest";
+    public final static String API_ROUTE_PRODUCER_ID = "bluebutton-20-rest-store-producer";
+    public final static String API_ROUTE_ERROR_PRODUCER_ID = "bluebutton-20-rest-error-producer";
 
     private final Logger logger = LoggerFactory.getLogger(BlueButton20RestRouteBuilder.class);
 
@@ -81,7 +85,8 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
                     }
                     exchange.setProperty("location", "exec:"+osCmd+"?args=RAW("+authorizeURL+")");
                 })
-                .toD("${exchangeProperty[location]}");
+                .toD("${exchangeProperty[location]}")
+                .id(AUTHORIZE_PRODUCER_ID);
 
         // Blue Button OAuth2 - Callback to exchange code for token (displayed in the browser)
         URI blueButtonHandlerUri = URI.create(contextSupport.getProperty("lfh.connect.bluebutton_20.handlerUri"));
@@ -109,7 +114,8 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
                     exchange.getOut().setHeader("Content-Length", body.length());
                     exchange.getOut().setBody(body);
                 })
-                .to(cmsTokenURL.toString());
+                .to(cmsTokenURL.toString())
+                .id(CALLBACK_PRODUCER_ID);
 
         // Blue Button 2.0 route - Retrieve patient resources
         rest(blueButtonUri.getPath())
@@ -123,9 +129,11 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
                     .unmarshal().fhirJson("DSTU3")
                     .process(new BlueButton20ResultProcessor())
                     .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
+                    .id(API_ROUTE_PRODUCER_ID)
                 .doCatch(Exception.class)
                     .setProperty("errorMessage", simple(exceptionMessage().toString()))
                     .to(LinuxForHealthRouteBuilder.ERROR_CONSUMER_URI)
+                    .id(API_ROUTE_ERROR_PRODUCER_ID)
                 .end();
     }
 }

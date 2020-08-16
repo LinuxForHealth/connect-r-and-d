@@ -34,8 +34,8 @@ public class BlueButton20CallbackTest extends RouteTestSupport {
     @BeforeEach
     @Override
     protected void configureContext() throws Exception {
-        mockProducerEndpoint(BlueButton20RestRouteBuilder.CALLBACK_ROUTE_ID,
-                "https://sandbox.bluebutton.cms.gov/v1/o/token/",
+        mockProducerEndpointById(BlueButton20RestRouteBuilder.CALLBACK_ROUTE_ID,
+                BlueButton20RestRouteBuilder.CALLBACK_PRODUCER_ID,
                 "mock:result");
         super.configureContext();
         mockResult = MockEndpoint.resolve(context, "mock:result");

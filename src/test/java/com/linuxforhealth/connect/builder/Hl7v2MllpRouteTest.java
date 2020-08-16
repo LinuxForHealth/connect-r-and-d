@@ -40,9 +40,9 @@ public class Hl7v2MllpRouteTest extends RouteTestSupport {
         context.getRegistry().bind("hl7encoder", hl7encoder);
         context.getRegistry().bind("hl7decoder", hl7decoder);
 
-        mockProducerEndpoint(
+        mockProducerEndpointById(
                 Hl7v2MllpRouteBuilder.ROUTE_ID,
-                LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI,
+                Hl7v2MllpRouteBuilder.ROUTE_PRODUCER_ID,
                 "mock:result"
         );
 

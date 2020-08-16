@@ -30,7 +30,9 @@ public class BlueButton20AuthTest extends RouteTestSupport {
     @BeforeEach
     @Override
     protected void configureContext() throws Exception {
-        mockDynamicProducer(BlueButton20RestRouteBuilder.AUTHORIZE_ROUTE_ID, "mock:result");
+        mockProducerEndpointById(BlueButton20RestRouteBuilder.AUTHORIZE_ROUTE_ID,
+                BlueButton20RestRouteBuilder.AUTHORIZE_PRODUCER_ID,
+                "mock:result");
         super.configureContext();
         mockResult = MockEndpoint.resolve(context, "mock:result");
     }
