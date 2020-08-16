@@ -21,7 +21,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 /**
- * Defines a FHIR R4 REST Processing route
+ * Defines routes used to integrate with the Blue Button 2.0 CMS APIs for patient Medicare data.
+ *
+ * Patient Medicare data is secured using OAuth2 authorization grants. The {@link BlueButton20RestRouteBuilder#AUTHORIZE_ROUTE_ID}
+ * and {@link BlueButton20RestRouteBuilder#CALLBACK_ROUTE_ID} are used to support the OAuth2 authorization grant workflow.
+ * The {@link BlueButton20RestRouteBuilder#API_ROUTE_ID} route supports data access once a token is attained.
+ *
+ * The current implementation provides a means for manual integration as the OAuth2 interactions are not yet encapsulated.
+ * Once the OAuth2 interactions are encapsulated, this route may extend {@link BaseRouteBuilder}
  */
 public class BlueButton20RestRouteBuilder extends RouteBuilder {
 
