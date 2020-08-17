@@ -26,6 +26,7 @@
     <logger name="com.linuxforhealth.connect" level="info" />
     <logger name="org.apache.camel" level="info" />
     <logger name="org.apache.camel.main" level="info" />
+    <logger name="org.apache.camel.component" level="info" />
     <logger name="org.apache.kafka.consumer" level="warn" />
 
     <root level="warn">

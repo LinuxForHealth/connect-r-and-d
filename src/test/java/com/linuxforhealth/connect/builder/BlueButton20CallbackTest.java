@@ -60,7 +60,7 @@ public class BlueButton20CallbackTest extends RouteTestSupport {
 
         mockResult.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
 
-        String expectedAuthHeader = Base64.getEncoder().encodeToString("client-id:client-secret".getBytes(StandardCharsets.UTF_8));
+        String expectedAuthHeader = "Basic " + Base64.getEncoder().encodeToString("client-id:client-secret".getBytes(StandardCharsets.UTF_8));
         mockResult.expectedHeaderReceived("Authorization", expectedAuthHeader);
 
         mockResult.expectedHeaderReceived("Content-Type", "application/x-www-form-urlencoded");

@@ -120,7 +120,7 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
                     String code  = exchange.getIn().getHeader("code", String.class);
                     String body = "code="+code+"&grant_type=authorization_code";
                     String auth = clientId+":"+clientSecret;
-                    String authHeader = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
+                    String authHeader = "Basic "+ Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
                     exchange.getOut().setHeader(Exchange.HTTP_METHOD, "POST");
                     exchange.getOut().setHeader("Authorization", authHeader);
                     exchange.getOut().setHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -128,7 +128,8 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
                     exchange.getOut().setBody(body);
                 })
                 .to(cmsTokenURL.toString())
-                .id(CALLBACK_PRODUCER_ID);
+                .id(CALLBACK_PRODUCER_ID)
+                .to("log:DEBUG?showBody=true&showHeaders=true");
     }
 
     /**
