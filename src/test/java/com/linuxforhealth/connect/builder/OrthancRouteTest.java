@@ -46,20 +46,18 @@ public class OrthancRouteTest extends RouteTestSupport {
     protected void configureContext() throws Exception {
 
         setProducerResponse(OrthancRouteBuilder.ROUTE_ID,
-                OrthancRouteBuilder.ORTHANIC_PRODUCER_POST_ID,
+                OrthancRouteBuilder.ORTHANC_PRODUCER_POST_ID,
                 "orthanc",
                 "post-response.json");
 
         setProducerResponse(OrthancRouteBuilder.ROUTE_ID,
-                OrthancRouteBuilder.ORTHANIC_PRODUCER_GET_ID,
+                OrthancRouteBuilder.ORTHANC_PRODUCER_GET_ID,
                 "orthanc",
                 "get-response.json");
 
-        mockProducerEndpoint(
-                OrthancRouteBuilder.ROUTE_ID,
-                LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI,
-                "mock:result"
-        );
+        mockProducerEndpointById(OrthancRouteBuilder.ROUTE_ID,
+                OrthancRouteBuilder.ORTHANC_PRODUCER_STORE_NOTIFY_ID,
+                "mock:result");
 
         super.configureContext();
 
