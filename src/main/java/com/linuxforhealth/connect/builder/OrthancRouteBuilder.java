@@ -8,7 +8,6 @@ package com.linuxforhealth.connect.builder;
 import com.linuxforhealth.connect.processor.MetaDataProcessor;
 import com.linuxforhealth.connect.support.CamelContextSupport;
 
-import java.net.URI;
 import org.apache.camel.Exchange;
 import org.json.JSONObject;
 
@@ -23,8 +22,9 @@ public class OrthancRouteBuilder extends BaseRouteBuilder {
     private final Logger logger = LoggerFactory.getLogger(OrthancRouteBuilder.class);
 
     public final static String ROUTE_ID = "orthanc-post";
-    public final static String ORTHANIC_PRODUCER_POST_ID = "orthanic-producer-post";
-    public final static String ORTHANIC_PRODUCER_GET_ID = "orthanic-producer-get";
+    public final static String ORTHANC_PRODUCER_POST_ID = "orthanc-producer-post";
+    public final static String ORTHANC_PRODUCER_GET_ID = "orthanc-producer-get";
+    public final static String ORTHANC_PRODUCER_STORE_NOTIFY_ID = "orthanc-producer-store-notify";
 
     @Override
     protected String getRoutePropertyNamespace() {
@@ -42,7 +42,7 @@ public class OrthancRouteBuilder extends BaseRouteBuilder {
             .removeHeaders("Camel*")
             .removeHeaders("Host")
             .to(orthancServerUri)
-            .id(ORTHANIC_PRODUCER_POST_ID)
+            .id(ORTHANC_PRODUCER_POST_ID)
             .process(exchange -> {
                 // Get the resulting image id & create uri for downstream image retrieval
                 String body = exchange.getIn().getBody(String.class);
@@ -57,7 +57,7 @@ public class OrthancRouteBuilder extends BaseRouteBuilder {
                 exchange.getIn().setHeader(Exchange.HTTP_METHOD, "GET");
             })
             .toD("${exchangeProperty[location]}")
-            .id(ORTHANIC_PRODUCER_GET_ID)
+            .id(ORTHANC_PRODUCER_GET_ID)
             .process(exchange -> {
                 JSONObject tags = new JSONObject(exchange.getIn().getBody(String.class));
                 JSONObject result = new JSONObject();
@@ -69,6 +69,7 @@ public class OrthancRouteBuilder extends BaseRouteBuilder {
                 logger.info("result: "+result.toString());
             })
             .process(new MetaDataProcessor(routePropertyNamespace))
-            .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI);
+            .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
+            .id(ORTHANC_PRODUCER_STORE_NOTIFY_ID);
     }
 }
