@@ -136,22 +136,20 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
      * "Step 3" - API requests are made with a valid Authorization token.
      */
     private void addBlueButtonApiRoute(String apiPath) {
-        CamelContextSupport contextSupport = new CamelContextSupport(getContext());
-
         // Blue Button 2.0 route - Retrieve patient resources
         rest(apiPath)
             .get("/{resource}")
             .route()
             .routeId(API_ROUTE_ID)
             .process(exchange -> {
-                SimpleBuilder.simple("${properties:lfh.connect.bluebutton_20.rest.uri}")
+                String blueButtonRestUri = SimpleBuilder
+                        .simple("${properties:lfh.connect.bluebutton_20.rest.uri}")
                         .evaluate(exchange, String.class);
 
-                String blueButtonRestUri = contextSupport.getProperty("lfh.connect.bluebutton_20.rest.uri");
                 String resourceType = exchange.getIn().getHeader("resource", String.class).toUpperCase();
 
-                String kafkaDataStoreUri = contextSupport
-                        .getProperty("lfh.connect.dataStore.uri")
+                String kafkaDataStoreUri = SimpleBuilder.simple("${properties:lfh.connect.dataStore.uri}")
+                        .evaluate(exchange, String.class)
                         .replaceAll("<topicName>", "FHIR-R4_" + resourceType);
 
                 // Form the incoming route url for the message property routeUrl
@@ -221,12 +219,15 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
     }
 
 
+    /**
+     * Defines the routes used to support CMS Blue Button 2.0 integration
+     */
     @Override
     public void configure() {
 
         CamelContextSupport contextSupport = new CamelContextSupport(getContext());
-
         URI blueButtonUri = URI.create(contextSupport.getProperty("lfh.connect.bluebutton_20.rest.uri"));
+
         restConfiguration()
                 .host(blueButtonUri.getHost())
                 .port(blueButtonUri.getPort());

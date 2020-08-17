@@ -1,14 +1,23 @@
+/*
+ * (C) Copyright IBM Corp. 2020
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.linuxforhealth.connect.builder;
 
+import com.linuxforhealth.connect.support.LinuxForHealthAssertions;
 import com.linuxforhealth.connect.support.TestUtils;
+import org.apache.camel.Exchange;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Properties;
+import java.util.UUID;
 
 /**
  * Tests {@link BlueButton20RestRouteBuilder#API_ROUTE_ID}
@@ -70,5 +79,19 @@ public class BlueButton20ApiTest extends RouteTestSupport {
                 .request();
 
         mockResult.assertIsSatisfied();
+
+        Exchange mockExchange = mockResult.getExchanges().get(0);
+
+        String expectedRouteUri = "http://0.0.0.0:8080/bluebutton/v1/PATIENT?-19990000002154=";
+        String actualRouteUri = mockExchange.getProperty("routeUri", String.class);
+        LinuxForHealthAssertions.assertEndpointUriSame(expectedRouteUri, actualRouteUri);
+
+
+        Long actualTimestamp = mockExchange.getProperty("timestamp", Long.class);
+        Assertions.assertNotNull(actualTimestamp);
+        Assertions.assertTrue(actualTimestamp > 0);
+
+        UUID actualUuid = UUID.fromString(mockExchange.getProperty("uuid", String.class));
+        Assertions.assertEquals(36, actualUuid.toString().length());
     }
 }
