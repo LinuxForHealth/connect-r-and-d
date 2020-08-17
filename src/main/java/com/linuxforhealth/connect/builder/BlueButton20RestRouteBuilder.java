@@ -60,15 +60,15 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
             .routeId(AUTHORIZE_ROUTE_ID)
             .process(exchange -> {
                 String callbackURL = SimpleBuilder
-                        .simple("{{lfh.connect.bluebutton_20.handlerUri}}")
+                        .simple("${properties:lfh.connect.bluebutton_20.handlerUri}")
                         .evaluate(exchange, String.class);
 
                 String cmsAuthorizeURL = SimpleBuilder
-                        .simple("{{lfh.connect.bluebutton_20.cms.authorizeUri}}")
+                        .simple("${properties:lfh.connect.bluebutton_20.cms.authorizeUri}")
                         .evaluate(exchange, String.class);
 
                 String clientId = SimpleBuilder
-                        .simple("{{lfh.connect.bluebutton_20.cms.clientId}}")
+                        .simple("${properties:lfh.connect.bluebutton_20.cms.clientId}")
                         .evaluate(exchange, String.class);
 
                 // Set up call to redirect to Blue Button API so the user can authenticate this application
