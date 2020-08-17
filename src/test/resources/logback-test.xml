@@ -23,9 +23,10 @@
     <!--
     Adjust the loggers below for the desired granularity
     -->
-    <logger name="com.linuxforhealth.connect" level="warn" />
+    <logger name="com.linuxforhealth.connect" level="info" />
     <logger name="org.apache.camel" level="info" />
-    <logger name="org.apache.camel.main" level="warn" />
+    <logger name="org.apache.camel.main" level="info" />
+    <logger name="org.apache.camel.component" level="info" />
     <logger name="org.apache.kafka.consumer" level="warn" />
 
     <root level="warn">

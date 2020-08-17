@@ -27,9 +27,13 @@ public final class LinuxForHealthRouteBuilder extends RouteBuilder {
     public final static String ERROR_CONSUMER_URI = "direct:error";
 
     public final static String STORE_AND_NOTIFY_ROUTE_ID = "store-and-notify";
-    public final static String STORE_ROUTE_ID = "store";
-    public final static String NOTIFY_ROUTE_ID = "notify";
-    public final static String ERROR_ROUTE_ID = "error";
+    public final static String STORE_ROUTE_ID = "lfh-store";
+    public final static String STORE_PRODUCER_ID = "lfh-store-producer";
+    public final static String NOTIFY_ROUTE_ID = "lfh-notify";
+    public final static String NOTIFY_PRODUCER_ID = "lfh-notify-producer";
+    public final static String ERROR_ROUTE_ID = "lfh-error";
+    public final static String ERROR_PRODUCER_ID = "lfh-error-producer";
+
 
     private final Logger logger = LoggerFactory.getLogger(LinuxForHealthRouteBuilder.class);
 
@@ -49,7 +53,8 @@ public final class LinuxForHealthRouteBuilder extends RouteBuilder {
             msg.setData(exchange.getIn().getBody());
             exchange.getIn().setBody(msg.toString());
         })
-        .toD("${exchangeProperty[dataStoreUri]}");
+        .toD("${exchangeProperty[dataStoreUri]}")
+        .id(STORE_PRODUCER_ID);
 
         // Send a notification message based on the data storage results
         from(NOTIFY_CONSUMER_URI)
@@ -62,7 +67,8 @@ public final class LinuxForHealthRouteBuilder extends RouteBuilder {
                     ArrayList.class));
             exchange.getIn().setBody(msg.toString());
         })
-        .to("{{lfh.connect.messaging.uri}}");
+        .to("{{lfh.connect.messaging.uri}}")
+        .id(NOTIFY_PRODUCER_ID);
 
         // Send an error notification message
         from(ERROR_CONSUMER_URI)
@@ -74,6 +80,7 @@ public final class LinuxForHealthRouteBuilder extends RouteBuilder {
             exchange.getIn().setBody(msg.toString());
         })
         .log(LoggingLevel.ERROR, logger, exceptionMessage().toString())
-        .to("{{lfh.connect.messaging.uri}}");
+        .to("{{lfh.connect.messaging.uri}}")
+        .id(ERROR_PRODUCER_ID);
     }
 }

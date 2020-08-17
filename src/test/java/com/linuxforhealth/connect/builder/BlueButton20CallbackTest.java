@@ -1,3 +1,8 @@
+/*
+ * (C) Copyright IBM Corp. 2020
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.linuxforhealth.connect.builder;
 
 import org.apache.camel.Exchange;
@@ -34,8 +39,8 @@ public class BlueButton20CallbackTest extends RouteTestSupport {
     @BeforeEach
     @Override
     protected void configureContext() throws Exception {
-        mockProducerEndpoint(BlueButton20RestRouteBuilder.CALLBACK_ROUTE_ID,
-                "https://sandbox.bluebutton.cms.gov/v1/o/token/",
+        mockProducerEndpointById(BlueButton20RestRouteBuilder.CALLBACK_ROUTE_ID,
+                BlueButton20RestRouteBuilder.CALLBACK_PRODUCER_ID,
                 "mock:result");
         super.configureContext();
         mockResult = MockEndpoint.resolve(context, "mock:result");
@@ -55,7 +60,7 @@ public class BlueButton20CallbackTest extends RouteTestSupport {
 
         mockResult.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
 
-        String expectedAuthHeader = Base64.getEncoder().encodeToString("client-id:client-secret".getBytes(StandardCharsets.UTF_8));
+        String expectedAuthHeader = "Basic " + Base64.getEncoder().encodeToString("client-id:client-secret".getBytes(StandardCharsets.UTF_8));
         mockResult.expectedHeaderReceived("Authorization", expectedAuthHeader);
 
         mockResult.expectedHeaderReceived("Content-Type", "application/x-www-form-urlencoded");

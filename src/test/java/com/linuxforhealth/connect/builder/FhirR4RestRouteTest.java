@@ -1,3 +1,8 @@
+/*
+ * (C) Copyright IBM Corp. 2020
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.linuxforhealth.connect.builder;
 
 import com.linuxforhealth.connect.support.LinuxForHealthAssertions;
@@ -32,9 +37,9 @@ public class FhirR4RestRouteTest extends RouteTestSupport {
     @BeforeEach
     @Override
     protected void configureContext() throws Exception {
-        mockProducerEndpoint(
+        mockProducerEndpointById(
                 FhirR4RestRouteBuilder.ROUTE_ID,
-                LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI,
+                FhirR4RestRouteBuilder.ROUTE_PRODUCER_ID,
                 "mock:result"
         );
 

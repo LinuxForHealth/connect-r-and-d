@@ -16,6 +16,7 @@ import java.net.URI;
 public class FhirR4RestRouteBuilder extends BaseRouteBuilder {
 
     public final static String ROUTE_ID = "fhir-r4-rest";
+    public final static String ROUTE_PRODUCER_ID = "fhir-r4-rest-producer-store-and-notify";
 
     @Override
     protected String getRoutePropertyNamespace() {
@@ -38,6 +39,7 @@ public class FhirR4RestRouteBuilder extends BaseRouteBuilder {
                 .unmarshal().fhirJson("R4")
                 .marshal().fhirJson("R4")
                 .process(new MetaDataProcessor(routePropertyNamespace))
-                .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI);
+                .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
+                .id(ROUTE_PRODUCER_ID);
     }
 }

@@ -69,39 +69,23 @@ abstract class RouteTestSupport extends CamelTestSupport {
     }
 
     /**
-     * Mocks a producer endpoint using a {@link AdviceWithRouteBuilder}.
+     * Mocks a producer endpoint by producer id using a {@link AdviceWithRouteBuilder}.
      *
      * @param routeId     The route id to update.
-     * @param producerUri The producer uri to mock.
+     * @param producerId The producer uri to mock.
      * @param mockUri     The mock uri which replaces the producer uri.
      * @throws Exception If an error occurs during processing.
      */
-    protected void mockProducerEndpoint(String routeId, String producerUri, String mockUri) throws Exception {
+    protected void mockProducerEndpointById(String routeId, String producerId, String mockUri) throws Exception {
 
         RouteDefinition routeDefinition = context.getRouteDefinition(routeId);
         AdviceWithRouteBuilder advice = new AdviceWithRouteBuilder() {
             @Override
             public void configure() {
-                weaveByToUri(producerUri).replace().to(mockUri);
+                weaveById(producerId).replace().to(mockUri);
             }
         };
 
-        context.adviceWith(routeDefinition, advice);
-    }
-
-    /**
-     * Mocks a dynamic producer endpoint using a {@link AdviceWithRouteBuilder}.
-     *
-     * @param mockUri The mock uri used for the dynamic endpoint.
-     */
-    protected void mockDynamicProducer(String routeId, String mockUri) throws Exception {
-        RouteDefinition routeDefinition = context.getRouteDefinition(routeId);
-        AdviceWithRouteBuilder advice = new AdviceWithRouteBuilder() {
-            @Override
-            public void configure() {
-                weaveByType(ToDynamicDefinition.class).replace().to(mockUri);
-            }
-        };
         context.adviceWith(routeDefinition, advice);
     }
 
