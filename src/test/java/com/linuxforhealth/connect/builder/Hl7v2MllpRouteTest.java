@@ -81,11 +81,10 @@ public class Hl7v2MllpRouteTest extends RouteTestSupport {
 
         mockResult.assertIsSatisfied();
 
-        String expectedRouteUri = "netty://tcp://0.0.0.0:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder";
-        String actualRouteUri = mockResult.getExchanges().get(0).getProperty("routeUri", String.class);
-        LinuxForHealthAssertions.assertEndpointUriSame(expectedRouteUri, actualRouteUri);
-
         Exchange mockExchange = mockResult.getExchanges().get(0);
+        String expectedRouteUri = "netty://tcp://0.0.0.0:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder";
+        String actualRouteUri = mockExchange.getProperty("routeUri", String.class);
+        LinuxForHealthAssertions.assertEndpointUriSame(expectedRouteUri, actualRouteUri);
 
         Long actualTimestamp = mockExchange.getProperty("timestamp", Long.class);
         Assertions.assertNotNull(actualTimestamp);

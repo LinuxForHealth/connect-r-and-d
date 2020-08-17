@@ -23,7 +23,10 @@ import org.slf4j.LoggerFactory;
  */
 public class AcdAnalyzeRouteBuilder extends RouteBuilder {
 
+	public final static String ACD_ANALYZE_CONSUMER_URI = "direct:acd-analyze";
 	public final static String ACD_ANALYZE_ROUTE_ID = "acd-analyze";
+	public final static String ACD_ANALYZE_REQUEST_PRODUCER_ID = "acd-analyze-request-producer";
+	public final static String ACD_ANALYZE_PRODUCER_ID = "acd-analyze-producer";
 
 	private final Logger logger = LoggerFactory.getLogger(AcdAnalyzeRouteBuilder.class);
 
@@ -39,7 +42,7 @@ public class AcdAnalyzeRouteBuilder extends RouteBuilder {
 	@Override
 	public void configure() throws Exception {
 
-        from("direct:acd-analyze")
+        from(ACD_ANALYZE_CONSUMER_URI)
 		.routeId(ACD_ANALYZE_ROUTE_ID)
         .log(LoggingLevel.DEBUG, logger, "Received message body: ${body}")
         .log(LoggingLevel.DEBUG, logger, "Received message content-type: ${header.content-type}")
@@ -76,11 +79,13 @@ public class AcdAnalyzeRouteBuilder extends RouteBuilder {
 	        	.setHeader(Exchange.HTTP_METHOD, constant("POST")) // POST /analyze/{flow_id}
 	        	.doTry()
 		            .to("{{lfh.connect.acd_rest.uri}}")
+					.id(ACD_ANALYZE_REQUEST_PRODUCER_ID)
 		            .log(LoggingLevel.DEBUG, logger, "ACD response code: ${header.CamelHttpResponseCode}")
 		            .unmarshal().json()
-		            .log(LoggingLevel.DEBUG, logger, "ACD response messge body: ${body}")
+		            .log(LoggingLevel.DEBUG, logger, "ACD response message body: ${body}")
 		            .process(new AcdAnalyzeProcessor())
 		            .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
+				    .id(ACD_ANALYZE_PRODUCER_ID)
 		        .doCatch(HttpOperationFailedException.class) // ACD error response handling
 		        	.log(LoggingLevel.ERROR, logger, "ACD error response code: ${header.CamelHttpResponseCode}")
 		        	.log(LoggingLevel.ERROR, logger, "ACD error response message: ${header.CamelHttpResponseText}")
