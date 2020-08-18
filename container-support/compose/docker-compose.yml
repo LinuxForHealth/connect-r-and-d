@@ -36,16 +36,6 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: ${LFH_KAFKA_INTER_BROKER_LISTENER_NAME}
     depends_on:
       - "zookeeper"
-  nats-subscriber:
-    image: ${LFH_NATS_SUBSCRIBER_IMAGE}
-    restart: "always"
-    container_name: nats-subscriber
-    environment:
-      LFH_NATS_SUBSCRIBER_HOST: ${LFH_NATS_SUBSCRIBER_HOST}
-      LFH_NATS_SUBSCRIBER_PORT: ${LFH_NATS_SUBSCRIBER_PORT}
-      LFH_NATS_SUBSCRIBER_TOPIC: ${LFH_NATS_SUBSCRIBER_TOPIC}
-    depends_on:
-      - "nats-server"
   orthanc:
     image: ${LFH_ORTHANC_IMAGE}
     restart: "always"
