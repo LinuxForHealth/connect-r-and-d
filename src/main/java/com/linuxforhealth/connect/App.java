@@ -5,6 +5,7 @@
  */
 package com.linuxforhealth.connect;
 
+import com.linuxforhealth.connect.support.NATSSubscriberManager;
 import org.apache.camel.component.jasypt.JasyptPropertiesParser;
 import org.apache.camel.component.properties.PropertiesComponent;
 import org.apache.camel.main.Main;
@@ -157,6 +158,8 @@ public final class App {
             configure(appProperties);
             logger.info("starting camel context");
             camelMain.start();
+            logger.info("starting NATS subscribers");
+            NATSSubscriberManager.startSubscribers(appProperties);
 
         } catch (Exception ex) {
             logger.error("an error occurred starting linux for health connect", ex);

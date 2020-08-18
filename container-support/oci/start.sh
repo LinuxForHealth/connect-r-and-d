@@ -60,17 +60,6 @@ is_ready localhost "${LFH_NATS_CLIENT_HOST_PORT}"
 is_ready localhost "${LFH_NATS_MANAGEMENT_HOST_PORT}"
 is_ready localhost "${LFH_NATS_CLUSTER_HOST_PORT}"
 
-echo "launch nats subscriber"
-echo "${LFH_NATS_SUBSCRIBER_SERVICE_NAME}"
-${OCI_COMMAND} pull "${LFH_NATS_SUBSCRIBER_IMAGE}"
-${OCI_COMMAND} run -d \
-              --network "${LFH_NETWORK_NAME}" \
-              --name "${LFH_NATS_SUBSCRIBER_SERVICE_NAME}" \
-              --env LFH_NATS_SUBSCRIBER_HOST="${LFH_NATS_SUBSCRIBER_HOST}" \
-              --env LFH_NATS_SUBSCRIBER_PORT="${LFH_NATS_SUBSCRIBER_PORT}" \
-              --env LFH_NATS_SUBSCRIBER_TOPIC="${LFH_NATS_SUBSCRIBER_TOPIC}" \
-              "${LFH_NATS_SUBSCRIBER_IMAGE}"
-
 echo "launch zookeeper container"
 ${OCI_COMMAND} pull "${LFH_ZOOKEEPER_IMAGE}"
 ${OCI_COMMAND} run -d \
