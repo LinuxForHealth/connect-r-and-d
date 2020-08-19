@@ -32,7 +32,7 @@ oc rollout status deployment/"${LFH_KAFKA_SERVICE_NAME}" -w
 
 # overriding variables for OpenShift
 LFH_KAFDROP_JVM_OPTS="-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
-LFH_KAFDROP_BROKER_CONNECT="kafka:9092"
+LFH_KAFDROP_BROKER_CONNECT='${KAFKA_SERVICE_HOST}:9092'
 
 oc new-app "${LFH_KAFDROP_IMAGE}" \
     --name "${LFH_KAFDROP_SERVICE_NAME}" \
