@@ -6,12 +6,8 @@ services:
     container_name: nats-server
     ports:
       - ${LFH_NATS_CLIENT_HOST_PORT}:${LFH_NATS_CLIENT_CONTAINER_PORT}
-      - ${LFH_NATS_CLUSTER_HOST_PORT}:${LFH_NATS_CLUSTER_CONTAINER_PORT}
-      - ${LFH_NATS_MANAGEMENT_HOST_PORT}:${LFH_NATS_MANAGEMENT_CONTAINER_PORT}
   zookeeper:
     image: ${LFH_ZOOKEEPER_IMAGE}
-    ports:
-      - ${LFH_ZOOKEEPER_HOST_PORT}:${LFH_ZOOKEEPER_CONTAINER_PORT}
   kafdrop:
     image: ${LFH_KAFDROP_IMAGE}
     restart: "always"
@@ -41,5 +37,4 @@ services:
     restart: "always"
     container_name: orthanc
     ports:
-      - ${LFH_ORTHANC_DICOM_HOST_PORT}:${LFH_ORTHANC_DICOM_CONTAINER_PORT}
       - ${LFH_ORTHANC_HTTP_HOST_PORT}:${LFH_ORTHANC_HTTP_CONTAINER_PORT}
