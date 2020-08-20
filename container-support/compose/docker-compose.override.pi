@@ -10,10 +10,6 @@
 
 version: "3.7"
 services:
-  kafdrop:
-    restart: "always"
-    environment:
-      KAFKA_BROKERCONNECT: "kafka:9092"
   kafka:
     ports:
       - "9092:9092"

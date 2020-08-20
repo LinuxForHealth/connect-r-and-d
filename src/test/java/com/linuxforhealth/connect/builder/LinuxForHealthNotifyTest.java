@@ -61,7 +61,7 @@ public class LinuxForHealthNotifyTest extends RouteTestSupport {
                             exchange.setProperty("routeUri", "http://0.0.0.0:8080/fhir/r4/PATIENT");
                             exchange.setProperty("dataFormat", "fhir-r4");
                             exchange.setProperty("timestamp", 1596830090);
-                            exchange.setProperty("dataStoreUri", "kafka:FHIR_R4_PATIENT?brokers=localhost:9092");
+                            exchange.setProperty("dataStoreUri", "kafka:FHIR_R4_PATIENT?brokers=localhost:9094");
                             exchange.setProperty("status", "success");
 
                             RecordMetadata rm =  new RecordMetadata(

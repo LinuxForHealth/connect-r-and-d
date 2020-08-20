@@ -70,7 +70,7 @@ public class Hl7v2MllpRouteTest extends RouteTestSupport {
         // test files do not include trailing delimiters to simplify test assertions
         // the data format will include a terminating carriage return, \r, which is translated above from a new line \n
         mockResult.expectedBodiesReceived(expectedMessage);
-        mockResult.expectedPropertyReceived("dataStoreUri", "kafka:HL7-V2_ADT?brokers=localhost:9092");
+        mockResult.expectedPropertyReceived("dataStoreUri", "kafka:HL7-V2_ADT?brokers=localhost:9094");
         mockResult.expectedPropertyReceived("dataFormat", "HL7-V2");
         mockResult.expectedPropertyReceived("messageType", "ADT");
         mockResult.expectedPropertyReceived("routeId", "hl7-v2-mllp");
