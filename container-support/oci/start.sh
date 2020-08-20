@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# start.sh
+# start-stack.sh
 # starts Linux for Health OCI containers
 
 set -o errexit
@@ -51,7 +51,6 @@ echo "launch orthanc container"
 ${OCI_COMMAND} run -d \
               --network "${LFH_NETWORK_NAME}" \
               --name "${LFH_ORTHANC_SERVICE_NAME}" \
-              -p "${LFH_ORTHANC_HTTP_HOST_PORT}":"${LFH_ORTHANC_HTTP_CONTAINER_PORT}" \
               "${LFH_ORTHANC_IMAGE}"
 
 ${OCI_COMMAND} pull "${LFH_NATS_IMAGE}"
@@ -59,10 +58,7 @@ echo "launch nats container"
 ${OCI_COMMAND} run -d \
               --network "${LFH_NETWORK_NAME}" \
               --name "${LFH_NATS_SERVICE_NAME}" \
-              -p "${LFH_NATS_CLIENT_HOST_PORT}":"${LFH_NATS_CLIENT_CONTAINER_PORT}" \
               "${LFH_NATS_IMAGE}"
-
-is_ready localhost "${LFH_NATS_CLIENT_HOST_PORT}"
 
 echo "launch zookeeper container"
 ${OCI_COMMAND} pull "${LFH_ZOOKEEPER_IMAGE}"
@@ -76,8 +72,6 @@ ${OCI_COMMAND} pull "${LFH_KAFKA_IMAGE}"
 ${OCI_COMMAND} run -d \
               --network "${LFH_NETWORK_NAME}" \
               --name "${LFH_KAFKA_SERVICE_NAME}" \
-              -p "${LFH_KAFKA_INTERNAL_HOST_PORT}":"${LFH_KAFKA_INTERNAL_CONTAINER_PORT}" \
-              -p "${LFH_KAFKA_EXTERNAL_HOST_PORT}":"${LFH_KAFKA_EXTERNAL_CONTAINER_PORT}" \
               --env KAFKA_ZOOKEEPER_CONNECT="${LFH_KAFKA_ZOOKEEPER_CONNECT}" \
               --env KAFKA_LISTENERS="${LFH_KAFKA_LISTENERS}" \
               --env KAFKA_ADVERTISED_LISTENERS="${LFH_KAFKA_ADVERTISED_LISTENERS}" \
@@ -85,20 +79,17 @@ ${OCI_COMMAND} run -d \
               --env KAFKA_INTER_BROKER_LISTENER_NAME="${LFH_KAFKA_INTER_BROKER_LISTENER_NAME}" \
               "${LFH_KAFKA_IMAGE}"
 
-is_ready localhost "${LFH_KAFKA_INTERNAL_HOST_PORT}"
-is_ready localhost "${LFH_KAFKA_EXTERNAL_HOST_PORT}"
-
 echo "launch kafdrop"
 ${OCI_COMMAND} pull "${LFH_KAFDROP_IMAGE}"
 ${OCI_COMMAND} run -d \
               --network "${LFH_NETWORK_NAME}" \
               --name "${LFH_KAFDROP_SERVICE_NAME}" \
-              -p "${LFH_KAFDROP_HOST_PORT}":"${LFH_KAFDROP_CONTAINER_PORT}" \
+              -p "${LFH_KAFDROP_PORT}":"${LFH_KAFDROP_PORT}" \
               --env KAFKA_BROKERCONNECT="${LFH_KAFDROP_BROKER_CONNECT}" \
               --env JVM_OPTS="${LFH_KAFDROP_JVM_OPTS}" \
               "${LFH_KAFDROP_IMAGE}"
 
-is_ready localhost "${LFH_KAFDROP_HOST_PORT}"
+is_ready localhost "${LFH_KAFDROP_PORT}"
 
 echo "launch lfh connect"
 ${OCI_COMMAND} pull "${LFH_CONNECT_IMAGE}"
@@ -109,10 +100,12 @@ echo "mounting application.properties from ${HOST_VOLUME_DIR}"
 ${OCI_COMMAND} run -d \
               --network "${LFH_NETWORK_NAME}" \
               --name "${LFH_CONNECT_SERVICE_NAME}" \
-              -p "${LFH_CONNECT_MLLP_HOST_PORT}":"${LFH_CONNECT_MLLP_CONTAINER_PORT}" \
-              -p "${LFH_CONNECT_REST_HOST_PORT}":"${LFH_CONNECT_REST_CONTAINER_PORT}" \
+              -p "${LFH_CONNECT_MLLP_PORT}":"${LFH_CONNECT_MLLP_PORT}" \
+              -p "${LFH_CONNECT_REST_PORT}":"${LFH_CONNECT_REST_PORT}" \
+              -p "${LFH_CONNECT_HTTP_PORT}":"${LFH_CONNECT_HTTP_PORT}" \
               -v "${HOST_VOLUME_DIR}"/application.properties:/opt/lfh/config/application.properties \
               "${LFH_CONNECT_IMAGE}"
 
-is_ready localhost "${LFH_CONNECT_MLLP_HOST_PORT}"
-is_ready localhost "${LFH_CONNECT_REST_HOST_PORT}"
+is_ready localhost "${LFH_CONNECT_MLLP_PORT}"
+is_ready localhost "${LFH_CONNECT_REST_PORT}"
+is_ready localhost "${LFH_CONNECT_HTTP_PORT}"
