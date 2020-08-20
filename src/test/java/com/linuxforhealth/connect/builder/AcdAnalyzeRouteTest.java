@@ -53,7 +53,7 @@ public class AcdAnalyzeRouteTest extends RouteTestSupport {
     void testRoute() throws Exception {
 
         mockResult.expectedMessageCount(1);
-        mockResult.expectedPropertyReceived("dataStoreUri", "kafka:ACD_INSIGHTS?brokers=localhost:9092");
+        mockResult.expectedPropertyReceived("dataStoreUri", "kafka:ACD_INSIGHTS?brokers=localhost:9094");
         mockResult.expectedPropertyReceived("dataFormat", "ACD");
         mockResult.expectedPropertyReceived("messageType", "INSIGHTS");
 

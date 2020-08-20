@@ -68,7 +68,7 @@ public class BlueButton20ApiTest extends RouteTestSupport {
 
         mockResult.expectedMessageCount(1);
         mockResult.expectedBodiesReceived(expectedMessage);
-        mockResult.expectedPropertyReceived("dataStoreUri", "kafka:FHIR-R4_PATIENT?brokers=localhost:9092");
+        mockResult.expectedPropertyReceived("dataStoreUri", "kafka:FHIR-R4_PATIENT?brokers=localhost:9094");
         mockResult.expectedPropertyReceived("dataFormat", "FHIR-R4");
         mockResult.expectedPropertyReceived("messageType", "PATIENT");
         mockResult.expectedPropertyReceived("routeId", "bluebutton-20-rest");
