@@ -3,10 +3,15 @@ services:
   nats-server:
     image: ${LFH_NATS_IMAGE}
     restart: "always"
+    expose:
+      - ${LFH_NATS_MANAGEMENT_CONTAINER_PORT}
+      - ${LFH_NATS_CLUSTER_CONTAINER_PORT}
     ports:
       - ${LFH_NATS_CLIENT_HOST_PORT}:${LFH_NATS_CLIENT_CONTAINER_PORT}
   zookeeper:
     image: ${LFH_ZOOKEEPER_IMAGE}
+    expose:
+      - ${LFH_ZOOKEEPER_CONTAINER_PORT}
   kafdrop:
     image: ${LFH_KAFDROP_IMAGE}
     restart: "always"
