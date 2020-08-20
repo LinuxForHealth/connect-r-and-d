@@ -1,0 +1,14 @@
+version: "3.7"
+services:
+  lfh:
+    image: ${LFH_CONNECT_IMAGE}
+    restart: "always"
+    ports:
+      - ${LFH_CONNECT_MLLP_PORT}:${LFH_CONNECT_MLLP_PORT}
+      - ${LFH_CONNECT_REST_PORT}:${LFH_CONNECT_REST_PORT}
+      - ${LFH_CONNECT_HTTP_PORT}:${LFH_CONNECT_HTTP_PORT}
+    volumes:
+      - ${PWD}/application.properties:/opt/lfh/config/application.properties
+    depends_on:
+      - "kafka"
+      - "nats-server"

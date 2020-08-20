@@ -3,20 +3,21 @@ services:
   nats-server:
     image: ${LFH_NATS_IMAGE}
     restart: "always"
-    container_name: nats-server
-    ports:
-      - ${LFH_NATS_CLIENT_HOST_PORT}:${LFH_NATS_CLIENT_CONTAINER_PORT}
-      - ${LFH_NATS_CLUSTER_HOST_PORT}:${LFH_NATS_CLUSTER_CONTAINER_PORT}
-      - ${LFH_NATS_MANAGEMENT_HOST_PORT}:${LFH_NATS_MANAGEMENT_CONTAINER_PORT}
+    expose:
+      - ${LFH_NATS_CLIENT_PORT}
+      - ${LFH_NATS_CLUSTER_PORT}
+      - ${LFH_NATS_MANAGEMENT_PORT}
   zookeeper:
     image: ${LFH_ZOOKEEPER_IMAGE}
-    ports:
-      - ${LFH_ZOOKEEPER_HOST_PORT}:${LFH_ZOOKEEPER_CONTAINER_PORT}
+    expose:
+      - ${LFH_ZOOKEEPER_PORT}
   kafdrop:
     image: ${LFH_KAFDROP_IMAGE}
     restart: "always"
+    expose:
+      - ${LFH_KAFDROP_PORT}
     ports:
-      - ${LFH_KAFDROP_HOST_PORT}:${LFH_KAFDROP_CONTAINER_PORT}
+      - ${LFH_KAFDROP_PORT}:${LFH_KAFDROP_PORT}
     environment:
       KAFKA_BROKERCONNECT: ${LFH_KAFDROP_BROKER_CONNECT}
       JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
@@ -25,9 +26,9 @@ services:
   kafka:
     image: ${LFH_KAFKA_IMAGE}
     restart: "always"
-    ports:
-      - ${LFH_KAFKA_INTERNAL_HOST_PORT}:${LFH_KAFKA_INTERNAL_CONTAINER_PORT}
-      - ${LFH_KAFKA_EXTERNAL_HOST_PORT}:${LFH_KAFKA_EXTERNAL_CONTAINER_PORT}
+    expose:
+      - ${LFH_KAFKA_INTERNAL_LISTENER_PORT}
+      - ${LFH_KAFKA_EXTERNAL_LISTENER_PORT}
     environment:
       KAFKA_ZOOKEEPER_CONNECT: ${LFH_KAFKA_ZOOKEEPER_CONNECT}
       KAFKA_LISTENERS: ${LFH_KAFKA_LISTENERS}
@@ -39,7 +40,5 @@ services:
   orthanc:
     image: ${LFH_ORTHANC_IMAGE}
     restart: "always"
-    container_name: orthanc
-    ports:
-      - ${LFH_ORTHANC_DICOM_HOST_PORT}:${LFH_ORTHANC_DICOM_CONTAINER_PORT}
-      - ${LFH_ORTHANC_HTTP_HOST_PORT}:${LFH_ORTHANC_HTTP_CONTAINER_PORT}
+    expose:
+      - ${LFH_ORTHANC_HTTP_PORT}
