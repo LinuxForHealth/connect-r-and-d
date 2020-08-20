@@ -25,8 +25,9 @@ services:
   kafka:
     image: ${LFH_KAFKA_IMAGE}
     restart: "always"
+    expose:
+      - ${LFH_KAFKA_INTERNAL_CONTAINER_PORT}
     ports:
-      - ${LFH_KAFKA_INTERNAL_HOST_PORT}:${LFH_KAFKA_INTERNAL_CONTAINER_PORT}
       - ${LFH_KAFKA_EXTERNAL_HOST_PORT}:${LFH_KAFKA_EXTERNAL_CONTAINER_PORT}
     environment:
       KAFKA_ZOOKEEPER_CONNECT: ${LFH_KAFKA_ZOOKEEPER_CONNECT}
