@@ -46,29 +46,30 @@ echo "create lfh network"
 ${OCI_COMMAND} network create "${LFH_NETWORK_NAME}"
 
 # launch containers
+${OCI_COMMAND} pull "${LFH_ORTHANC_IMAGE}"
+echo "launch orthanc container"
+${OCI_COMMAND} run -d \
+              --network "${LFH_NETWORK_NAME}" \
+              --name "${LFH_ORTHANC_SERVICE_NAME}" \
+              -p "${LFH_ORTHANC_HTTP_HOST_PORT}":"${LFH_ORTHANC_HTTP_CONTAINER_PORT}" \
+              "${LFH_ORTHANC_IMAGE}"
+
 ${OCI_COMMAND} pull "${LFH_NATS_IMAGE}"
 echo "launch nats container"
 ${OCI_COMMAND} run -d \
               --network "${LFH_NETWORK_NAME}" \
               --name "${LFH_NATS_SERVICE_NAME}" \
               -p "${LFH_NATS_CLIENT_HOST_PORT}":"${LFH_NATS_CLIENT_CONTAINER_PORT}" \
-              -p "${LFH_NATS_MANAGEMENT_HOST_PORT}":"${LFH_NATS_MANAGEMENT_CONTAINER_PORT}" \
-              -p "${LFH_NATS_CLUSTER_HOST_PORT}":"${LFH_NATS_CLUSTER_CONTAINER_PORT}" \
               "${LFH_NATS_IMAGE}"
 
 is_ready localhost "${LFH_NATS_CLIENT_HOST_PORT}"
-is_ready localhost "${LFH_NATS_MANAGEMENT_HOST_PORT}"
-is_ready localhost "${LFH_NATS_CLUSTER_HOST_PORT}"
 
 echo "launch zookeeper container"
 ${OCI_COMMAND} pull "${LFH_ZOOKEEPER_IMAGE}"
 ${OCI_COMMAND} run -d \
               --network "${LFH_NETWORK_NAME}" \
               --name "${LFH_ZOOKEEPER_SERVICE_NAME}" \
-              -p "${LFH_ZOOKEEPER_HOST_PORT}":"${LFH_ZOOKEEPER_CONTAINER_PORT}" \
               "${LFH_ZOOKEEPER_IMAGE}"
-
-is_ready localhost "${LFH_ZOOKEEPER_HOST_PORT}"
 
 echo "launch kafka container"
 ${OCI_COMMAND} pull "${LFH_KAFKA_IMAGE}"
