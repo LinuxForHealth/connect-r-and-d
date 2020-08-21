@@ -72,7 +72,7 @@ public class FhirR4ToAcdProcessor implements Processor {
 			docEx.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
 			
 			ProducerTemplate pt = exchange.getContext().createProducerTemplate();
-			pt.send("direct:acd-analyze", docEx);
+			pt.send("http:{{lfh.connect.acd_rest.route_host}}:{{lfh.connect.acd_rest.route_port}}/acd/analyze", docEx);
 		}
 		
 	}

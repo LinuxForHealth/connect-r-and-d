@@ -42,50 +42,52 @@ public class AcdAnalyzeRouteBuilder extends BaseRouteBuilder {
 
 	@Override
 	protected void buildRoute(String routePropertyNamespace) {
-		from(ACD_ANALYZE_CONSUMER_URI)
-		.routeId(ACD_ANALYZE_ROUTE_ID)
-		.log(LoggingLevel.DEBUG, logger, "Received message body: ${body}")
-		.log(LoggingLevel.DEBUG, logger, "Received message content-type: ${header.content-type}")
+		
+		rest("/acd")
+			.post("/analyze")
+			.route()
+			.routeId(ACD_ANALYZE_ROUTE_ID)
+			.log(LoggingLevel.DEBUG, logger, "Received message content-type: ${header.content-type}")
 
-		.choice()
-
-			// ACD request pre-conditions
-
-			.when(isPropertyNotSet("lfh.connect.acd_rest.baseUri"))
-				.log(LoggingLevel.WARN, logger, "ACD service endpoint not configured - message will not be processed")
-				.stop()
-
-			.when(isPropertyNotSet("lfh.connect.acd_rest.version"))
-				.log(LoggingLevel.WARN, logger, "ACD service annotator flow not configured - message will not be processed")
-				.stop()
-
-			.when(isPropertyNotSet("lfh.connect.acd_rest.flow"))
-				.log(LoggingLevel.WARN, logger, "ACD service version param not configured - message will not be processed")
-				.stop()
-
-			.when(isPropertyNotSet("lfh.connect.acd_rest.auth"))
-				.log(LoggingLevel.WARN, logger, "ACD service authentication not configured - message will not be processed")
-				.stop()
-
-			.when(header("content-type").isNull())
-				.log(LoggingLevel.WARN, logger, "ACD request content-type header not set in previous route - message will not be processed")
-				.stop()
-
-			.when(isInvalidContentType)
-				.log(LoggingLevel.WARN, logger, "Invalid ACD content-type: ${in.header.content-type}. Only text/plain or application/json is supported - - message will not be processed")
-				.stop()
-
-			.otherwise() // Cleared to make ACD request
-				.setHeader(Exchange.HTTP_METHOD, constant("POST")) // POST /analyze/{flow_id}
-				.to("{{lfh.connect.acd_rest.uri}}")
-				.id(ACD_ANALYZE_REQUEST_PRODUCER_ID)
-				.log(LoggingLevel.DEBUG, logger, "ACD response code: ${header.CamelHttpResponseCode}")
-				.unmarshal().json()
-				.log(LoggingLevel.DEBUG, logger, "ACD response message body: ${body}")
-				.process(new MetaDataProcessor(getRoutePropertyNamespace()))
-				.to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
-				.id(ACD_ANALYZE_PRODUCER_ID)
-				.stop()
-		.end();
+			.choice()
+	
+				// ACD request pre-conditions
+	
+				.when(isPropertyNotSet("lfh.connect.acd_rest.baseUri"))
+					.log(LoggingLevel.WARN, logger, "ACD service endpoint not configured - message will not be processed")
+					.stop()
+	
+				.when(isPropertyNotSet("lfh.connect.acd_rest.version"))
+					.log(LoggingLevel.WARN, logger, "ACD service annotator flow not configured - message will not be processed")
+					.stop()
+	
+				.when(isPropertyNotSet("lfh.connect.acd_rest.flow"))
+					.log(LoggingLevel.WARN, logger, "ACD service version param not configured - message will not be processed")
+					.stop()
+	
+				.when(isPropertyNotSet("lfh.connect.acd_rest.auth"))
+					.log(LoggingLevel.WARN, logger, "ACD service authentication not configured - message will not be processed")
+					.stop()
+	
+				.when(header("content-type").isNull())
+					.log(LoggingLevel.WARN, logger, "ACD request content-type header not set in previous route - message will not be processed")
+					.stop()
+	
+				.when(isInvalidContentType)
+					.log(LoggingLevel.WARN, logger, "Invalid ACD content-type: ${in.header.content-type}. Only text/plain or application/json is supported - - message will not be processed")
+					.stop()
+	
+				.otherwise() // Cleared to make ACD request
+					.setHeader(Exchange.HTTP_METHOD, constant("POST")) // POST /analyze/{flow_id}
+					.to("{{lfh.connect.acd_rest.uri}}")
+					.id(ACD_ANALYZE_REQUEST_PRODUCER_ID)
+					.log(LoggingLevel.DEBUG, logger, "ACD response code: ${header.CamelHttpResponseCode}")
+					.unmarshal().json()
+					.log(LoggingLevel.DEBUG, logger, "ACD response message body: ${body}")
+					.process(new MetaDataProcessor(getRoutePropertyNamespace()))
+					.to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
+					.id(ACD_ANALYZE_PRODUCER_ID)
+					.stop()
+			.end();
 	}
 }
