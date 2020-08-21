@@ -32,10 +32,10 @@ class MetaDataProcessorTest extends CamelTestSupport {
     @Override
     protected Properties useOverridePropertiesWithPropertiesComponent() {
         Properties props = new Properties();
-        props.setProperty("lfh.connect.dataStore.uri", "kafka:<topicName>?brokers=localhost:9094");
+        props.setProperty("lfh.connect.datastore.uri", "kafka:<topicName>?brokers=localhost:9094");
         props.setProperty("lfh.connect.meta.uri", "direct:start");
-        props.setProperty("lfh.connect.meta.dataFormat", "csv");
-        props.setProperty("lfh.connect.meta.messageType", "person");
+        props.setProperty("lfh.connect.meta.dataformat", "csv");
+        props.setProperty("lfh.connect.meta.messagetype", "person");
         return props;
     }
 

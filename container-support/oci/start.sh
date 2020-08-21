@@ -94,16 +94,16 @@ is_ready localhost "${LFH_KAFDROP_PORT}"
 echo "launch lfh connect"
 ${OCI_COMMAND} pull "${LFH_CONNECT_IMAGE}"
 
-HOST_VOLUME_DIR=$(dirname "${PWD}")/compose
-echo "mounting application.properties from ${HOST_VOLUME_DIR}"
-
 ${OCI_COMMAND} run -d \
               --network "${LFH_NETWORK_NAME}" \
               --name "${LFH_CONNECT_SERVICE_NAME}" \
               -p "${LFH_CONNECT_MLLP_PORT}":"${LFH_CONNECT_MLLP_PORT}" \
               -p "${LFH_CONNECT_REST_PORT}":"${LFH_CONNECT_REST_PORT}" \
               -p "${LFH_CONNECT_HTTP_PORT}":"${LFH_CONNECT_HTTP_PORT}" \
-              -v "${HOST_VOLUME_DIR}"/application.properties:/opt/lfh/config/application.properties \
+              --env LFH_CONNECT_DATASTORE_URI="{{lfh.connect.datastore.host}}:<topicName>?brokers=kafka:9092" \
+              --env LFH_CONNECT_MESSAGING_URI="nats:lfh-events?servers=nats-server:4222" \
+              --env LFH_CONNECT_MESSAGING_SUBSCRIBE_HOSTS="nats-server:4222" \
+              --env LFH_CONNECT_ORTHANC_SERVER_URI="http://orthanc:{{lfh.connect.orthanc_server.port}}/instances" \
               "${LFH_CONNECT_IMAGE}"
 
 is_ready localhost "${LFH_CONNECT_MLLP_PORT}"
