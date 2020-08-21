@@ -36,10 +36,10 @@ public class LinuxForHealthStoreTest extends RouteTestSupport {
         Properties props = super.useOverridePropertiesWithPropertiesComponent();
 
         props.setProperty("lfh.connect.test.uri", "direct:test-store");
-        props.setProperty("lfh.connect.test.dataFormat", "csv");
-        props.setProperty("lfh.connect.test.messageType", "person");
+        props.setProperty("lfh.connect.test.dataformat", "csv");
+        props.setProperty("lfh.connect.test.messagetype", "person");
 
-        props.setProperty("lfh.connect.dataStore.uri", "mock:data-store");
+        props.setProperty("lfh.connect.datastore.uri", "mock:data-store");
         props.setProperty("lfh.connect.messaging.uri", "mock:messaging");
         return props;
     }
@@ -71,7 +71,7 @@ public class LinuxForHealthStoreTest extends RouteTestSupport {
                                     exchange.setProperty("status", "success");
 
                                     String dataStoreUri = SimpleBuilder
-                                            .simple("${properties:lfh.connect.dataStore.uri}")
+                                            .simple("${properties:lfh.connect.datastore.uri}")
                                             .evaluate(exchange, String.class);
                                     exchange.setProperty("dataStoreUri", dataStoreUri);
 

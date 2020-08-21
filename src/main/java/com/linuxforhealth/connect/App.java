@@ -33,6 +33,7 @@ public final class App {
 
     private final static String APPLICATION_PROPERTIES_FILE_NAME = "application.properties";
     private final static String EXTERNAL_PROPERTY_FILE_PATH = "config/application.properties";
+    private final static String ENV_NAMESPACE = "lfh_connect_";
     private final static String BEAN_PROPERTY_NAMESPACE = "lfh.connect.bean";
     private final static String ROUTE_BUILDER_PACKAGE = "com.linuxforhealth.connect.builder";
 
@@ -65,10 +66,55 @@ public final class App {
     }
 
     /**
-     * Loads application properties.
+     * Loads properties from a well known external location in {@link App#EXTERNAL_PROPERTY_FILE_PATH}
+     * @return {@link Properties} object
+     * @throws IOException if an error occurs reading the properties from file
+     */
+    private Properties loadExternalProperties() throws IOException {
+        Path externalPropertyPath = Paths.get(App.EXTERNAL_PROPERTY_FILE_PATH);
+        Properties externalProperties = new Properties();
+
+        if (Files.exists(externalPropertyPath)) {
+            String absolutePath = externalPropertyPath.toAbsolutePath().toString();
+            logger.info("loading override properties from file:{}", absolutePath);
+            externalProperties.load(Files.newInputStream(externalPropertyPath));
+        }
+        return externalProperties;
+    }
+
+    /**
+     * Loads property settings from environment variables.
+     * Properties are translated from environment variable names and values.
+     * @return {@link Properties} object.
+     */
+    private Properties loadEnvironmentProperties() {
+        Properties envProperties = new Properties();
+
+        System.getenv()
+                .entrySet()
+                .stream()
+                .filter(e -> e.getKey().toLowerCase().startsWith(ENV_NAMESPACE))
+                .forEach(e -> {
+                    String key = e.getKey().toLowerCase().replaceAll("_", ".");
+                    String value = e.getValue();
+                    envProperties.put(key, value);
+                });
+
+        return envProperties;
+    }
+
+    /**
+     * Loads application properties from the classpath, external file, and environment variables.
      *
-     * Properties are loaded from the classpath and may be overridden using an external file located in
-     * config/application.properties.
+     * Properties are resolved in the following order:
+     * <ul>
+     *     <li>classpath</li>
+     *     <li>external file</li>
+     *     <li>environment variables</li>
+     * </ul>
+     *
+     * Environment variables are translated to a valid "property" format.
+     * Example: LFH_CONNECT_FOO=bar is translated to lfh.connect.foo=bar.
      *
      * Properties are registered with the camel context and returned from this method for bootstrap processing.
      * This "double-evaluation" is required as the app has to configure some components prior to the camel context
@@ -85,21 +131,17 @@ public final class App {
         logger.info("loading properties from classpath:{}", App.APPLICATION_PROPERTIES_FILE_NAME);
         camelPropertiesComponent.setLocation("classpath:" + App.APPLICATION_PROPERTIES_FILE_NAME);
 
-        Path externalPropertyPath = Paths.get(App.EXTERNAL_PROPERTY_FILE_PATH);
+        Properties externalProperties = loadExternalProperties();
+        camelPropertiesComponent.setOverrideProperties(externalProperties);
+        externalProperties.forEach((k, v) -> {
+            properties.setProperty(k.toString(), v.toString());
+        });
 
-        if (Files.exists(externalPropertyPath)) {
-            String absolutePath = externalPropertyPath.toAbsolutePath().toString();
-            logger.info("loading override properties from file:{}", absolutePath);
-
-            Properties overrideProperties = new Properties();
-            overrideProperties.load(Files.newInputStream(externalPropertyPath));
-            camelPropertiesComponent.setOverrideProperties(overrideProperties);
-
-            // set override properties
-            overrideProperties.forEach((k, v) -> {
-                properties.setProperty(k.toString(), v.toString());
-            });
-        }
+        Properties envProperties = loadEnvironmentProperties();
+        camelPropertiesComponent.setOverrideProperties(envProperties);
+        envProperties.forEach((k, v) -> {
+            properties.setProperty(k.toString(), v.toString());
+        });
 
         return properties;
     }

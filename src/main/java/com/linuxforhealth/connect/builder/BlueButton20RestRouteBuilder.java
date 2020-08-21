@@ -53,22 +53,22 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
     private void addAuthorizationRoute() {
         // Blue Button OAuth2 - Authorize route in Blue Button 2.0 & get code
         CamelContextSupport contextSupport = new CamelContextSupport(getContext());
-        URI blueButtonAuthorizeUri = URI.create(contextSupport.getProperty("lfh.connect.bluebutton_20.authorizeUri"));
+        URI blueButtonAuthorizeUri = URI.create(contextSupport.getProperty("lfh.connect.bluebutton_20.authorizeuri"));
         rest(blueButtonAuthorizeUri.getPath())
             .get()
             .route()
             .routeId(AUTHORIZE_ROUTE_ID)
             .process(exchange -> {
                 String callbackURL = SimpleBuilder
-                        .simple("${properties:lfh.connect.bluebutton_20.handlerUri}")
+                        .simple("${properties:lfh.connect.bluebutton_20.handleruri}")
                         .evaluate(exchange, String.class);
 
                 String cmsAuthorizeURL = SimpleBuilder
-                        .simple("${properties:lfh.connect.bluebutton_20.cms.authorizeUri}")
+                        .simple("${properties:lfh.connect.bluebutton_20.cms.authorizeuri}")
                         .evaluate(exchange, String.class);
 
                 String clientId = SimpleBuilder
-                        .simple("${properties:lfh.connect.bluebutton_20.cms.clientId}")
+                        .simple("${properties:lfh.connect.bluebutton_20.cms.clientid}")
                         .evaluate(exchange, String.class);
 
                 // Set up call to redirect to Blue Button API so the user can authenticate this application
@@ -102,7 +102,7 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
     private void addCallbackRoute() {
         // Blue Button OAuth2 - Callback to exchange code for token (displayed in the browser)
         CamelContextSupport contextSupport = new CamelContextSupport(getContext());
-        URI blueButtonHandlerUri = URI.create(contextSupport.getProperty("lfh.connect.bluebutton_20.handlerUri"));
+        URI blueButtonHandlerUri = URI.create(contextSupport.getProperty("lfh.connect.bluebutton_20.handleruri"));
         URI cmsTokenURL = URI.create(contextSupport.getProperty("lfh.connect.bluebutton_20.cms.tokenUri"));
         rest(blueButtonHandlerUri.getPath())
                 .get()
@@ -110,10 +110,10 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
                 .routeId(CALLBACK_ROUTE_ID)
                 .process(exchange -> {
 
-                    String clientId = SimpleBuilder.simple("${properties:lfh.connect.bluebutton_20.cms.clientId}")
+                    String clientId = SimpleBuilder.simple("${properties:lfh.connect.bluebutton_20.cms.clientid}")
                             .evaluate(exchange, String.class);
 
-                    String clientSecret = SimpleBuilder.simple("${properties:lfh.connect.bluebutton_20.cms.clientSecret}")
+                    String clientSecret = SimpleBuilder.simple("${properties:lfh.connect.bluebutton_20.cms.clientsecret}")
                             .evaluate(exchange, String.class);
 
                     // Setting up call to Blue Button 2.0 to exchange the code for a token
@@ -149,7 +149,7 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
 
                 String resourceType = exchange.getIn().getHeader("resource", String.class).toUpperCase();
 
-                String kafkaDataStoreUri = SimpleBuilder.simple("${properties:lfh.connect.dataStore.uri}")
+                String kafkaDataStoreUri = SimpleBuilder.simple("${properties:lfh.connect.datastore.uri}")
                         .evaluate(exchange, String.class)
                         .replaceAll("<topicName>", "FHIR-R4_" + resourceType);
 
@@ -168,7 +168,7 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
             })
             .doTry()
             .process(exchange -> {
-                String cmsBaseURI = SimpleBuilder.simple("${properties:lfh.connect.bluebutton_20.cms.baseUri}")
+                String cmsBaseURI = SimpleBuilder.simple("${properties:lfh.connect.bluebutton_20.cms.baseuri}")
                         .evaluate(exchange, String.class);
 
                 // Set up Blue Button 2.0 query
@@ -199,7 +199,7 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
                     // Set the message attributes for data format back to r3 and change the Kafka queue
                     String resourceType = exchange.getProperty("resourceType", String.class).toUpperCase();
 
-                    String kafkaDataStoreUri = SimpleBuilder.simple("${properties:lfh.connect.dataStore.uri}")
+                    String kafkaDataStoreUri = SimpleBuilder.simple("${properties:lfh.connect.datastore.uri}")
                             .evaluate(exchange, String.class)
                             .replaceAll("<topicName>", "FHIR-R3_" + resourceType);
 

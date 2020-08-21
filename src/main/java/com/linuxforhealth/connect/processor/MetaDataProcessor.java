@@ -88,16 +88,16 @@ public final class MetaDataProcessor implements Processor {
 
         exchange.setProperty("routeUri", routeUri);
 
-        String dataFormatExpression = "${properties:" + routePropertyNamespace + ".dataFormat}";
+        String dataFormatExpression = "${properties:" + routePropertyNamespace + ".dataformat}";
         exchange.setProperty("dataFormat", parseSimpleExpression(dataFormatExpression, exchange).toUpperCase());
 
-        String messageTypeExpression = "${properties:" + routePropertyNamespace + ".messageType}";
+        String messageTypeExpression = "${properties:" + routePropertyNamespace + ".messagetype}";
         exchange.setProperty("messageType", parseSimpleExpression(messageTypeExpression, exchange).toUpperCase());
 
         String topicName = exchange.getProperty("dataFormat") + "_" + exchange.getProperty("messageType");
 
         exchange.setProperty("dataStoreUri",
-                parseSimpleExpression("${properties:lfh.connect.dataStore.uri}", exchange)
+                parseSimpleExpression("${properties:lfh.connect.datastore.uri}", exchange)
                 .replaceAll("<topicName>", topicName));
 
         String exchangeBody = exchange.getIn().getBody(String.class);

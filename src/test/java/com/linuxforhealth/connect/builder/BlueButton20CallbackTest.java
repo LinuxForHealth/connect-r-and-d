@@ -31,8 +31,8 @@ public class BlueButton20CallbackTest extends RouteTestSupport {
     protected Properties useOverridePropertiesWithPropertiesComponent() {
         Properties props = super.useOverridePropertiesWithPropertiesComponent();
         props.setProperty("lfh.connect.bluebutton_20.cms.tokenUri", "https://sandbox.bluebutton.cms.gov/v1/o/token/");
-        props.setProperty("lfh.connect.bluebutton_20.cms.clientId", "client-id");
-        props.setProperty("lfh.connect.bluebutton_20.cms.clientSecret", "client-secret");
+        props.setProperty("lfh.connect.bluebutton_20.cms.clientid", "client-id");
+        props.setProperty("lfh.connect.bluebutton_20.cms.clientsecret", "client-secret");
         return props;
     }
 
@@ -66,7 +66,7 @@ public class BlueButton20CallbackTest extends RouteTestSupport {
         mockResult.expectedHeaderReceived("Content-Type", "application/x-www-form-urlencoded");
         mockResult.expectedHeaderReceived("Content-Length", expectedBody.length());
 
-        fluentTemplate.to("{{lfh.connect.bluebutton_20.handlerUri}}")
+        fluentTemplate.to("{{lfh.connect.bluebutton_20.handleruri}}")
                 .withHeader("code", "auth-code")
                 .send();
 
