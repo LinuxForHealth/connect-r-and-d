@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   lfh:
-    image: "docker.io/linuxforhealth/connect:test"
+    image: ${LFH_CONNECT_IMAGE}
     restart: "always"
     environment:
       LFH_CONNECT_DATASTORE_URI: "{{lfh.connect.datastore.host}}:<topicName>?brokers=kafka:9092"
