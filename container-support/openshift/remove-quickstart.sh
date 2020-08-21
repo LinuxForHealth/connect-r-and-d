@@ -1,4 +1,6 @@
 #!/bin/sh
+# remove-quickstart.sh
+# removes all LFH objects, including the project from an OpenShift 4.x cluster.
 
 set -o errexit
 set -o nounset

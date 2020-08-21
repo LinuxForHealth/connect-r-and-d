@@ -1,4 +1,10 @@
 #!/bin/sh
+# install-quickstart.sh
+# Provisions the LFH quick start stack into an existing OpenShift 4.x cluster.
+# install-quickstart.sh creates:
+# - OpenShift top level LFH project
+# - OpenShift applications for LFH and its supporting services
+# - OpenShift routes for external client use
 
 set -o errexit
 set -o nounset
