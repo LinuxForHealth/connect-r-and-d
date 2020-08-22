@@ -51,7 +51,7 @@ public class AcdAnalyzeRouteBuilder extends BaseRouteBuilder {
 
 			// ACD request pre-conditions
 
-			.when(isPropertyNotSet("lfh.connect.acd_rest.baseUri"))
+			.when(isPropertyNotSet("lfh.connect.acd_rest.baseuri"))
 				.log(LoggingLevel.WARN, logger, "ACD service endpoint not configured - message will not be processed")
 				.stop()
 

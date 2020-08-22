@@ -34,8 +34,8 @@ public class BlueButton20ApiTest extends RouteTestSupport {
     @Override
     protected Properties useOverridePropertiesWithPropertiesComponent() {
         Properties props = super.useOverridePropertiesWithPropertiesComponent();
-        props.setProperty("lfh.connect.bluebutton_20.cms.clientId", "client-id");
-        props.setProperty("lfh.connect.bluebutton_20.cms.clientSecret", "client-secret");
+        props.setProperty("lfh.connect.bluebutton_20.cms.clientid", "client-id");
+        props.setProperty("lfh.connect.bluebutton_20.cms.clientsecret", "client-secret");
         return props;
     }
 

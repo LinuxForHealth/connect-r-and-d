@@ -32,10 +32,10 @@ public class LinuxForHealthErrorTest extends RouteTestSupport {
         Properties props = super.useOverridePropertiesWithPropertiesComponent();
 
         props.setProperty("lfh.connect.test.uri", "direct:test-error");
-        props.setProperty("lfh.connect.test.dataFormat", "csv");
-        props.setProperty("lfh.connect.test.messageType", "person");
+        props.setProperty("lfh.connect.test.dataformat", "csv");
+        props.setProperty("lfh.connect.test.messagetype", "person");
 
-        props.setProperty("lfh.connect.dataStore.uri", "mock:data-store");
+        props.setProperty("lfh.connect.datastore.uri", "mock:data-store");
         props.setProperty("lfh.connect.messaging.uri", "mock:messaging");
         return props;
     }

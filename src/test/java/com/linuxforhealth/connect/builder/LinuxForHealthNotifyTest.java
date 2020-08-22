@@ -34,8 +34,8 @@ public class LinuxForHealthNotifyTest extends RouteTestSupport {
         Properties props = super.useOverridePropertiesWithPropertiesComponent();
 
         props.setProperty("lfh.connect.test.uri", "direct:test-notify");
-        props.setProperty("lfh.connect.test.dataFormat", "csv");
-        props.setProperty("lfh.connect.test.messageType", "person");
+        props.setProperty("lfh.connect.test.dataformat", "csv");
+        props.setProperty("lfh.connect.test.messagetype", "person");
 
         props.setProperty("lfh.connect.messaging.uri", "mock:messaging");
         return props;

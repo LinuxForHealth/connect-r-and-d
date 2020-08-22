@@ -28,7 +28,7 @@ public class BlueButton20AuthTest extends RouteTestSupport {
     @Override
     protected Properties useOverridePropertiesWithPropertiesComponent() {
         Properties props = super.useOverridePropertiesWithPropertiesComponent();
-        props.setProperty("lfh.connect.bluebutton_20.cms.clientId", "client-id");
+        props.setProperty("lfh.connect.bluebutton_20.cms.clientid", "client-id");
         return props;
     }
 
@@ -61,7 +61,7 @@ public class BlueButton20AuthTest extends RouteTestSupport {
 
         mockResult.expectedPropertyReceived("location", expectedLocation);
 
-        fluentTemplate.to("{{lfh.connect.bluebutton_20.authorizeUri}}")
+        fluentTemplate.to("{{lfh.connect.bluebutton_20.authorizeuri}}")
                 .send();
 
         mockResult.assertIsSatisfied();
