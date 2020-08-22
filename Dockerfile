@@ -28,7 +28,7 @@ RUN mkdir -p /opt/lfh/libs
 COPY --from=builder /tmp/lfh /opt/lfh/
 
 # expose MLLP, REST
-EXPOSE 2575 8080
+EXPOSE 2575 8080 9090
 
 WORKDIR ${APP_ROOT}
 USER lfh

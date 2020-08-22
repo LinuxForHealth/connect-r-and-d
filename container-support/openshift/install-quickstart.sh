@@ -51,4 +51,15 @@ oc new-app "${LFH_KAFDROP_IMAGE}" \
     --env JVM_OPTS="${LFH_KAFDROP_JVM_OPTS}" \
     --show-all=true
 oc rollout status deployment/"${LFH_KAFDROP_SERVICE_NAME}" -w
-oc expose svc/"${LFH_KAFDROP_SERVICE_NAME}"
+oc expose service "${LFH_KAFDROP_SERVICE_NAME}"
+
+oc new-app "${LFH_CONNECT_IMAGE}" \
+  --name "${LFH_CONNECT_SERVICE_NAME}" \
+  --labels='app='"${LFH_CONNECT_SERVICE_NAME}" \
+  --env LFH_CONNECT_DATASTORE_URI="{{lfh.connect.datastore.host}}:<topicName>?brokers=kafka:9092" \
+  --env LFH_CONNECT_MESSAGING_URI="nats:lfh-events?servers=nats-server:4222" \
+  --env LFH_CONNECT_MESSAGING_SUBSCRIBE_HOSTS="nats-server:4222" \
+  --env LFH_CONNECT_ORTHANC_SERVER_URI="http://orthanc:{{lfh.connect.orthanc_server.port}}/instances" \
+  --show-all=true
+oc rollout status deployment/"${LFH_CONNECT_SERVICE_NAME}" -w
+oc expose service "${LFH_CONNECT_SERVICE_NAME}" --port="${LFH_CONNECT_REST_PORT}"
