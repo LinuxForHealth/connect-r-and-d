@@ -26,25 +26,25 @@ import java.util.UUID;
 /**
  * Defines routes used to integrate with the Blue Button 2.0 CMS APIs for patient Medicare data.
  *
- * Patient Medicare data is secured using OAuth2 authorization grants. The {@link BlueButton20RestRouteBuilder#AUTHORIZE_ROUTE_ID}
- * and {@link BlueButton20RestRouteBuilder#CALLBACK_ROUTE_ID} are used to support the OAuth2 authorization grant workflow.
- * The {@link BlueButton20RestRouteBuilder#API_ROUTE_ID} route supports data access once a token is attained.
+ * Patient Medicare data is secured using OAuth2 authorization grants. The {@link BlueButton20RouteBuilder#AUTHORIZE_ROUTE_ID}
+ * and {@link BlueButton20RouteBuilder#CALLBACK_ROUTE_ID} are used to support the OAuth2 authorization grant workflow.
+ * The {@link BlueButton20RouteBuilder#API_ROUTE_ID} route supports data access once a token is attained.
  *
  * The current implementation provides a means for manual integration as the OAuth2 interactions are not yet encapsulated.
  * Once the OAuth2 interactions are encapsulated, this route may extend {@link BaseRouteBuilder}
  */
-public class BlueButton20RestRouteBuilder extends RouteBuilder {
+public class BlueButton20RouteBuilder extends RouteBuilder {
 
-    public final static String AUTHORIZE_ROUTE_ID = "bluebutton-20-rest-authorize";
+    public final static String AUTHORIZE_ROUTE_ID = "bluebutton-20-authorize";
     public final static String AUTHORIZE_PRODUCER_ID = "bluebutton-20-authorize-producer";
-    public final static String CALLBACK_ROUTE_ID = "bluebutton-20-rest-callback";
+    public final static String CALLBACK_ROUTE_ID = "bluebutton-20-callback";
     public final static String CALLBACK_PRODUCER_ID = "bluebutton-20-callback-producer";
-    public final static String API_ROUTE_ID = "bluebutton-20-rest";
-    public final static String API_ROUTE_BLUE_BUTTON_REQUEST_PRODUCER_ID = "bluebutton-20-rest-request-producer";
-    public final static String API_ROUTE_PRODUCER_ID = "bluebutton-20-rest-producer";
-    public final static String API_ROUTE_ERROR_PRODUCER_ID = "bluebutton-20-rest-error-producer";
+    public final static String API_ROUTE_ID = "bluebutton-20";
+    public final static String API_ROUTE_BLUE_BUTTON_REQUEST_PRODUCER_ID = "bluebutton-20-request-producer";
+    public final static String API_ROUTE_PRODUCER_ID = "bluebutton-20-producer";
+    public final static String API_ROUTE_ERROR_PRODUCER_ID = "bluebutton-20-error-producer";
 
-    private final Logger logger = LoggerFactory.getLogger(BlueButton20RestRouteBuilder.class);
+    private final Logger logger = LoggerFactory.getLogger(BlueButton20RouteBuilder.class);
 
     /**
      * Defines the route used to initiate the browser based Blue Button 2.0 CMS API authorization request.
@@ -53,22 +53,22 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
     private void addAuthorizationRoute() {
         // Blue Button OAuth2 - Authorize route in Blue Button 2.0 & get code
         CamelContextSupport contextSupport = new CamelContextSupport(getContext());
-        URI blueButtonAuthorizeUri = URI.create(contextSupport.getProperty("lfh.connect.bluebutton_20.authorizeuri"));
+        URI blueButtonAuthorizeUri = URI.create(contextSupport.getProperty("lfh.connect.bluebutton-20.authorizeuri"));
         rest(blueButtonAuthorizeUri.getPath())
             .get()
             .route()
             .routeId(AUTHORIZE_ROUTE_ID)
             .process(exchange -> {
                 String callbackURL = SimpleBuilder
-                        .simple("${properties:lfh.connect.bluebutton_20.handleruri}")
+                        .simple("${properties:lfh.connect.bluebutton-20.handleruri}")
                         .evaluate(exchange, String.class);
 
                 String cmsAuthorizeURL = SimpleBuilder
-                        .simple("${properties:lfh.connect.bluebutton_20.cms.authorizeuri}")
+                        .simple("${properties:lfh.connect.bluebutton-20.cms.authorizeuri}")
                         .evaluate(exchange, String.class);
 
                 String clientId = SimpleBuilder
-                        .simple("${properties:lfh.connect.bluebutton_20.cms.clientid}")
+                        .simple("${properties:lfh.connect.bluebutton-20.cms.clientid}")
                         .evaluate(exchange, String.class);
 
                 // Set up call to redirect to Blue Button API so the user can authenticate this application
@@ -102,18 +102,18 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
     private void addCallbackRoute() {
         // Blue Button OAuth2 - Callback to exchange code for token (displayed in the browser)
         CamelContextSupport contextSupport = new CamelContextSupport(getContext());
-        URI blueButtonHandlerUri = URI.create(contextSupport.getProperty("lfh.connect.bluebutton_20.handleruri"));
-        URI cmsTokenURL = URI.create(contextSupport.getProperty("lfh.connect.bluebutton_20.cms.tokenUri"));
+        URI blueButtonHandlerUri = URI.create(contextSupport.getProperty("lfh.connect.bluebutton-20.handleruri"));
+        URI cmsTokenURL = URI.create(contextSupport.getProperty("lfh.connect.bluebutton-20.cms.tokenuri"));
         rest(blueButtonHandlerUri.getPath())
                 .get()
                 .route()
                 .routeId(CALLBACK_ROUTE_ID)
                 .process(exchange -> {
 
-                    String clientId = SimpleBuilder.simple("${properties:lfh.connect.bluebutton_20.cms.clientid}")
+                    String clientId = SimpleBuilder.simple("${properties:lfh.connect.bluebutton-20.cms.clientid}")
                             .evaluate(exchange, String.class);
 
-                    String clientSecret = SimpleBuilder.simple("${properties:lfh.connect.bluebutton_20.cms.clientsecret}")
+                    String clientSecret = SimpleBuilder.simple("${properties:lfh.connect.bluebutton-20.cms.clientsecret}")
                             .evaluate(exchange, String.class);
 
                     // Setting up call to Blue Button 2.0 to exchange the code for a token
@@ -143,8 +143,8 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
             .route()
             .routeId(API_ROUTE_ID)
             .process(exchange -> {
-                String blueButtonRestUri = SimpleBuilder
-                        .simple("${properties:lfh.connect.bluebutton_20.rest.uri}")
+                String blueButtonUri = SimpleBuilder
+                        .simple("${properties:lfh.connect.bluebutton-20.uri}")
                         .evaluate(exchange, String.class);
 
                 String resourceType = exchange.getIn().getHeader("resource", String.class).toUpperCase();
@@ -154,7 +154,7 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
                         .replaceAll("<topicName>", "FHIR-R4_" + resourceType);
 
                 // Form the incoming route url for the message property routeUrl
-                String routeUri = blueButtonRestUri+"/"+resourceType;
+                String routeUri = blueButtonUri+"/"+resourceType;
                 String queryStr = exchange.getIn().getHeader("CamelHttpQuery", String.class);
                 if (queryStr != null && queryStr != "") routeUri += "?"+queryStr;
 
@@ -168,7 +168,7 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
             })
             .doTry()
             .process(exchange -> {
-                String cmsBaseURI = SimpleBuilder.simple("${properties:lfh.connect.bluebutton_20.cms.baseuri}")
+                String cmsBaseURI = SimpleBuilder.simple("${properties:lfh.connect.bluebutton-20.cms.baseuri}")
                         .evaluate(exchange, String.class);
 
                 // Set up Blue Button 2.0 query
@@ -227,7 +227,7 @@ public class BlueButton20RestRouteBuilder extends RouteBuilder {
     public void configure() {
 
         CamelContextSupport contextSupport = new CamelContextSupport(getContext());
-        URI blueButtonUri = URI.create(contextSupport.getProperty("lfh.connect.bluebutton_20.rest.uri"));
+        URI blueButtonUri = URI.create(contextSupport.getProperty("lfh.connect.bluebutton-20.uri"));
 
         restConfiguration()
                 .host(blueButtonUri.getHost())
