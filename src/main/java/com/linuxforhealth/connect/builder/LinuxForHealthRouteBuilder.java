@@ -25,6 +25,7 @@ public final class LinuxForHealthRouteBuilder extends RouteBuilder {
     public final static String STORE_CONSUMER_URI = "direct:store";
     public final static String NOTIFY_CONSUMER_URI = "direct:notify";
     public final static String ERROR_CONSUMER_URI = "direct:error";
+    public final static String KAFKA_REPLAY_CONSUMER_URI = "kafka:nats-replay?brokers=localhost:9092";
 
     public final static String STORE_AND_NOTIFY_ROUTE_ID = "store-and-notify";
     public final static String STORE_ROUTE_ID = "lfh-store";
@@ -33,6 +34,7 @@ public final class LinuxForHealthRouteBuilder extends RouteBuilder {
     public final static String NOTIFY_PRODUCER_ID = "lfh-notify-producer";
     public final static String ERROR_ROUTE_ID = "lfh-error";
     public final static String ERROR_PRODUCER_ID = "lfh-error-producer";
+    public final static String REPLAY_ROUTE_ID = "lfh-replay";
 
 
     private final Logger logger = LoggerFactory.getLogger(LinuxForHealthRouteBuilder.class);
@@ -65,6 +67,7 @@ public final class LinuxForHealthRouteBuilder extends RouteBuilder {
                     KafkaConstants.KAFKA_RECORDMETA,
                     new ArrayList<RecordMetadata>(),
                     ArrayList.class));
+            msg.setData(exchange.getIn().getBody());
             exchange.getIn().setBody(msg.toString());
         })
         .to("{{lfh.connect.messaging.uri}}")
@@ -82,5 +85,14 @@ public final class LinuxForHealthRouteBuilder extends RouteBuilder {
         .log(LoggingLevel.ERROR, logger, exceptionMessage().toString())
         .to("{{lfh.connect.messaging.uri}}")
         .id(ERROR_PRODUCER_ID);
+
+        // Consume message from kafka topic and send to routeURI
+        from("{{lfh.connect.datastore.replay.consumer.uri}}")
+        .routeId(REPLAY_ROUTE_ID)
+        .log("Message received from Kafka : ${body}")
+        .log("    on the topic ${headers[kafka.TOPIC]}")
+        .log("    on the partition ${headers[kafka.PARTITION]}")
+        .log("    with the offset ${headers[kafka.OFFSET]}")
+        .log("    with the key ${headers[kafka.KEY]}");
     }
 }

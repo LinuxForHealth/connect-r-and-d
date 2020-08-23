@@ -56,7 +56,7 @@ public class OrthancRouteTest extends RouteTestSupport {
                 "get-response.json");
 
         mockProducerEndpointById(OrthancRouteBuilder.ROUTE_ID,
-                OrthancRouteBuilder.ORTHANC_PRODUCER_STORE_NOTIFY_ID,
+                OrthancRouteBuilder.ORTHANC_PRODUCER_STORE_ID,
                 "mock:result");
 
         super.configureContext();

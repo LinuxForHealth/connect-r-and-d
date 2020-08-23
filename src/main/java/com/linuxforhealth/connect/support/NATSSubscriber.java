@@ -23,17 +23,38 @@ public class NATSSubscriber {
     
     private final Logger logger = LoggerFactory.getLogger(NATSSubscriber.class);
     private Connection nc;
+    private String topic = "lhf-remote-events";
+    private String host;
+    private String subject;
+    private LFHKafkaProducer producer;
 
-    public void NATSSubscriber() { }
+    public void NATSSubscriber() {
+    }
 
-    public void start(String host, String subject, Options options) {
+    /**
+    * Start the NATS subscriber.
+    */
+    public void start(String host, String subject, Options options, LFHKafkaProducer producer) {
+        this.host = host;
+        this.subject = subject;
+        this.producer = producer;
+
         try {
+            // Connect to the NATS server
             nc = Nats.connect(options);
-            logger.info("Listening on "+host+" and subject "+subject);
+            logger.info("nats-subscriber-"+host+"-"+subject+" listening on "+host+" and subject "+subject);
 
             Dispatcher d = nc.createDispatcher((msg) -> {
-                logger.info("nats-subscriber-"+host+"-"+subject+" received message: "+
-                    new String(msg.getData(), StandardCharsets.UTF_8));
+                String message = new String(msg.getData(), StandardCharsets.UTF_8);
+                logger.info("nats-subscriber-"+host+"-"+subject+" received message: "+message);
+
+                // Only store data received from other LFH instances
+//                if(!host.contains("localhost") && !host.contains("127.0.0.1")) {
+                    logger.info("nats-subscriber-"+host+"-"+subject+" publishing to topic: "+topic);
+                    producer.send(topic, "Camel", message);
+                    logger.info("nats-subscriber-"+host+"-"+subject+" after publishing to topic: "+topic);
+                //}
+
             });
 
             d.subscribe(subject);
@@ -42,12 +63,15 @@ public class NATSSubscriber {
         }
     }
 
-    public void stop() {
-        try {
+    /**
+    * Stop the NATS subscriber.
+    */
+    public void close() throws Exception {
+        logger.info("nats-subscriber-"+host+"-"+subject+" close() called");
+        if (nc != null) {
             nc.flush(Duration.ZERO);
             nc.close();
-        } catch (Exception ex) {
-            logger.error("Exception: "+ex.getMessage());
         }
+        if (producer != null) producer.close();
     }
 }

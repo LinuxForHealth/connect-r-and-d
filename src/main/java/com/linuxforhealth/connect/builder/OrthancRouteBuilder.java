@@ -8,6 +8,9 @@ package com.linuxforhealth.connect.builder;
 import com.linuxforhealth.connect.processor.MetaDataProcessor;
 import com.linuxforhealth.connect.support.CamelContextSupport;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
 import org.apache.camel.Exchange;
 import org.json.JSONObject;
 
@@ -24,7 +27,8 @@ public class OrthancRouteBuilder extends BaseRouteBuilder {
     public final static String ROUTE_ID = "orthanc-post";
     public final static String ORTHANC_PRODUCER_POST_ID = "orthanc-producer-post";
     public final static String ORTHANC_PRODUCER_GET_ID = "orthanc-producer-get";
-    public final static String ORTHANC_PRODUCER_STORE_NOTIFY_ID = "orthanc-producer-store-notify";
+    public final static String ORTHANC_PRODUCER_STORE_ID = "orthanc-producer-store";
+    public final static String ORTHANC_PRODUCER_NOTIFY_ID = "orthanc-producer-notify";
 
     @Override
     protected String getRoutePropertyNamespace() {
@@ -41,6 +45,7 @@ public class OrthancRouteBuilder extends BaseRouteBuilder {
             .marshal().mimeMultipart()
             .removeHeaders("Camel*")
             .removeHeaders("Host")
+            .setProperty("postBody", simple("${body}"))
             .to(orthancServerUri)
             .id(ORTHANC_PRODUCER_POST_ID)
             .process(exchange -> {
@@ -59,6 +64,7 @@ public class OrthancRouteBuilder extends BaseRouteBuilder {
             .toD("${exchangeProperty[location]}")
             .id(ORTHANC_PRODUCER_GET_ID)
             .process(exchange -> {
+                // set up result object for local data storage
                 JSONObject tags = new JSONObject(exchange.getIn().getBody(String.class));
                 JSONObject result = new JSONObject();
                 result.put("patientId", tags.getString("PatientID"));
@@ -66,10 +72,17 @@ public class OrthancRouteBuilder extends BaseRouteBuilder {
                 result.put("sourceType", "orthanc");
                 result.put("sourceUri", simple("${exchangeProperty[dataUri]}").evaluate(exchange, String.class));
                 exchange.getIn().setBody(result.toString());
-                logger.info("result: "+result.toString());
             })
             .process(new MetaDataProcessor(routePropertyNamespace))
-            .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
-            .id(ORTHANC_PRODUCER_STORE_NOTIFY_ID);
+            .to(LinuxForHealthRouteBuilder.STORE_CONSUMER_URI)
+            .id(ORTHANC_PRODUCER_STORE_ID)
+            .setBody(simple("${exchangeProperty[postBody]}"))
+            .process(exchange -> {
+                // base64-encode the file bytes for transmission
+                String result = Base64.getEncoder().encodeToString(simple("${exchangeProperty[postBody]}").evaluate(exchange, byte[].class));
+                exchange.getIn().setBody(result);
+            })
+            .to(LinuxForHealthRouteBuilder.NOTIFY_CONSUMER_URI)
+            .id(ORTHANC_PRODUCER_NOTIFY_ID);
     }
 }

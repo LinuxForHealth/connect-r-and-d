@@ -33,15 +33,16 @@ public class NATSSubscriberManager {
     */
     public static void startSubscribers(Properties properties) {
         String[] hosts = properties.getProperty("lfh.connect.messaging.subscribe.hosts").split(",");
-        String topic = properties.getProperty("lfh.connect.messaging.subscribe.topic");
+        String subject = properties.getProperty("lfh.connect.messaging.subscribe.subject");
 
         for (String host: hosts) {
+            LFHKafkaProducer producer = new LFHKafkaProducer();
             NATSSubscriber sub = new NATSSubscriber();
             try {
-                sub.start(host, topic, createOptions(host, true));
-                logger.info("Started NATSSubscriber for host "+host+" and topic "+topic);
+                sub.start(host, subject, createOptions(host, true), producer);
             } catch(Exception ex) {
-                logger.error("Exception " + ex.getMessage());
+                logger.error("Exception1: "+ex.toString());
+                logger.error("Exception2: " + ex.getMessage());
             }
         }
     }
