@@ -19,15 +19,15 @@ import java.util.Base64;
 import java.util.UUID;
 
 /**
- * Tests {@link FhirR4RestRouteBuilder}
+ * Tests {@link FhirR4RouteBuilder}
  */
-public class FhirR4RestRouteTest extends RouteTestSupport {
+public class FhirR4RouteTest extends RouteTestSupport {
 
     private MockEndpoint mockResult;
 
     @Override
     protected RoutesBuilder createRouteBuilder() throws Exception {
-        return new FhirR4RestRouteBuilder();
+        return new FhirR4RouteBuilder();
     }
 
     /**
@@ -38,8 +38,8 @@ public class FhirR4RestRouteTest extends RouteTestSupport {
     @Override
     protected void configureContext() throws Exception {
         mockProducerEndpointById(
-                FhirR4RestRouteBuilder.ROUTE_ID,
-                FhirR4RestRouteBuilder.ROUTE_PRODUCER_ID,
+                FhirR4RouteBuilder.ROUTE_ID,
+                FhirR4RouteBuilder.ROUTE_PRODUCER_ID,
                 "mock:result"
         );
 
@@ -62,9 +62,9 @@ public class FhirR4RestRouteTest extends RouteTestSupport {
         mockResult.expectedPropertyReceived("dataStoreUri", "kafka:FHIR-R4_PATIENT?brokers=localhost:9094");
         mockResult.expectedPropertyReceived("dataFormat", "FHIR-R4");
         mockResult.expectedPropertyReceived("messageType", "PATIENT");
-        mockResult.expectedPropertyReceived("routeId", "fhir-r4-rest");
+        mockResult.expectedPropertyReceived("routeId", "fhir-r4");
 
-        fluentTemplate.to("{{lfh.connect.fhir_r4_rest.uri}}/Patient")
+        fluentTemplate.to("{{lfh.connect.fhir-r4.uri}}/Patient")
                 .withBody(testMessage)
                 .send();
 

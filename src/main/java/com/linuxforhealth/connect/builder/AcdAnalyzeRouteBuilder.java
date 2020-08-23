@@ -38,7 +38,7 @@ public class AcdAnalyzeRouteBuilder extends BaseRouteBuilder {
 	Predicate isPropertyNotSet(String propertyName) { return simple("${properties:" + propertyName + "} == ''"); }
 
 	@Override
-	protected String getRoutePropertyNamespace() {return "lfh.connect.acd_rest";}
+	protected String getRoutePropertyNamespace() {return "lfh.connect.acd";}
 
 	@Override
 	protected void buildRoute(String routePropertyNamespace) {
@@ -51,19 +51,19 @@ public class AcdAnalyzeRouteBuilder extends BaseRouteBuilder {
 
 			// ACD request pre-conditions
 
-			.when(isPropertyNotSet("lfh.connect.acd_rest.baseuri"))
+			.when(isPropertyNotSet("lfh.connect.acd.baseuri"))
 				.log(LoggingLevel.WARN, logger, "ACD service endpoint not configured - message will not be processed")
 				.stop()
 
-			.when(isPropertyNotSet("lfh.connect.acd_rest.version"))
+			.when(isPropertyNotSet("lfh.connect.acd.version"))
 				.log(LoggingLevel.WARN, logger, "ACD service annotator flow not configured - message will not be processed")
 				.stop()
 
-			.when(isPropertyNotSet("lfh.connect.acd_rest.flow"))
+			.when(isPropertyNotSet("lfh.connect.acd.flow"))
 				.log(LoggingLevel.WARN, logger, "ACD service version param not configured - message will not be processed")
 				.stop()
 
-			.when(isPropertyNotSet("lfh.connect.acd_rest.auth"))
+			.when(isPropertyNotSet("lfh.connect.acd.auth"))
 				.log(LoggingLevel.WARN, logger, "ACD service authentication not configured - message will not be processed")
 				.stop()
 
@@ -77,7 +77,7 @@ public class AcdAnalyzeRouteBuilder extends BaseRouteBuilder {
 
 			.otherwise() // Cleared to make ACD request
 				.setHeader(Exchange.HTTP_METHOD, constant("POST")) // POST /analyze/{flow_id}
-				.to("{{lfh.connect.acd_rest.uri}}")
+				.to("{{lfh.connect.acd.uri}}")
 				.id(ACD_ANALYZE_REQUEST_PRODUCER_ID)
 				.log(LoggingLevel.DEBUG, logger, "ACD response code: ${header.CamelHttpResponseCode}")
 				.unmarshal().json()

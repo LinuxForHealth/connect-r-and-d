@@ -21,15 +21,15 @@ import java.util.Base64;
 import java.util.UUID;
 
 /**
- * Tests {@link Hl7v2MllpRouteBuilder}
+ * Tests {@link Hl7v2RouteBuilder}
  */
-public class Hl7v2MllpRouteTest extends RouteTestSupport {
+public class Hl7v2RouteTest extends RouteTestSupport {
 
     private MockEndpoint mockResult;
 
     @Override
     protected RoutesBuilder createRouteBuilder() throws Exception {
-        return new Hl7v2MllpRouteBuilder();
+        return new Hl7v2RouteBuilder();
     }
 
     /**
@@ -46,8 +46,8 @@ public class Hl7v2MllpRouteTest extends RouteTestSupport {
         context.getRegistry().bind("hl7decoder", hl7decoder);
 
         mockProducerEndpointById(
-                Hl7v2MllpRouteBuilder.ROUTE_ID,
-                Hl7v2MllpRouteBuilder.ROUTE_PRODUCER_ID,
+                Hl7v2RouteBuilder.ROUTE_ID,
+                Hl7v2RouteBuilder.ROUTE_PRODUCER_ID,
                 "mock:result"
         );
 
@@ -73,9 +73,9 @@ public class Hl7v2MllpRouteTest extends RouteTestSupport {
         mockResult.expectedPropertyReceived("dataStoreUri", "kafka:HL7-V2_ADT?brokers=localhost:9094");
         mockResult.expectedPropertyReceived("dataFormat", "HL7-V2");
         mockResult.expectedPropertyReceived("messageType", "ADT");
-        mockResult.expectedPropertyReceived("routeId", "hl7-v2-mllp");
+        mockResult.expectedPropertyReceived("routeId", "hl7-v2");
 
-        fluentTemplate.to("{{lfh.connect.hl7_v2_mllp.uri}}")
+        fluentTemplate.to("{{lfh.connect.hl7-v2.uri}}")
                 .withBody(testMessage)
                 .send();
 
