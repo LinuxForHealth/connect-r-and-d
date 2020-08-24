@@ -6,8 +6,13 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-oc delete all --selector app=nats-server --wait
-oc delete all --selector app=kafdrop --wait
-oc delete all --selector app=kafka --wait
-oc delete all --selector app=zookeeper --wait
+# load environment variables from compose stack
+source ../compose/.env
+
+oc delete all --selector app="${LFH_CONNECT_SERVICE_NAME}" --wait
+oc delete all --selector app="${LFH_NATS_SERVICE_NAME}" --wait
+oc delete all --selector app="${LFH_KAFDROP_SERVICE_NAME}" --wait
+oc delete all --selector app="${LFH_KAFKA_SERVICE_NAME}" --wait
+oc delete all --selector app="${LFH_ZOOKEEPER_SERVICE_NAME}" --wait
+oc delete all --selector app="${LFH_ORTHANC_SERVICE_NAME}" --wait
 oc delete project --force lfh --wait
