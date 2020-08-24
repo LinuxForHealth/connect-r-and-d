@@ -2,8 +2,8 @@
 
 LFH provides command line scripts to support provisioning LFH applications and services on [Open Shift](https://www.openshift.com/).
 
-LFH supports two installation options. The first is a "quick-start" script which leverages the [oc](https://docs.openshift.com/container-platform/4.3/cli_reference/openshift_cli/getting-started-cli.html) cli and it's "reasonable" defaults.
-The second option is configuration based, and supports customizations. This second option is in active development and will be delivered in a future release.
+LFH supports two installation options. The first is a "quick-start" script which leverages the [oc](https://docs.openshift.com/container-platform/4.3/cli_reference/openshift_cli/getting-started-cli.html) cli and its "reasonable" defaults.
+The second option is configuration-based, and supports customizations. This second option is in active development and will be delivered in a future release.
 
 ## Pre-requisites
 
