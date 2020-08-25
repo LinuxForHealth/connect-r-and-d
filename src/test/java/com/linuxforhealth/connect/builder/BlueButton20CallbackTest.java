@@ -16,7 +16,7 @@ import java.util.Base64;
 import java.util.Properties;
 
 /**
- * Tests {@link BlueButton20RestRouteBuilder#CALLBACK_ROUTE_ID}
+ * Tests {@link BlueButton20RouteBuilder#CALLBACK_ROUTE_ID}
  */
 public class BlueButton20CallbackTest extends RouteTestSupport {
 
@@ -24,23 +24,23 @@ public class BlueButton20CallbackTest extends RouteTestSupport {
 
     @Override
     protected RoutesBuilder createRouteBuilder()  {
-        return new BlueButton20RestRouteBuilder();
+        return new BlueButton20RouteBuilder();
     }
 
     @Override
     protected Properties useOverridePropertiesWithPropertiesComponent() {
         Properties props = super.useOverridePropertiesWithPropertiesComponent();
-        props.setProperty("lfh.connect.bluebutton_20.cms.tokenUri", "https://sandbox.bluebutton.cms.gov/v1/o/token/");
-        props.setProperty("lfh.connect.bluebutton_20.cms.clientid", "client-id");
-        props.setProperty("lfh.connect.bluebutton_20.cms.clientsecret", "client-secret");
+        props.setProperty("lfh.connect.bluebutton-20.cms.tokenUri", "https://sandbox.bluebutton.cms.gov/v1/o/token/");
+        props.setProperty("lfh.connect.bluebutton-20.cms.clientid", "client-id");
+        props.setProperty("lfh.connect.bluebutton-20.cms.clientsecret", "client-secret");
         return props;
     }
 
     @BeforeEach
     @Override
     protected void configureContext() throws Exception {
-        mockProducerEndpointById(BlueButton20RestRouteBuilder.CALLBACK_ROUTE_ID,
-                BlueButton20RestRouteBuilder.CALLBACK_PRODUCER_ID,
+        mockProducerEndpointById(BlueButton20RouteBuilder.CALLBACK_ROUTE_ID,
+                BlueButton20RouteBuilder.CALLBACK_PRODUCER_ID,
                 "mock:result");
         super.configureContext();
         mockResult = MockEndpoint.resolve(context, "mock:result");
@@ -66,7 +66,7 @@ public class BlueButton20CallbackTest extends RouteTestSupport {
         mockResult.expectedHeaderReceived("Content-Type", "application/x-www-form-urlencoded");
         mockResult.expectedHeaderReceived("Content-Length", expectedBody.length());
 
-        fluentTemplate.to("{{lfh.connect.bluebutton_20.handleruri}}")
+        fluentTemplate.to("{{lfh.connect.bluebutton-20.handleruri}}")
                 .withHeader("code", "auth-code")
                 .send();
 

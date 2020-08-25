@@ -132,16 +132,20 @@ public final class App {
         camelPropertiesComponent.setLocation("classpath:" + App.APPLICATION_PROPERTIES_FILE_NAME);
 
         Properties externalProperties = loadExternalProperties();
-        camelPropertiesComponent.setOverrideProperties(externalProperties);
-        externalProperties.forEach((k, v) -> {
-            properties.setProperty(k.toString(), v.toString());
-        });
+        if (externalProperties.entrySet().size() > 0) {
+            camelPropertiesComponent.setOverrideProperties(externalProperties);
+            externalProperties.forEach((k, v) -> {
+                properties.setProperty(k.toString(), v.toString());
+            });
+        }
 
         Properties envProperties = loadEnvironmentProperties();
-        camelPropertiesComponent.setOverrideProperties(envProperties);
-        envProperties.forEach((k, v) -> {
-            properties.setProperty(k.toString(), v.toString());
-        });
+        if (envProperties.entrySet().size() > 0) {
+            camelPropertiesComponent.setOverrideProperties(envProperties);
+            envProperties.forEach((k, v) -> {
+                properties.setProperty(k.toString(), v.toString());
+            });
+        }
 
         return properties;
     }
