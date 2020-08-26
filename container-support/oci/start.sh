@@ -58,7 +58,9 @@ echo "launch nats container"
 ${OCI_COMMAND} run -d \
               --network "${LFH_NETWORK_NAME}" \
               --name "${LFH_NATS_SERVICE_NAME}" \
+              -p "${LFH_NATS_CLIENT_PORT}":"${LFH_NATS_CLIENT_PORT}" \
               "${LFH_NATS_IMAGE}"
+is_ready localhost "${LFH_NATS_CLIENT_PORT}"
 
 echo "launch zookeeper container"
 ${OCI_COMMAND} pull "${LFH_ZOOKEEPER_IMAGE}"

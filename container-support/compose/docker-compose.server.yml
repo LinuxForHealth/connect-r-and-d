@@ -1,5 +1,8 @@
 version: "3.7"
 services:
+  nats-server:
+    ports:
+      - ${LFH_NATS_CLIENT_PORT}:${LFH_NATS_CLIENT_PORT}
   lfh:
     image: ${LFH_CONNECT_IMAGE}
     restart: "always"
