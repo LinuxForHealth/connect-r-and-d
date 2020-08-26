@@ -32,6 +32,12 @@ oc new-app "${LFH_NATS_IMAGE}" \
 
 oc rollout status deployment/"${LFH_NATS_SERVICE_NAME}" -w
 
+oc expose service "${LFH_NATS_SERVICE_NAME}" \
+  --labels='app='"${LFH_NATS_SERVICE_NAME}" \
+  --port="${LFH_NATS_CLIENT_PORT}" \
+  --hostname="lfh-nats-server.apps-crc.testing" \
+  --name="lfh-nats-server"
+
 # Zookeeper - Kafka Metadata
 oc new-app "${LFH_ZOOKEEPER_IMAGE}" \
     --name="${LFH_ZOOKEEPER_SERVICE_NAME}" \
