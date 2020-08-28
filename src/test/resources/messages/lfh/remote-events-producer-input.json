@@ -1,0 +1,1 @@
+{"data":"bW9jay1pbWFnZS1ieXRlcw==","meta":{"dataStoreUri":"kafka:DICOM_IMAGE?brokers=kafka:9092","routeUri":"jetty:http://0.0.0.0:9090/orthanc/instances?httpMethodRestrict=POST","routeId":"orthanc-post","messageType":"IMAGE","dataFormat":"DICOM","dataRecordLocation":["DICOM_IMAGE-0@2"],"uuid":"787037d6-6ba3-4697-8a38-1eb7bb355bfa","timestamp":1598619641,"status":"success"}}

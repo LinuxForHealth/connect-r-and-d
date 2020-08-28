@@ -118,6 +118,21 @@ abstract class RouteTestSupport extends CamelTestSupport {
         context.adviceWith(routeDefinition, advice);
     }
 
+   /**
+     * Replaces a consumer with a mock consumer for a route.
+     *
+     * @param routeId The route id where the producer is located.
+     * @param mockRoute The mocked direct route.  Example: "direct:kafka-from"
+     */
+    protected void mockConsumer(String routeId, String mockRoute) throws Exception {
+        // Swap the FROM component in the route with a direct component
+        AdviceWithRouteBuilder.adviceWith(context, 
+            routeId, 
+            routeBuilder -> {
+                routeBuilder.replaceFromWith(mockRoute);
+        });
+    }
+
     /**
      * Configures the {@link org.apache.camel.CamelContext} prior to test case execution.
      */

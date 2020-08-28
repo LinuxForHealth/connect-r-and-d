@@ -6,9 +6,11 @@
 package com.linuxforhealth.connect.support;
 
 import java.util.Properties;
+
 import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.common.serialization.StringSerializer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,40 +21,43 @@ import org.slf4j.LoggerFactory;
 public class LFHKafkaProducer {
     
     private final Logger logger = LoggerFactory.getLogger(LFHKafkaProducer.class);
-    private Producer<String, String> producer;
+    private KafkaProducer producer = null;
 
     public void LFHKafkaProducer() {
-        Properties props = new Properties();
-        props.put("bootstrap.servers", "localhost:9094");
-        props.put("acks", "all");
-        props.put("retries", 0);
-        props.put("batch.size", 16384); // 16KB buffer size
-        props.put("linger.ms", 1);
-        props.put("buffer.memory", 8388608);  // 8MB memory avail for buffering
-        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        producer = new KafkaProducer<String, String>(props);
     }
 
     /**
-    * Send a message to Kafka.
-    */
+     * Start the KafkaProducer
+     */
+    protected void start(String brokers) throws Exception {
+        Properties props = new Properties();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokers);
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+
+        producer = new KafkaProducer(props);
+    }
+
+    /**
+     * Send a message to Kafka
+     */
     public void send(String topic, String key, String value) {
-        logger.info("LFHKafkaProducer publishing to topic: "+topic+" with value: "+value);
         try {
-            ProducerRecord<String, String> record = new ProducerRecord<String, String>("lhf-remote-events", 0, System.currentTimeMillis(), "Camel", "temp");
-            logger.info("record: "+record);
+            ProducerRecord<String, String> record = new ProducerRecord<String, String>(topic, key, value);
             producer.send(record);
+            producer.flush();
         } catch (Exception ex) {
-            //logger.error("Exception: "+ex);
-            ex.printStackTrace();
+            logger.error("Exception: "+ex);
         }   
     }
 
     /**
-    * Stop the Kafka producer.
-    */
-    public void close() throws Exception {
-        producer.close();
+     * Stop the KafkaProducer
+     */
+    protected void close() throws Exception {
+        if (producer != null) {
+            producer.close();
+            producer = null;
+        }
     }
 }

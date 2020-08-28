@@ -5,7 +5,6 @@
  */
 package com.linuxforhealth.connect.support;
 
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Properties;
 
@@ -34,22 +33,23 @@ public class NATSSubscriberManager {
     public static void startSubscribers(Properties properties) {
         String[] hosts = properties.getProperty("lfh.connect.messaging.subscribe.hosts").split(",");
         String subject = properties.getProperty("lfh.connect.messaging.subscribe.subject");
+        String brokers = properties.getProperty("lfh.connect.datastore.brokers");
+        LFHKafkaProducer producer = new LFHKafkaProducer();
 
-        for (String host: hosts) {
-            LFHKafkaProducer producer = new LFHKafkaProducer();
-            NATSSubscriber sub = new NATSSubscriber();
-            try {
+        try {
+            producer.start(brokers);
+            for (String host: hosts) {
+                NATSSubscriber sub = new NATSSubscriber();
                 sub.start(host, subject, createOptions(host, true), producer);
-            } catch(Exception ex) {
-                logger.error("Exception1: "+ex.toString());
-                logger.error("Exception2: " + ex.getMessage());
             }
+        } catch (Exception ex) {
+            logger.error("Exception: " + ex.getMessage());
         }
     }
 
     /**
-    * Set up the NATS connection options for subscribers.
-    */
+     * Set up the NATS connection options for subscribers.
+     */
     public static Options createOptions(String server, boolean allowReconnect) throws Exception {
         Options.Builder builder = new Options.Builder()
                     .server(server)
