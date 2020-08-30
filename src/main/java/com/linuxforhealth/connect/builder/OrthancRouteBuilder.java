@@ -10,8 +10,13 @@ import com.linuxforhealth.connect.processor.MetaDataProcessor;
 import com.linuxforhealth.connect.support.CamelContextSupport;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 import org.apache.camel.Exchange;
+import org.apache.camel.component.kafka.KafkaConstants;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.json.JSONObject;
 
 import org.slf4j.Logger;
@@ -100,6 +105,10 @@ public class OrthancRouteBuilder extends BaseRouteBuilder {
                 result.remove("image");
                 LinuxForHealthMessage msg = new LinuxForHealthMessage(exchange);
                 msg.setData(Base64.getEncoder().encodeToString(result.toString().getBytes(StandardCharsets.UTF_8)));
+                msg.setDataStoreResult(exchange.getIn().getHeader(
+                    KafkaConstants.KAFKA_RECORDMETA,
+                    new ArrayList<RecordMetadata>(),
+                    ArrayList.class));
                 exchange.getIn().setBody(msg.toString());
             });
     }

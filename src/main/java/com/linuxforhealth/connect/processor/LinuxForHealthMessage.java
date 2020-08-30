@@ -45,14 +45,12 @@ public class LinuxForHealthMessage extends JSONObject {
 
         if (metaRecords != null) {
             for (RecordMetadata m: metaRecords) {
-                kafkaMeta.put(m);
+                String location = m.topic()+":"+m.partition()+":"+m.offset();
+                kafkaMeta.put(location);
             }
+            meta.put("dataRecordLocation", kafkaMeta);
             meta.put("status", "success");
-        } else {
-            meta.put("status", "error");
         }
-
-        meta.put("dataRecordLocation", kafkaMeta);
     }
 
     // Set the data field to the data to be stored
