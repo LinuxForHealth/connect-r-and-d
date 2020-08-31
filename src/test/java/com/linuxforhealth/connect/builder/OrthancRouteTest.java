@@ -33,7 +33,6 @@ public class OrthancRouteTest extends RouteTestSupport {
     protected Properties useOverridePropertiesWithPropertiesComponent() {
         Properties props = super.useOverridePropertiesWithPropertiesComponent();
         props.setProperty("lfh.connect.orthanc.uri", "direct:http://0.0.0.0:9090/orthanc/instances");
-        props.setProperty("lfh.connect.orthanc_server.uri", "http://localhost:8042/instances");
         return props;
     }
 
@@ -51,12 +50,17 @@ public class OrthancRouteTest extends RouteTestSupport {
                 "post-response.json");
 
         setProducerResponse(OrthancRouteBuilder.ROUTE_ID,
+                OrthancRouteBuilder.ORTHANC_PRODUCER_GET_IMAGE_ID,
+                "orthanc",
+                "mock-get-image-response.txt");
+
+        setProducerResponse(OrthancRouteBuilder.ROUTE_ID,
                 OrthancRouteBuilder.ORTHANC_PRODUCER_GET_ID,
                 "orthanc",
                 "get-response.json");
 
         mockProducerEndpointById(OrthancRouteBuilder.ROUTE_ID,
-                OrthancRouteBuilder.ORTHANC_PRODUCER_STORE_NOTIFY_ID,
+                OrthancRouteBuilder.ORTHANC_PRODUCER_STORE_ID,
                 "mock:result");
 
         super.configureContext();

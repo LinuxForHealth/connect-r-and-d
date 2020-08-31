@@ -5,6 +5,7 @@
  */
 package com.linuxforhealth.connect.builder;
 
+import com.linuxforhealth.connect.processor.LinuxForHealthMessage;
 import com.linuxforhealth.connect.support.TestUtils;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.component.kafka.KafkaConstants;
@@ -14,7 +15,9 @@ import org.apache.kafka.common.TopicPartition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Properties;
 
@@ -69,6 +72,15 @@ public class LinuxForHealthNotifyTest extends RouteTestSupport {
                             List<RecordMetadata> metaRecords = new ArrayList<>();
                             metaRecords.add(rm);
                             exchange.getIn().setHeader(KafkaConstants.KAFKA_RECORDMETA, metaRecords);
+
+                            // Base64-encode the body because we're returning it in the message
+                            String exchangeBody = exchange.getIn().getBody(String.class);
+                            String result = Base64.getEncoder().encodeToString(exchangeBody.getBytes(StandardCharsets.UTF_8));
+
+                            // Create the message envelope, which we generally do as a part of the data store step
+                            LinuxForHealthMessage msg = new LinuxForHealthMessage(exchange);
+                            msg.setData(result);
+                            exchange.getIn().setBody(msg.toString());
                         })
                         .to(LinuxForHealthRouteBuilder.NOTIFY_CONSUMER_URI);
                     }

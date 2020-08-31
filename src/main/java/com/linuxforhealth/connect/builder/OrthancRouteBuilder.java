@@ -5,10 +5,18 @@
  */
 package com.linuxforhealth.connect.builder;
 
+import com.linuxforhealth.connect.processor.LinuxForHealthMessage;
 import com.linuxforhealth.connect.processor.MetaDataProcessor;
 import com.linuxforhealth.connect.support.CamelContextSupport;
 
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.List;
 import org.apache.camel.Exchange;
+import org.apache.camel.component.kafka.KafkaConstants;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.json.JSONObject;
 
 import org.slf4j.Logger;
@@ -24,7 +32,8 @@ public class OrthancRouteBuilder extends BaseRouteBuilder {
     public final static String ROUTE_ID = "orthanc-post";
     public final static String ORTHANC_PRODUCER_POST_ID = "orthanc-producer-post";
     public final static String ORTHANC_PRODUCER_GET_ID = "orthanc-producer-get";
-    public final static String ORTHANC_PRODUCER_STORE_NOTIFY_ID = "orthanc-producer-store-notify";
+    public final static String ORTHANC_PRODUCER_GET_IMAGE_ID = "orthanc-producer-get-image";
+    public final static String ORTHANC_PRODUCER_STORE_ID = "orthanc-producer-store";
 
     @Override
     protected String getRoutePropertyNamespace() {
@@ -35,7 +44,9 @@ public class OrthancRouteBuilder extends BaseRouteBuilder {
     protected void buildRoute(String routePropertyNamespace) {
         CamelContextSupport contextSupport = new CamelContextSupport(getContext());
         String orthancServerUri = contextSupport.getProperty("lfh.connect.orthanc_server.uri");
+        String orthancExternalUri = contextSupport.getProperty("lfh.connect.orthanc_server.external.uri");
 
+        // Store a DICOM image in Orthanc, convert it to .png and get patient info for the image
         from("{{lfh.connect.orthanc.uri}}")
             .routeId(ROUTE_ID)
             .marshal().mimeMultipart()
@@ -48,9 +59,24 @@ public class OrthancRouteBuilder extends BaseRouteBuilder {
                 String body = exchange.getIn().getBody(String.class);
                 JSONObject obj = new JSONObject(body);
                 String id = obj.getString("ID");
-                exchange.setProperty("dataUri", orthancServerUri+"/"+id+"/preview");
+                exchange.setProperty("imageId", id);
+                exchange.setProperty("dataUri", orthancExternalUri+"/"+id+"/preview");
+
+                // Set up for next call to get the .png image
+                exchange.setProperty("location", orthancServerUri+"/"+id+"/preview");
+                exchange.getIn().removeHeaders("Camel*");
+                exchange.getIn().removeHeaders("Content*");
+                exchange.getIn().setHeader(Exchange.HTTP_METHOD, "GET");
+            })
+            .toD("${exchangeProperty[location]}")
+            .id(ORTHANC_PRODUCER_GET_IMAGE_ID)
+            .process(exchange -> {
+                // Get the resulting image bytes
+                byte[] body = exchange.getIn().getBody(byte[].class);
+                exchange.setProperty("imageBody", Base64.getEncoder().encodeToString(body));
 
                 // Set up for next call to get image tags
+                String id = exchange.getProperty("imageId", String.class);
                 exchange.setProperty("location", orthancServerUri+"/"+id+"/simplified-tags");
                 exchange.getIn().removeHeaders("Camel*");
                 exchange.getIn().removeHeaders("Content*");
@@ -59,17 +85,31 @@ public class OrthancRouteBuilder extends BaseRouteBuilder {
             .toD("${exchangeProperty[location]}")
             .id(ORTHANC_PRODUCER_GET_ID)
             .process(exchange -> {
+                // set up result object for data storage
                 JSONObject tags = new JSONObject(exchange.getIn().getBody(String.class));
                 JSONObject result = new JSONObject();
                 result.put("patientId", tags.getString("PatientID"));
                 result.put("patientName", tags.getString("PatientName"));
                 result.put("sourceType", "orthanc");
                 result.put("sourceUri", simple("${exchangeProperty[dataUri]}").evaluate(exchange, String.class));
+                result.put("image", simple("${exchangeProperty[imageBody]}").evaluate(exchange, String.class));
                 exchange.getIn().setBody(result.toString());
-                logger.info("result: "+result.toString());
+                exchange.setProperty("jsonBody", result.toString());
             })
             .process(new MetaDataProcessor(routePropertyNamespace))
             .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
-            .id(ORTHANC_PRODUCER_STORE_NOTIFY_ID);
+            .id(ORTHANC_PRODUCER_STORE_ID)
+            .process(exchange -> {
+                // remove image from response for brevity
+                JSONObject result = new JSONObject(exchange.getProperty("jsonBody", String.class));
+                result.remove("image");
+                LinuxForHealthMessage msg = new LinuxForHealthMessage(exchange);
+                msg.setData(Base64.getEncoder().encodeToString(result.toString().getBytes(StandardCharsets.UTF_8)));
+                msg.setDataStoreResult(exchange.getIn().getHeader(
+                    KafkaConstants.KAFKA_RECORDMETA,
+                    new ArrayList<RecordMetadata>(),
+                    ArrayList.class));
+                exchange.getIn().setBody(msg.toString());
+            });
     }
 }
