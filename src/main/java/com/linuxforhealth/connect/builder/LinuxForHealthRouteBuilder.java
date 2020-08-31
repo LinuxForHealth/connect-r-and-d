@@ -6,6 +6,7 @@
 package com.linuxforhealth.connect.builder;
 
 import com.linuxforhealth.connect.processor.LinuxForHealthMessage;
+import com.linuxforhealth.connect.support.LFHKafkaConsumer;
 import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
@@ -41,6 +42,8 @@ public final class LinuxForHealthRouteBuilder extends RouteBuilder {
     public final static String ERROR_PRODUCER_ID = "lfh-error-producer";
     public final static String REMOTE_EVENTS_ROUTE_ID = "lfh-remote-events";
     public final static String REMOTE_EVENTS_PRODUCER_ID = "lfh-remote-events-producer";
+    public final static String GET_MESSAGE_ROUTE_ID = "lfh-get-message";
+    public final static String GET_MESSAGE_CONSUMER_ID = "lfh-get-message-consumer";
 
     private final Logger logger = LoggerFactory.getLogger(LinuxForHealthRouteBuilder.class);
 
@@ -110,5 +113,11 @@ public final class LinuxForHealthRouteBuilder extends RouteBuilder {
         })
         .toD(STORE_CONSUMER_URI)
         .id(REMOTE_EVENTS_PRODUCER_ID);
+
+        // Get a record from a kafka topic, partition and offset
+        from("{{lfh.connect.datastore.message.uri}}")
+        .routeId(GET_MESSAGE_ROUTE_ID)
+        .bean(LFHKafkaConsumer.class, "get(${header.topic}, ${header.partition}, ${header.offset})")
+        .id(GET_MESSAGE_CONSUMER_ID);
     }
 }
