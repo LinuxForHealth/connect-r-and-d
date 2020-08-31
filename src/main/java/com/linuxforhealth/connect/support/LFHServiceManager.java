@@ -5,7 +5,11 @@
  */
 package com.linuxforhealth.connect.support;
 
+import org.apache.camel.main.Main;
+
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import io.nats.client.Connection;
@@ -19,28 +23,56 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Class that creates NATS subscriber instances
+ * Class that creates and manages Linux for Health service instances
  */
-public class NATSSubscriberManager {
+public class LFHServiceManager {
 
-    private final static Logger logger = LoggerFactory.getLogger(NATSSubscriberManager.class);
+    private final static Logger logger = LoggerFactory.getLogger(LFHServiceManager.class);
+    private static LFHKafkaProducer producer = null;
+    private static List<NATSSubscriber> natsSubscribers = null; 
 
-    public void NATSSubscriberManager() { }
+    public void LFHServiceManager() { }
 
-    /**
-    * Start the NATS subscribers defined in application.properties.
+   /**
+    * Start the services needed for Linux for Health:
+    *   1. NATS subscribers defined in application.properties.
+    *   2. Kafka producer needed to store remote LFH messages to the local Kafka.
     */
-    public static void startSubscribers(Properties properties) {
+    public static void startServices(Properties properties, Main camelMain) {
         String[] hosts = properties.getProperty("lfh.connect.messaging.subscribe.hosts").split(",");
         String subject = properties.getProperty("lfh.connect.messaging.subscribe.subject");
         String brokers = properties.getProperty("lfh.connect.datastore.brokers");
-        LFHKafkaProducer producer = new LFHKafkaProducer();
+        producer = new LFHKafkaProducer();
+        natsSubscribers = new ArrayList<NATSSubscriber>();
 
         try {
+            //consumer.start(brokers);
             producer.start(brokers);
             for (String host: hosts) {
                 NATSSubscriber sub = new NATSSubscriber();
                 sub.start(host, subject, createOptions(host, true), producer);
+                natsSubscribers.add(sub);
+            }
+        } catch (Exception ex) {
+            logger.error("Exception: " + ex.getMessage());
+        }
+    }
+
+   /**
+    * Stop the Linux for Health services.
+    */
+    public static void stopServices() {
+        try {
+            if (producer != null) {
+                producer.close();
+                producer = null;
+            }
+
+            if (natsSubscribers != null) {
+                for (NATSSubscriber subscriber: natsSubscribers) {
+                    subscriber.close();
+                }
+                natsSubscribers = null;
             }
         } catch (Exception ex) {
             logger.error("Exception: " + ex.getMessage());
