@@ -1,0 +1,40 @@
+###
+GET http://localhost:9080/fhir-server/api/v4/Patient/5d7dc79a-faf2-453d-9425-a0efe85032ea/_history/1 HTTP/1.1
+
+
+###
+GET http://0.0.0.0:9080/fhir-server/api/v4/Patient HTTP/1.1
+Content-Type: : application/json
+
+
+###
+GET http://localhost:8080/bluebutton/handler?code=4uNMHY7PJHEcBEjNVJ0CPvpAh7ugaq
+Accept: application/json
+Authorization: Bearer qYH97Ay3rXgMEfwRWauXtZpdqVduMt
+
+###
+POST https://sandbox.bluebutton.cms.gov/v1/o/token/
+Authorization: Bearer qYH97Ay3rXgMEfwRWauXtZpdqVduMt
+Accept: application/json
+
+###
+GET http://0.0.0.0:8080/bluebutton/v1/ExplanationOfBenefit/?patient=-19990000002154
+Accept: application/json
+Authorization: Bearer qYH97Ay3rXgMEfwRWauXtZpdqVduMt
+
+
+###
+GET http://0.0.0.0:8080/bluebutton/authorize
+Accept: application/json
+Authorization: Bearer qYH97Ay3rXgMEfwRWauXtZpdqVduMt
+
+###
+GET https://sandbox.bluebutton.cms.gov/v1/o/authorize/?client_id=QxgykyudHvCYdAmXRTvm4LCAorCDk1WVFAySjp0e&redirect_uri=http://localhost:8080/bluebutton/handler&response_type=code
+
+
+###
+GET https://sandbox.bluebutton.cms.gov/v1/fhir/ExplanationOfBenefit/?patient=-19990000002154
+Authorization: thS9EwbBGazyZ00y4WEyW4niSVvWlZ
+
+###
+GET https://sandbox.bluebutton.cms.gov/v1/o/authorize/?response_type=code&client_id=9FTkjlaFygjcy4KAqxRZoDHUCK4MHCptUSOIoZUa&redirect_uri=https%3A%2F%2Fsandbox.bluebutton.cms.gov%2Ftestclient%2Fcallback&state=889oUpY0j3laWOcNgzOSqJA7mr1WbN
