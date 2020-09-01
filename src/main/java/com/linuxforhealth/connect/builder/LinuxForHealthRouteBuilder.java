@@ -43,7 +43,6 @@ public final class LinuxForHealthRouteBuilder extends RouteBuilder {
     public final static String REMOTE_EVENTS_ROUTE_ID = "lfh-remote-events";
     public final static String REMOTE_EVENTS_PRODUCER_ID = "lfh-remote-events-producer";
     public final static String GET_MESSAGE_ROUTE_ID = "lfh-get-message";
-    public final static String GET_MESSAGE_CONSUMER_ID = "lfh-get-message-consumer";
 
     private final Logger logger = LoggerFactory.getLogger(LinuxForHealthRouteBuilder.class);
 
@@ -117,7 +116,6 @@ public final class LinuxForHealthRouteBuilder extends RouteBuilder {
         // Get a record from a kafka topic, partition and offset
         from("{{lfh.connect.datastore.message.uri}}")
         .routeId(GET_MESSAGE_ROUTE_ID)
-        .bean(LFHKafkaConsumer.class, "get(${header.topic}, ${header.partition}, ${header.offset})")
-        .id(GET_MESSAGE_CONSUMER_ID);
+        .bean(LFHKafkaConsumer.class, "get(${header.topic}, ${header.partition}, ${header.offset})");
     }
 }

@@ -36,7 +36,6 @@ public class OrthancRouteBuilder extends BaseRouteBuilder {
     public final static String ORTHANC_PRODUCER_GET_IMAGE_ID = "orthanc-producer-get-image";
     public final static String ORTHANC_PRODUCER_STORE_ID = "orthanc-producer-store";
     public final static String GET_IMAGE_ROUTE_ID = "orthanc-get-png-kafka";
-    public final static String GET_IMAGE_CONSUMER_ID = "orthanc-consumer-png-kafka";
 
     @Override
     protected String getRoutePropertyNamespace() {
@@ -124,7 +123,6 @@ public class OrthancRouteBuilder extends BaseRouteBuilder {
             String data = new String(Base64.getDecoder().decode(msg.getString("data")));
             String image = new JSONObject(data).getString("image");
             if (image != null) exchange.getIn().setBody(Base64.getDecoder().decode(image));
-        })
-        .id(GET_IMAGE_CONSUMER_ID);
+        });
     }
 }
