@@ -29,6 +29,7 @@ public class LFHServiceManager {
 
     private final static Logger logger = LoggerFactory.getLogger(LFHServiceManager.class);
     private static LFHKafkaProducer producer = null;
+    private static LFHKafkaConsumer consumer = null;
     private static List<NATSSubscriber> natsSubscribers = null; 
 
     public void LFHServiceManager() { }
@@ -37,6 +38,7 @@ public class LFHServiceManager {
     * Start the services needed for Linux for Health:
     *   1. NATS subscribers defined in application.properties.
     *   2. Kafka producer needed to store remote LFH messages to the local Kafka.
+    *   3. Kafka consumer needed to retrieve datat from a (topic, partition, offset)
     */
     public static void startServices(Properties properties, Main camelMain) {
         String[] hosts = properties.getProperty("lfh.connect.messaging.subscribe.hosts").split(",");
@@ -44,9 +46,11 @@ public class LFHServiceManager {
         String brokers = properties.getProperty("lfh.connect.datastore.brokers");
         producer = new LFHKafkaProducer();
         natsSubscribers = new ArrayList<NATSSubscriber>();
+        consumer = new LFHKafkaConsumer();
+        camelMain.bind("LFHKafkaConsumer", consumer);
 
         try {
-            //consumer.start(brokers);
+            consumer.start(brokers);
             producer.start(brokers);
             for (String host: hosts) {
                 NATSSubscriber sub = new NATSSubscriber();
@@ -68,12 +72,14 @@ public class LFHServiceManager {
                 producer = null;
             }
 
-            if (natsSubscribers != null) {
-                for (NATSSubscriber subscriber: natsSubscribers) {
-                    subscriber.close();
-                }
-                natsSubscribers = null;
+            if (consumer != null) {
+                consumer.close();
+                consumer = null;
             }
+
+            for (NATSSubscriber subscriber: natsSubscribers) subscriber.close();
+            natsSubscribers.clear();
+
         } catch (Exception ex) {
             logger.error("Exception: " + ex.getMessage());
         }

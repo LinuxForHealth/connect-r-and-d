@@ -33,9 +33,7 @@ public class LFHKafkaConsumer {
     /**
      * Start the Kafka consumer
      */
-    public void start() {
-        final Properties lfhProps = LFHUtils.loadProperties();
-        final String brokers = lfhProps.getProperty("lfh.connect.datastore.brokers");
+    public void start(String brokers) {
         final Properties props = new Properties();
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "LFHKafkaConsumerGroup");
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokers);
@@ -52,9 +50,6 @@ public class LFHKafkaConsumer {
      */
     public String get(String topic, int partition, long offset) {
         String value = null;
-
-        // start on first execution
-        if (consumer == null) start();
 
         logger.debug("input: partition={} offset={} topic={}", partition, offset, topic);
         TopicPartition topicPartition = new TopicPartition(topic, partition);
