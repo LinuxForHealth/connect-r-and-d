@@ -45,6 +45,12 @@ public final class LinuxForHealthRouteBuilder extends RouteBuilder {
     public final static String GET_MESSAGE_ROUTE_ID = "lfh-get-message";
 
     private final Logger logger = LoggerFactory.getLogger(LinuxForHealthRouteBuilder.class);
+    private LFHKafkaConsumer consumer;
+
+    protected void buildRoute(String routePropertyNamespace) {
+        consumer = getContext().getRegistry().lookupByNameAndType("LFHKafkaConsumer", LFHKafkaConsumer.class);
+        logger.info("LFHKafkaConsumer bean: {}", consumer);
+    }
 
     @Override
     public void configure() {
