@@ -8,7 +8,8 @@ The second option is configuration-based, and supports customizations. This seco
 ## Pre-requisites
 
 - [Register](https://developers.redhat.com/register) for a free Red Hat Developer Account.
-- Download the OC CLI toolkit from the RedHat developer site
+- Download the OC CLI toolkit from the RedHat developer site.
+- A working Open Shift Container Platform (OCP) cluster or local Code Ready Containers (CRC) environment.
 
 ## Quick Start
 
