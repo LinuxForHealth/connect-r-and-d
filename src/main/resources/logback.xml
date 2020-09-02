@@ -28,6 +28,8 @@
     <logger name="org.apache.camel.main" level="info" />
     <logger name="org.apache.camel.component" level="info" />
     <logger name="org.apache.kafka.consumer" level="warn" />
+    <logger name="org.apache.kafka.clients.producer" level="info" />
+    <logger name="org.apache.kafka.clients.consumer" level="info" />
 
     <root level="warn">
         <appender-ref ref="STDOUT" />

@@ -11,6 +11,8 @@ services:
       LFH_CONNECT_MESSAGING_URI: "nats:lfh-events?servers=nats-server:4222"
       LFH_CONNECT_MESSAGING_SUBSCRIBE_HOSTS: "nats-server:4222"
       LFH_CONNECT_ORTHANC_SERVER_URI: "http://orthanc:{{lfh.connect.orthanc_server.port}}/instances"
+      LFH_CONNECT_DATASTORE_BROKERS: "kafka:9092"
+      LFH_CONNECT_EXTERNAL_HOST_IP: "127.0.0.1"
     ports:
       - ${LFH_CONNECT_MLLP_PORT}:${LFH_CONNECT_MLLP_PORT}
       - ${LFH_CONNECT_REST_PORT}:${LFH_CONNECT_REST_PORT}

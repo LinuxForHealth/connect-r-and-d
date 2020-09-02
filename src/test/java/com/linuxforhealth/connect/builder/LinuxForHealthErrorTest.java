@@ -5,6 +5,7 @@
  */
 package com.linuxforhealth.connect.builder;
 
+import com.linuxforhealth.connect.support.LFHKafkaConsumer;
 import com.linuxforhealth.connect.support.TestUtils;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
@@ -73,6 +74,7 @@ public class LinuxForHealthErrorTest extends RouteTestSupport {
     @BeforeEach
     @Override
     protected void configureContext() throws Exception {
+        context.getRegistry().bind("LFHKafkaConsumer", new LFHKafkaConsumer());
         super.configureContext();
         mockDataStoreResult = MockEndpoint.resolve(context, "mock:data-store");
         mockMessagingResult = MockEndpoint.resolve(context, "mock:messaging");

@@ -1,11 +1,11 @@
 #!/bin/sh
-# ocp-quickstart.sh
+# lfh-quickstart.sh
 # Provisions the LFH quick start stack into an existing OpenShift 4.x cluster.
 #
 # Usage:
-# ./ocp-quickstart.sh [install | remove]
+# ./lfh-quickstart.sh [install | remove]
 #
-# ocp-quickstart.sh creates:
+# lfh-quickstart.sh creates:
 # - OpenShift top level LFH project
 # - OpenShift applications for LFH and its supporting services
 # - OpenShift routes for external client use
