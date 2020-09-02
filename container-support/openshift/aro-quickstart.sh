@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # aro-quickstart.sh
 # Install or removes Azure Redhat OpenShift resources within an existing Azure Subscription.
 #
@@ -9,6 +9,8 @@
 # - An existing Azure account with the following permissions:
 # - - Create app registrations/service principals
 # - - Membership in the User Access Administrator role at the "Subscription Level"
+# - Subscription Limits/Quotes:
+# - - Minimum of 40 vCPUs/Cores are required for the OpenShift Cluster
 #
 # Script Parameters (mapped to variables):
 # - SUBSCRIPTION_ID: The Azure Subscription ID
@@ -55,11 +57,11 @@ LFH_ARO_CLUSTER_WORKER_COUNT=3
 
 function validateAzureResourceId() {
   # validates that an id field is set
-  local ID_FIELD=$1
-  local RESOURCE_NAME=$2
-  local RESOURCE_TYPE=$3
+  local ID_FIELD="$1"
+  local RESOURCE_NAME="$2"
+  local RESOURCE_TYPE="$3"
 
-  if [[ -z "${ID_FIELD}" ]]; then
+  if [ -z "${ID_FIELD}" ]; then
     echo "Azure ${RESOURCE_TYPE}:${RESOURCE_NAME} was not found"
     exit 1
   fi
@@ -68,28 +70,26 @@ function validateAzureResourceId() {
 function init() {
   # validates script parameters
   # sets the "context" for the script including Azure Subscription and Resource Group
-
-  if [[ "${SETUP_OPTION}" != "install" && "${SETUP_OPTION}" != "remove" ]]; then
+  if [ "${SETUP_OPTION}" != "install" ] && [ "${SETUP_OPTION}" != "remove" ]; then
     echo "Invalid setup option ${SETUP_OPTION:- "blank"}. Expecting either install or remove"
     exit 1
   fi
 
   SUBSCRIPTION_ID=$(az account list --query "[?name == '"${SUBSCRIPTION_NAME}"'].id" --output tsv)
   validateAzureResourceId "${SUBSCRIPTION_ID}" "${SUBSCRIPTION_NAME}" "Subscription"
-
   az account set --subscription "${SUBSCRIPTION_ID}"
 
   REGION_ID=$(az account list-locations --query "[?name == '"${REGION_NAME}"'].id" --output tsv)
   validateAzureResourceId "${REGION_ID}" "${REGION_NAME}" "Region"
 
   RESOURCE_GROUP_ID=$(az group list --query "[?name == '"${RESOURCE_GROUP_NAME}"'].id" --output tsv)
-  if [[ -z "${RESOURCE_GROUP_ID}" && "${SETUP_OPTION}" == "install" ]]; then
+  if [ "${SETUP_OPTION}" = "remove" ]; then
+    validateAzureResourceId "${RESOURCE_GROUP_ID}" "${RESOURCE_GROUP_NAME}" "Resource Group"
+  elif [ "${SETUP_OPTION}" = "install" ] && [ -z "${RESOURCE_GROUP_ID}" ]; then
     echo "Resource Group ${RESOURCE_GROUP_NAME} does not exist, and will be created"
     az group create --location ${REGION_NAME} --name ${RESOURCE_GROUP_NAME}
     RESOURCE_GROUP_ID=$(az group list --query "[?name == '"${RESOURCE_GROUP_NAME}"'].id" --output tsv)
   fi
-
-  az provider register -n Microsoft.RedHatOpenShift --wait
 
   echo "================================================================================================="
   echo "Initializing Azure CLI Subscription: ${SUBSCRIPTION_NAME}, Resource Group: ${RESOURCE_GROUP_NAME}"
@@ -135,16 +135,13 @@ function install() {
   echo "================================================================================================="
   echo "Creating Azure Service Principal"
 
-  TEMP_CREDENTIALS=$(az ad sp create-for-rbac --role Contributor \
+  CLIENT_SECRET=$(az ad sp create-for-rbac --role Contributor \
     --name "${SERVICE_PRINCIPAL_NAME}" \
     --scopes "${RESOURCE_GROUP_ID}" \
-    --query "[appId,password]" \
+    --query "[password]" \
     --output tsv)
 
-  TEMP_CREDENTIALS=$(echo "${TEMP_CREDENTIALS}"| tr '\n' ' ' | xargs)
-
-  CLIENT_ID=$(echo ${TEMP_CREDENTIALS} | cut -d ' ' -f1)
-  CLIENT_SECRET=$(echo ${TEMP_CREDENTIALS} | cut -d ' ' -f2)
+  CLIENT_ID=$(az ad sp list --query "[?contains(servicePrincipalNames, '"${SERVICE_PRINCIPAL_NAME}"')].appId" --output tsv)
 
   echo "Parsed client credentials"
   echo "client id ${CLIENT_ID}"
@@ -152,6 +149,8 @@ function install() {
 
   echo "================================================================================================="
   echo "Creating Azure RedHat OpenShift Cluster"
+
+  az provider register -n Microsoft.RedHatOpenShift --wait
 
   az aro create \
     --resource-group "${RESOURCE_GROUP_NAME}" \
@@ -180,7 +179,7 @@ function remove() {
 
 init
 
-if [[ ${SETUP_OPTION} == "install" ]]; then
+if [ "${SETUP_OPTION}" = "install" ]; then
   install
 else
   remove
