@@ -30,7 +30,7 @@ public class LFHServiceManager {
     private final static Logger logger = LoggerFactory.getLogger(LFHServiceManager.class);
     private static LFHKafkaProducer producer = null;
     private static LFHKafkaConsumer consumer = null;
-    private static List<NATSSubscriber> natsSubscribers = null; 
+    private static List<NATSSubscriber> natsSubscribers = new ArrayList<NATSSubscriber>(); 
 
     public void LFHServiceManager() { }
 
@@ -45,7 +45,6 @@ public class LFHServiceManager {
         String subject = properties.getProperty("lfh.connect.messaging.subscribe.subject");
         String brokers = properties.getProperty("lfh.connect.datastore.brokers");
         producer = new LFHKafkaProducer();
-        natsSubscribers = new ArrayList<NATSSubscriber>();
         consumer = new LFHKafkaConsumer();
         camelMain.bind("LFHKafkaConsumer", consumer);
 
