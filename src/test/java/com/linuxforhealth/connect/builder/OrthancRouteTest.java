@@ -1,6 +1,7 @@
 package com.linuxforhealth.connect.builder;
 
 import com.linuxforhealth.connect.support.LinuxForHealthAssertions;
+import com.linuxforhealth.connect.support.LFHKafkaConsumer;
 import com.linuxforhealth.connect.support.TestUtils;
 import org.apache.camel.Exchange;
 import org.apache.camel.RoutesBuilder;
@@ -43,6 +44,8 @@ public class OrthancRouteTest extends RouteTestSupport {
     @BeforeEach
     @Override
     protected void configureContext() throws Exception {
+
+        context.getRegistry().bind("LFHKafkaConsumer", new LFHKafkaConsumer());
 
         setProducerResponse(OrthancRouteBuilder.ROUTE_ID,
                 OrthancRouteBuilder.ORTHANC_PRODUCER_POST_ID,
