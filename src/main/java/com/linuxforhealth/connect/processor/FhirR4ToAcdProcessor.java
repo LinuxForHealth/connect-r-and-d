@@ -67,12 +67,13 @@ public class FhirR4ToAcdProcessor implements Processor {
 		
 		for (DocumentReferenceContentComponent content:docRef.getContent()) {
 			
-			Exchange docEx = new DefaultExchange(exchange.getContext());
-			docEx.getIn().setBody(content.getAttachment().getData(), String.class);
-			docEx.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
+			Exchange contentExchange = exchange.copy();
+			
+			contentExchange.getIn().setBody(content.getAttachment().getData(), String.class);
+			contentExchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/plain");
 			
 			ProducerTemplate pt = exchange.getContext().createProducerTemplate();
-			pt.send("direct:acd-analyze", docEx);
+			pt.send("direct:acd-analyze", contentExchange);
 		}
 		
 	}
