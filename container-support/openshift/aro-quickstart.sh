@@ -17,13 +17,17 @@
 # - RESOURCE_GROUP_NAME: The resource group used to support the Azure RedHat OpenShift installation.
 #                         The resource group is considered "disposable" as it is removed by the "remove" setup option.
 # - REGION_NAME: The Azure Region Name where resources are created.
-# - SETUP_OPTION: "install" or "remove"
+# - SETUP_MODE: One of "install", "remove", or "credentials"
 #
-# The aro-quickstart.sh script supports two setup modes, install or remove.
+# The aro-quickstart.sh script supports three setup modes, install, remove, and connection-info.
+#
 # "install" mode creates a resource group named RESOURCE_GROUP_NAME if the resource group does not exist.
 # A service principal, ${SERVICE_PRINCIPAL_NAME}, is created to provision the RedHat OpenShift resources.
 #
 # "remove" mode deletes the service principal, ${SERVICE_PRINCIPAL_NAME}, and the resource group.
+#
+# "connection-info" is intended for use after the cluster is provisioned. "connection-info" returns cluster credentials,
+# and URLs for the OpenShift console and api.
 
 set -o errexit
 set -o nounset
@@ -33,7 +37,7 @@ set -o pipefail
 SUBSCRIPTION_NAME=${1:-""}
 RESOURCE_GROUP_NAME=${2:-""}
 REGION_NAME=${3:-""}
-SETUP_OPTION=${4:-""}
+SETUP_MODE=${4:-""}
 
 # azure resource identifiers
 SUBSCRIPTION_ID=""
@@ -41,6 +45,8 @@ RESOURCE_GROUP_ID=""
 REGION_ID=""
 CLIENT_ID=""
 CLIENT_SECRET=""
+
+DISPLAY_BREAK="================================================================================================="
 
 # variables used in resource creation
 SERVICE_PRINCIPAL_NAME="http://lfh-aro-sp"
@@ -71,8 +77,8 @@ function validateAzureResourceId() {
 function init() {
   # validates script parameters
   # sets the "context" for the script including Azure Subscription and Resource Group
-  if [ "${SETUP_OPTION}" != "install" ] && [ "${SETUP_OPTION}" != "remove" ]; then
-    echo "Invalid setup option ${SETUP_OPTION:- "blank"}. Expecting either install or remove"
+  if [ "${SETUP_MODE}" != "install" ] && [ "${SETUP_MODE}" != "remove" ] && [ "${SETUP_MODE}" != "connection-info" ]; then
+    echo "Invalid setup mode ${SETUP_MODE:- "blank"}. Expecting one of: install, remove, or connection-info"
     exit 1
   fi
 
@@ -84,28 +90,28 @@ function init() {
   validateAzureResourceId "${REGION_ID}" "${REGION_NAME}" "Region"
 
   RESOURCE_GROUP_ID=$(az group list --query "[?name == '"${RESOURCE_GROUP_NAME}"'].id" --output tsv)
-  if [ "${SETUP_OPTION}" = "remove" ]; then
+  if [ "${SETUP_MODE}" = "remove" ]; then
     validateAzureResourceId "${RESOURCE_GROUP_ID}" "${RESOURCE_GROUP_NAME}" "Resource Group"
-  elif [ "${SETUP_OPTION}" = "install" ] && [ -z "${RESOURCE_GROUP_ID}" ]; then
+  elif [ "${SETUP_MODE}" = "install" ] && [ -z "${RESOURCE_GROUP_ID}" ]; then
     echo "Resource Group ${RESOURCE_GROUP_NAME} does not exist, and will be created"
     az group create --location ${REGION_NAME} --name ${RESOURCE_GROUP_NAME}
     RESOURCE_GROUP_ID=$(az group list --query "[?name == '"${RESOURCE_GROUP_NAME}"'].id" --output tsv)
   fi
 
-  echo "================================================================================================="
+  echo "${DISPLAY_BREAK}"
   echo "Initializing Azure CLI Subscription: ${SUBSCRIPTION_NAME}, Resource Group: ${RESOURCE_GROUP_NAME}"
   echo "Subscription ID: ${SUBSCRIPTION_ID}"
   echo "Resource Group ID: ${RESOURCE_GROUP_ID}"
   echo "Region: ${REGION_NAME}"
-  echo "Setup Option: ${SETUP_OPTION}"
+  echo "Setup Mode: ${SETUP_MODE}"
 }
 
 function install() {
   # installs the quickstart service principal and Azure RedHat OpenShift resources
-  echo "================================================================================================="
+  echo "${DISPLAY_BREAK}"
   echo "Provisioning Azure RedHat OpenShift"
 
-  echo "================================================================================================="
+  echo "${DISPLAY_BREAK}"
   echo "Creating Azure VNET"
 
   az network vnet create \
@@ -133,7 +139,7 @@ function install() {
     --address-prefixes "${LFH_ARO_WORKER_SUBNET_PREFIX}" \
     --service-endpoints Microsoft.ContainerRegistry
 
-  echo "================================================================================================="
+  echo "${DISPLAY_BREAK}"
   echo "Creating Azure Service Principal"
 
   CLIENT_SECRET=$(az ad sp create-for-rbac --role Contributor \
@@ -148,7 +154,7 @@ function install() {
   echo "client id ${CLIENT_ID}"
   echo "client secret ${CLIENT_SECRET}"
 
-  echo "================================================================================================="
+  echo "${DISPLAY_BREAK}"
   echo "Creating Azure RedHat OpenShift Cluster"
 
   az provider register -n Microsoft.RedHatOpenShift --wait
@@ -171,19 +177,46 @@ function install() {
 
 function remove() {
   # removes the quickstart service principal and resource group
-  echo "================================================================================================="
+  echo "${DISPLAY_BREAK}"
   echo "Removing Azure RedHat OpenShift Resources"
-  echo "================================================================================================="
+  echo "${DISPLAY_BREAK}"
 
   az aro delete --resource-group "${RESOURCE_GROUP_NAME}" --name "${LFH_ARO_CLUSTER_NAME}"
   az ad sp delete --id "${SERVICE_PRINCIPAL_NAME}"
   az group delete --yes --name "${RESOURCE_GROUP_NAME}"
 }
 
+function connection_info() {
+  # prints OpenShift Cluster credentials and URLs used for access
+  echo "${DISPLAY_BREAK}"
+  echo "Cluster Credentials:"
+  az aro list-credentials --name "${LFH_ARO_CLUSTER_NAME}" \
+    --resource-group "${RESOURCE_GROUP_NAME}"
+  echo "${DISPLAY_BREAK}"
+
+  echo "Console URL:"
+  az aro show --name "${LFH_ARO_CLUSTER_NAME}" \
+    --resource-group "${RESOURCE_GROUP_NAME}" \
+    --query "consoleProfile.url" -o tsv
+  echo "${DISPLAY_BREAK}"
+
+  echo "Server/API URL:"
+  az aro show --name "${LFH_ARO_CLUSTER_NAME}" \
+    --resource-group "${RESOURCE_GROUP_NAME}" \
+    --query "apiserverProfile.url" -o tsv
+  echo "${DISPLAY_BREAK}"
+}
+
 init
 
-if [ "${SETUP_OPTION}" = "install" ]; then
-  install
-else
-  remove
-fi
+case "${SETUP_MODE}" in
+  "install")
+    install
+    ;;
+  "remove")
+    remove
+    ;;
+  "connection-info")
+    connection_info
+    ;;
+esac
