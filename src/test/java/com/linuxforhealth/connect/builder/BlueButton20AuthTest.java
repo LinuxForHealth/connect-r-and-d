@@ -1,3 +1,8 @@
+/*
+ * (C) Copyright IBM Corp. 2020
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.linuxforhealth.connect.builder;
 
 import org.apache.camel.RoutesBuilder;
@@ -9,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Properties;
 
 /**
- * Tests {@link BlueButton20RestRouteBuilder#AUTHORIZE_ROUTE_ID}
+ * Tests {@link BlueButton20RouteBuilder#AUTHORIZE_ROUTE_ID}
  */
 public class BlueButton20AuthTest extends RouteTestSupport {
 
@@ -17,20 +22,22 @@ public class BlueButton20AuthTest extends RouteTestSupport {
 
     @Override
     protected RoutesBuilder createRouteBuilder()  {
-        return new BlueButton20RestRouteBuilder();
+        return new BlueButton20RouteBuilder();
     }
 
     @Override
     protected Properties useOverridePropertiesWithPropertiesComponent() {
         Properties props = super.useOverridePropertiesWithPropertiesComponent();
-        props.setProperty("lfh.connect.bluebutton_20.cms.clientId", "client-id");
+        props.setProperty("lfh.connect.bluebutton-20.cms.clientid", "client-id");
         return props;
     }
 
     @BeforeEach
     @Override
     protected void configureContext() throws Exception {
-        mockDynamicProducer(BlueButton20RestRouteBuilder.AUTHORIZE_ROUTE_ID, "mock:result");
+        mockProducerEndpointById(BlueButton20RouteBuilder.AUTHORIZE_ROUTE_ID,
+                BlueButton20RouteBuilder.AUTHORIZE_PRODUCER_ID,
+                "mock:result");
         super.configureContext();
         mockResult = MockEndpoint.resolve(context, "mock:result");
     }
@@ -54,7 +61,7 @@ public class BlueButton20AuthTest extends RouteTestSupport {
 
         mockResult.expectedPropertyReceived("location", expectedLocation);
 
-        fluentTemplate.to("{{lfh.connect.bluebutton_20.authorizeUri}}")
+        fluentTemplate.to("{{lfh.connect.bluebutton-20.authorizeuri}}")
                 .send();
 
         mockResult.assertIsSatisfied();

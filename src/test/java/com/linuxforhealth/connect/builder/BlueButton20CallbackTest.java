@@ -1,3 +1,8 @@
+/*
+ * (C) Copyright IBM Corp. 2020
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.linuxforhealth.connect.builder;
 
 import org.apache.camel.Exchange;
@@ -11,7 +16,7 @@ import java.util.Base64;
 import java.util.Properties;
 
 /**
- * Tests {@link BlueButton20RestRouteBuilder#CALLBACK_ROUTE_ID}
+ * Tests {@link BlueButton20RouteBuilder#CALLBACK_ROUTE_ID}
  */
 public class BlueButton20CallbackTest extends RouteTestSupport {
 
@@ -19,23 +24,23 @@ public class BlueButton20CallbackTest extends RouteTestSupport {
 
     @Override
     protected RoutesBuilder createRouteBuilder()  {
-        return new BlueButton20RestRouteBuilder();
+        return new BlueButton20RouteBuilder();
     }
 
     @Override
     protected Properties useOverridePropertiesWithPropertiesComponent() {
         Properties props = super.useOverridePropertiesWithPropertiesComponent();
-        props.setProperty("lfh.connect.bluebutton_20.cms.tokenUri", "https://sandbox.bluebutton.cms.gov/v1/o/token/");
-        props.setProperty("lfh.connect.bluebutton_20.cms.clientId", "client-id");
-        props.setProperty("lfh.connect.bluebutton_20.cms.clientSecret", "client-secret");
+        props.setProperty("lfh.connect.bluebutton-20.cms.tokenUri", "https://sandbox.bluebutton.cms.gov/v1/o/token/");
+        props.setProperty("lfh.connect.bluebutton-20.cms.clientid", "client-id");
+        props.setProperty("lfh.connect.bluebutton-20.cms.clientsecret", "client-secret");
         return props;
     }
 
     @BeforeEach
     @Override
     protected void configureContext() throws Exception {
-        mockProducerEndpoint(BlueButton20RestRouteBuilder.CALLBACK_ROUTE_ID,
-                "https://sandbox.bluebutton.cms.gov/v1/o/token/",
+        mockProducerEndpointById(BlueButton20RouteBuilder.CALLBACK_ROUTE_ID,
+                BlueButton20RouteBuilder.CALLBACK_PRODUCER_ID,
                 "mock:result");
         super.configureContext();
         mockResult = MockEndpoint.resolve(context, "mock:result");
@@ -55,13 +60,13 @@ public class BlueButton20CallbackTest extends RouteTestSupport {
 
         mockResult.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
 
-        String expectedAuthHeader = Base64.getEncoder().encodeToString("client-id:client-secret".getBytes(StandardCharsets.UTF_8));
+        String expectedAuthHeader = "Basic " + Base64.getEncoder().encodeToString("client-id:client-secret".getBytes(StandardCharsets.UTF_8));
         mockResult.expectedHeaderReceived("Authorization", expectedAuthHeader);
 
         mockResult.expectedHeaderReceived("Content-Type", "application/x-www-form-urlencoded");
         mockResult.expectedHeaderReceived("Content-Length", expectedBody.length());
 
-        fluentTemplate.to("{{lfh.connect.bluebutton_20.handlerUri}}")
+        fluentTemplate.to("{{lfh.connect.bluebutton-20.handleruri}}")
                 .withHeader("code", "auth-code")
                 .send();
 

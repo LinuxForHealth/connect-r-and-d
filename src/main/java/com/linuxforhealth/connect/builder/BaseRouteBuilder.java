@@ -36,8 +36,8 @@ public abstract class BaseRouteBuilder extends RouteBuilder {
 
         Arrays.asList(
                 propertyNamespace + ".uri",
-                propertyNamespace + ".dataFormat",
-                propertyNamespace + ".messageType"
+                propertyNamespace + ".dataformat",
+                propertyNamespace + ".messagetype"
         ).forEach(ctxSupport::getProperty);
     }
 

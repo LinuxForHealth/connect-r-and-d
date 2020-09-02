@@ -13,20 +13,20 @@ import java.net.URI;
 /**
  * Defines a FHIR R4 REST Processing route
  */
-public class FhirR4RestRouteBuilder extends BaseRouteBuilder {
+public class FhirR4RouteBuilder extends BaseRouteBuilder {
 
-    public final static String ROUTE_ID = "fhir-r4-rest";
+    public final static String ROUTE_ID = "fhir-r4";
+    public final static String ROUTE_PRODUCER_ID = "fhir-r4-producer-store-and-notify";
 
     @Override
     protected String getRoutePropertyNamespace() {
-        return "lfh.connect.fhir_r4_rest";
+        return "lfh.connect.fhir-r4";
     }
-
 
     @Override
     protected void buildRoute(String routePropertyNamespace) {
         CamelContextSupport contextSupport = new CamelContextSupport(getContext());
-        URI fhirBaseUri = URI.create(contextSupport.getProperty("lfh.connect.fhir_r4_rest.uri"));
+        URI fhirBaseUri = URI.create(contextSupport.getProperty("lfh.connect.fhir-r4.uri"));
 
         restConfiguration()
                 .host(fhirBaseUri.getHost())
@@ -39,6 +39,7 @@ public class FhirR4RestRouteBuilder extends BaseRouteBuilder {
                 .unmarshal().fhirJson("R4")
                 .marshal().fhirJson("R4")
                 .process(new MetaDataProcessor(routePropertyNamespace))
-                .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI);
+                .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
+                .id(ROUTE_PRODUCER_ID);
     }
 }

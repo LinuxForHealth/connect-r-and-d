@@ -10,10 +10,11 @@ import com.linuxforhealth.connect.processor.MetaDataProcessor;
 /**
  * Defines a HL7 V2 MLLP processing route
  */
-public class Hl7v2MllpRouteBuilder extends BaseRouteBuilder {
+public class Hl7v2RouteBuilder extends BaseRouteBuilder {
 
-    public final static String ROUTE_ID = "hl7-v2-mllp";
-    private final static String ROUTE_PROPERTY_NAMESPACE = "lfh.connect.hl7_v2_mllp";
+    public final static String ROUTE_ID = "hl7-v2";
+    public final static String ROUTE_PRODUCER_ID="hl7-v2";
+    private final static String ROUTE_PROPERTY_NAMESPACE = "lfh.connect.hl7-v2";
 
     @Override
     protected String getRoutePropertyNamespace() {
@@ -22,10 +23,11 @@ public class Hl7v2MllpRouteBuilder extends BaseRouteBuilder {
 
     @Override
     protected void buildRoute(String routePropertyNamespace) {
-        from("{{lfh.connect.hl7_v2_mllp.uri}}")
+        from("{{lfh.connect.hl7-v2.uri}}")
                 .routeId(ROUTE_ID)
                 .unmarshal().hl7()
                 .process(new MetaDataProcessor(routePropertyNamespace))
-                .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI);
+                .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
+                .id(ROUTE_PRODUCER_ID);
     }
 }

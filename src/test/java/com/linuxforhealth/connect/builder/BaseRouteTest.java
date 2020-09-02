@@ -30,8 +30,8 @@ public class BaseRouteTest extends CamelTestSupport {
     protected Properties useOverridePropertiesWithPropertiesComponent() {
         Properties props = new Properties();
         props.setProperty("lfh.connect.default.uri", "direct:start");
-        props.setProperty("lfh.connect.default.dataFormat", "csv");
-        props.setProperty("lfh.connect.default.messageType", "person");
+        props.setProperty("lfh.connect.default.dataformat", "csv");
+        props.setProperty("lfh.connect.default.messagetype", "person");
         return props;
     }
 
