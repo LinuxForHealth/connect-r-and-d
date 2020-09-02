@@ -22,11 +22,11 @@ implementation specific documentation for the commands used to administer and in
 ## Starting Containers
 
 ```shell script
-./start.sh
+./lfh-oci-services.sh start
 ```
 
 ## Removing Containers
 
 ```shell script
-./remove.sh
+./lfh-oci-services.sh remove
 ```
