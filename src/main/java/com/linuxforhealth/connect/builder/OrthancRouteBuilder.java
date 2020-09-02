@@ -48,7 +48,22 @@ public class OrthancRouteBuilder extends BaseRouteBuilder {
         String orthancServerUri = contextSupport.getProperty("lfh.connect.orthanc_server.uri");
         String orthancExternalUri = contextSupport.getProperty("lfh.connect.orthanc_server.external.uri");
 
-        // Store a DICOM image in Orthanc, convert it to .png and get patient info for the image
+       /**
+        * Stores a DICOM image in Orthanc, converts it to .png and gets patient info for the image.
+        *
+        * This route uses 3 separate calls to the Orthanc DICOM server deployed via Linux for Health:
+        * 1. POST the input DICOM image to Orthanc
+        * 2. GET the .png version of the same image
+        * 3. GET the patient details (name and ID) from the DICOM image
+        *
+        * 4 processors are used: The first 2 process the results of an Orthanc call and set up the next call.  
+        * The third sets up the data for storage in the data store and the 4th removes the .png image from the 
+        * final returned result, due to the size of the image.
+        *
+        * To access the image for further downstream processing, use a NATS subscriber.  A default 
+        * NATS subscriber that listens for notifications from the local Linux for Health instance is deployed
+        * by default with Linux for Health.
+        */
         from("{{lfh.connect.orthanc.uri}}")
         .routeId(ROUTE_ID)
         .marshal().mimeMultipart()
