@@ -117,7 +117,7 @@ public class OrthancRouteBuilder extends BaseRouteBuilder {
         // Get an .png image from a kafka topic, partition and offset
         from("{{lfh.connect.orthanc.image.uri}}")
         .routeId(GET_IMAGE_ROUTE_ID)
-        .bean(LFHKafkaConsumer.class, "get(${header.topic}, ${header.partition}, ${header.offset})")
+        .bean("bean:LFHKafkaConsumer", "get(${header.topic}, ${header.partition}, ${header.offset})")
         .process(exchange -> {
             JSONObject msg = new JSONObject(exchange.getIn().getBody(String.class));
             String data = new String(Base64.getDecoder().decode(msg.getString("data")));

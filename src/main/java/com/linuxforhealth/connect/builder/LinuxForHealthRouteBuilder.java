@@ -10,6 +10,7 @@ import com.linuxforhealth.connect.support.LFHKafkaConsumer;
 import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.builder.SimpleBuilder;
 import org.apache.camel.component.kafka.KafkaConstants;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.json.JSONObject;
@@ -46,11 +47,6 @@ public final class LinuxForHealthRouteBuilder extends RouteBuilder {
 
     private final Logger logger = LoggerFactory.getLogger(LinuxForHealthRouteBuilder.class);
     private LFHKafkaConsumer consumer;
-
-    protected void buildRoute(String routePropertyNamespace) {
-        consumer = getContext().getRegistry().lookupByNameAndType("LFHKafkaConsumer", LFHKafkaConsumer.class);
-        logger.info("LFHKafkaConsumer bean: {}", consumer);
-    }
 
     @Override
     public void configure() {
@@ -122,6 +118,6 @@ public final class LinuxForHealthRouteBuilder extends RouteBuilder {
         // Get a record from a kafka topic, partition and offset
         from("{{lfh.connect.datastore.message.uri}}")
         .routeId(GET_MESSAGE_ROUTE_ID)
-        .bean(LFHKafkaConsumer.class, "get(${header.topic}, ${header.partition}, ${header.offset})");
+        .bean("bean:LFHKafkaConsumer", "get(${header.topic}, ${header.partition}, ${header.offset})");
     }
 }

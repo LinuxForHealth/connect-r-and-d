@@ -202,11 +202,10 @@ public final class App {
             Properties appProperties = loadProperties();
             logger.info("configuring camel context");
             configure(appProperties);
-            logger.info("starting camel context");
-            camelMain.start();
             logger.info("starting LFH services");
             LFHServiceManager.startServices(appProperties, camelMain);
-
+            logger.info("starting camel context");
+            camelMain.start();
         } catch (Exception ex) {
             logger.error("an error occurred starting linux for health connect", ex);
 

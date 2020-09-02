@@ -6,6 +6,7 @@
 package com.linuxforhealth.connect.builder;
 
 import com.linuxforhealth.connect.processor.LinuxForHealthMessage;
+import com.linuxforhealth.connect.support.LFHKafkaConsumer;
 import com.linuxforhealth.connect.support.TestUtils;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.component.kafka.KafkaConstants;
@@ -94,6 +95,7 @@ public class LinuxForHealthNotifyTest extends RouteTestSupport {
     @BeforeEach
     @Override
     protected void configureContext() throws Exception {
+        context.getRegistry().bind("LFHKafkaConsumer", new LFHKafkaConsumer());
         super.configureContext();
         mockMessagingResult = MockEndpoint.resolve(context, "mock:messaging");
     }
