@@ -51,6 +51,7 @@ LFH_ARO_MASTER_SUBNET_PREFIX="10.0.0.0/23"
 LFH_ARO_WORKER_SUBNET_NAME="lfh-aro-worker-subnet"
 LFH_ARO_WORKER_SUBNET_PREFIX="10.0.2.0/23"
 LFH_ARO_CLUSTER_NAME="lfh-aro-cluster"
+LFH_ARO_CLUSTER_RESOURCE_GROUP_NAME="lfh-aro-cluster-rg"
 LFH_ARO_MASTER_VM_SIZE="Standard_D8s_v3"
 LFH_ARO_WORKER_VM_SIZE="Standard_D4s_v3"
 LFH_ARO_CLUSTER_WORKER_COUNT=3
@@ -154,6 +155,7 @@ function install() {
 
   az aro create \
     --resource-group "${RESOURCE_GROUP_NAME}" \
+    --cluster-resource-group "${LFH_ARO_CLUSTER_RESOURCE_GROUP_NAME}" \
     --name "${LFH_ARO_CLUSTER_NAME}" \
     --vnet "${LFH_ARO_VNET_NAME}" \
     --master-subnet "${LFH_ARO_MASTER_NODE_SUBNET_NAME}" \
@@ -173,6 +175,7 @@ function remove() {
   echo "Removing Azure RedHat OpenShift Resources"
   echo "================================================================================================="
 
+  az aro delete --resource-group "${RESOURCE_GROUP_NAME}" --name "${LFH_ARO_CLUSTER_NAME}"
   az ad sp delete --id "${SERVICE_PRINCIPAL_NAME}"
   az group delete --yes --name "${RESOURCE_GROUP_NAME}"
 }
