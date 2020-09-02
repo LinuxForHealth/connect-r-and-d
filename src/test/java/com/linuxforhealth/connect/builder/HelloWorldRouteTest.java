@@ -1,7 +1,6 @@
 package com.linuxforhealth.connect.builder;
 
 import com.linuxforhealth.connect.support.LinuxForHealthAssertions;
-import com.linuxforhealth.connect.support.TestUtils;
 import org.apache.camel.Exchange;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
@@ -9,30 +8,27 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.Properties;
 import java.util.UUID;
 
 /**
- * Tests {@link OrthancRouteBuilder}
+ * Tests {@link ExampleRouteBuilder}
  */
-public class OrthancRouteTest extends RouteTestSupport {
+public class HelloWorldRouteTest extends RouteTestSupport {
 
     private MockEndpoint mockResult;
 
     @Override
     protected RoutesBuilder createRouteBuilder() throws Exception {
-        return new OrthancRouteBuilder();
+        return new ExampleRouteBuilder();
     }
 
     @Override
     protected Properties useOverridePropertiesWithPropertiesComponent() {
         Properties props = super.useOverridePropertiesWithPropertiesComponent();
-        props.setProperty("lfh.connect.orthanc.uri", "direct:http://0.0.0.0:9090/orthanc/instances");
+        props.setProperty("lfh.connect.example.uri", "direct:http://0.0.0.0:9090/hello-world");
         return props;
     }
 
@@ -44,23 +40,8 @@ public class OrthancRouteTest extends RouteTestSupport {
     @Override
     protected void configureContext() throws Exception {
 
-        setProducerResponse(OrthancRouteBuilder.ROUTE_ID,
-                OrthancRouteBuilder.ORTHANC_PRODUCER_POST_ID,
-                "orthanc",
-                "post-response.json");
-
-        setProducerResponse(OrthancRouteBuilder.ROUTE_ID,
-                OrthancRouteBuilder.ORTHANC_PRODUCER_GET_IMAGE_ID,
-                "orthanc",
-                "mock-get-image-response.txt");
-
-        setProducerResponse(OrthancRouteBuilder.ROUTE_ID,
-                OrthancRouteBuilder.ORTHANC_PRODUCER_GET_ID,
-                "orthanc",
-                "get-response.json");
-
-        mockProducerEndpointById(OrthancRouteBuilder.ROUTE_ID,
-                OrthancRouteBuilder.ORTHANC_PRODUCER_STORE_ID,
+        mockProducerEndpointById(ExampleRouteBuilder.HELLO_WORLD_ROUTE_ID,
+                ExampleRouteBuilder.HELLO_WORLD_PRODUCER_ID,
                 "mock:result");
 
         super.configureContext();
@@ -69,35 +50,30 @@ public class OrthancRouteTest extends RouteTestSupport {
     }
 
     /**
-     * Tests {@link OrthancRouteBuilder#ROUTE_ID}
+     * Tests {@link ExampleRouteBuilder#HELLO_WORLD_ROUTE_ID}
      * @throws Exception
      */
     @Test
     void testRoute() throws Exception {
-        String expectedMessage = context
-                .getTypeConverter()
-                .convertTo(String.class, TestUtils.getMessage("orthanc", "result.json"));
-
+        String expectedMessage = "Hello World! It's me.";
         expectedMessage = Base64.getEncoder().encodeToString(expectedMessage.getBytes(StandardCharsets.UTF_8));
 
         mockResult.expectedMessageCount(1);
         mockResult.expectedBodiesReceived(expectedMessage);
-        mockResult.expectedPropertyReceived("dataStoreUri", "kafka:DICOM_IMAGE?brokers=localhost:9094");
-        mockResult.expectedPropertyReceived("dataFormat", "DICOM");
-        mockResult.expectedPropertyReceived("messageType", "IMAGE");
-        mockResult.expectedPropertyReceived("routeId", "orthanc-post");
+        mockResult.expectedPropertyReceived("dataStoreUri", "kafka:EXAMPLE_TEXT?brokers=localhost:9094");
+        mockResult.expectedPropertyReceived("dataFormat", "EXAMPLE");
+        mockResult.expectedPropertyReceived("messageType", "TEXT");
+        mockResult.expectedPropertyReceived("routeId", "hello-world");
 
-        File inputFile = TestUtils.getMessage("orthanc", "image-00020.dcm");
-        byte[] inputMessage = Files.readAllBytes(Paths.get(inputFile.toURI()));
-        fluentTemplate.to("{{lfh.connect.orthanc.uri}}")
-                .withBody(inputMessage)
+        fluentTemplate.to("{{lfh.connect.example.uri}}")
+                .withHeader("name", "me")
                 .request();
 
         mockResult.assertIsSatisfied();
 
         Exchange mockExchange = mockResult.getExchanges().get(0);
 
-        String expectedRouteUri = "direct://http://0.0.0.0:9090/orthanc/instances";
+        String expectedRouteUri = "direct://http://0.0.0.0:9090/hello-world";
         String actualRouteUri = mockExchange.getProperty("routeUri", String.class);
         LinuxForHealthAssertions.assertEndpointUriSame(expectedRouteUri, actualRouteUri);
 
