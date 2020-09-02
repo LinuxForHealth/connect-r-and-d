@@ -5,6 +5,7 @@
  */
 package com.linuxforhealth.connect.builder;
 
+import com.linuxforhealth.connect.support.LFHKafkaConsumer;
 import com.linuxforhealth.connect.support.TestUtils;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.RoutesBuilder;
@@ -41,7 +42,8 @@ public class LinuxForHealthRemoteEventsTest extends RouteTestSupport {
         mockProducerEndpointById(LinuxForHealthRouteBuilder.REMOTE_EVENTS_ROUTE_ID,
                 LinuxForHealthRouteBuilder.REMOTE_EVENTS_PRODUCER_ID,
                 "mock:remote-events-result");
-
+                
+        context.getRegistry().bind("LFHKafkaConsumer", new LFHKafkaConsumer());
         super.configureContext();
 
         mockRemoteEventsResult = MockEndpoint.resolve(context, "mock:remote-events-result");
