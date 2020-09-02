@@ -14,14 +14,14 @@ The second option is configuration-based, and supports customizations. This seco
 
 Install the LFH quickstart on the OpenShift Container Platform (OCP)
 ```shell script
-# login
+# login (if not currently authenticated)
 oc login -u [username] -p [password] [openshift api endpoint]
-./install-quickstart.sh
+./ocp-quickstart.sh install
 ```
 
 Remove the LFH quickstart
 ```shell script
-# login
+# login (if not currently authenticated)
 oc login -u [username] -p [password] [openshift api endpoint]
-./remove-quickstart.sh
+./ocp-quickstart.sh remove
 ```

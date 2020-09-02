@@ -1,33 +1,36 @@
 #!/bin/sh
 # aro-quickstart.sh
-# Install or removes Azure Redhat OpenShift resources within an existing Azure Subscription.
+# Install or removes Azure Redhat OpenShift resources (OCP) within an existing Azure Subscription.
 #
 # Usage:
-# ./aro-quickstart.sh [subscription name] [resource group] [region] [install|remove]
+# ./aro-quickstart.sh [subscription name] [resource group name] [region name] [install|remove|connection-info]
+#
 # Requirements:
-# - The Azure CLI tool
+# - Azure CLI tool
 # - An existing Azure account with the following permissions:
 # - - Create app registrations/service principals
 # - - Membership in the User Access Administrator role at the "Subscription Level"
 # - Subscription Limits/Quotes:
-# - - Minimum of 40 vCPUs/Cores are required for the OpenShift Cluster
+# - - Minimum of 40 vCPUs/Cores are required for the OpenShift Cluster (DsV3 family)
 #
 # Script Parameters (mapped to variables):
 # - SUBSCRIPTION_ID: The Azure Subscription ID
-# - RESOURCE_GROUP_NAME: The resource group used to support the Azure RedHat OpenShift installation.
+# - RESOURCE_GROUP_NAME: The resource group used to support the Azure OCP installation.
 #                         The resource group is considered "disposable" as it is removed by the "remove" setup option.
 # - REGION_NAME: The Azure Region Name where resources are created.
-# - SETUP_MODE: One of "install", "remove", or "credentials"
+# - SETUP_MODE: One of "install", "remove", or "connection-info"
 #
 # The aro-quickstart.sh script supports three setup modes, install, remove, and connection-info.
 #
 # "install" mode creates a resource group named RESOURCE_GROUP_NAME if the resource group does not exist.
 # A service principal, ${SERVICE_PRINCIPAL_NAME}, is created to provision the RedHat OpenShift resources.
 #
-# "remove" mode deletes the service principal, ${SERVICE_PRINCIPAL_NAME}, and the resource group.
+# "remove" mode deletes all the entire OCP cluster and related Azure resources (service principal, resource groups, etc)
 #
 # "connection-info" is intended for use after the cluster is provisioned. "connection-info" returns cluster credentials,
 # and URLs for the OpenShift console and api.
+#
+# Note: Access to Red Hat repositories within the cluster is not supported at this time.
 
 set -o errexit
 set -o nounset
@@ -181,7 +184,7 @@ function remove() {
   echo "Removing Azure RedHat OpenShift Resources"
   echo "${DISPLAY_BREAK}"
 
-  az aro delete --resource-group "${RESOURCE_GROUP_NAME}" --name "${LFH_ARO_CLUSTER_NAME}"
+  az aro delete --yes --resource-group "${RESOURCE_GROUP_NAME}" --name "${LFH_ARO_CLUSTER_NAME}" --no-wait
   az ad sp delete --id "${SERVICE_PRINCIPAL_NAME}"
   az group delete --yes --name "${RESOURCE_GROUP_NAME}"
 }
