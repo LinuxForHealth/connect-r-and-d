@@ -18,6 +18,12 @@ The `aro-quickstart.sh` script provisions a working Azure RedHat Open Shift (ARO
 - An Azure account that is a member of the "User Access Administrator" role within the Subscription.
 - A raised Compute/CPU quota of at least 40 for the DsV3 family of VMs within the desired region.
 
+Login to Azure
+```shell script
+# the CLI will open the default browser and authenticate using the Azure portal
+az login
+```
+
 To create the OCP cluster
 ```shell script
 # the script will return once the provisioning requests are sent to the Azure Resource Manager
