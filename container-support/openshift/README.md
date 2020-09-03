@@ -51,12 +51,12 @@ Install the LFH quickstart
 ```shell script
 # login (if not currently authenticated)
 oc login -u [username] -p [password] [openshift api endpoint]
-./ocp-quickstart.sh install
+./lfh-quickstart.sh install
 ```
 
 Remove the LFH quickstart
 ```shell script
 # login (if not currently authenticated)
 oc login -u [username] -p [password] [openshift api endpoint]
-./ocp-quickstart.sh remove
+./lfh-quickstart.sh remove
 ```
