@@ -22,7 +22,7 @@ SETUP_MODE=$1
 function install() {
   # installs LFH assets into an existing OCP cluster
   oc new-project lfh \
-      --description='Linux For Health Open Shift Project' \
+      --description='Linux For Health OpenShift Project' \
       --display-name='Linux for Health'
 
   # create LFH applications

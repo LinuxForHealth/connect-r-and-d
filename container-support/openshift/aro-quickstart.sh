@@ -1,6 +1,6 @@
 #!/bin/bash
 # aro-quickstart.sh
-# Install or removes Azure Redhat OpenShift resources (OCP) within an existing Azure Subscription.
+# Install or removes Azure Red Hat OpenShift resources (OCP) within an existing Azure Subscription.
 #
 # Usage:
 # ./aro-quickstart.sh [subscription name] [resource group name] [region name] [install|remove|connection-info]
@@ -23,7 +23,7 @@
 # The aro-quickstart.sh script supports three setup modes, install, remove, and connection-info.
 #
 # "install" mode creates a resource group named RESOURCE_GROUP_NAME if the resource group does not exist.
-# A service principal, ${SERVICE_PRINCIPAL_NAME}, is created to provision the RedHat OpenShift resources.
+# A service principal, ${SERVICE_PRINCIPAL_NAME}, is created to provision the Red Hat OpenShift resources.
 #
 # "remove" mode deletes all the entire OCP cluster and related Azure resources (service principal, resource groups, etc)
 #
@@ -110,9 +110,9 @@ function init() {
 }
 
 function install() {
-  # installs the quickstart service principal and Azure RedHat OpenShift resources
+  # installs the quickstart service principal and Azure Red Hat OpenShift resources
   echo "${DISPLAY_BREAK}"
-  echo "Provisioning Azure RedHat OpenShift"
+  echo "Provisioning Azure Red Hat OpenShift"
 
   echo "${DISPLAY_BREAK}"
   echo "Creating Azure VNET"
@@ -158,7 +158,7 @@ function install() {
   echo "client secret ${CLIENT_SECRET}"
 
   echo "${DISPLAY_BREAK}"
-  echo "Creating Azure RedHat OpenShift Cluster"
+  echo "Creating Azure Red Hat OpenShift Cluster"
 
   az provider register -n Microsoft.RedHatOpenShift --wait
 
@@ -181,7 +181,7 @@ function install() {
 function remove() {
   # removes the quickstart service principal and resource group
   echo "${DISPLAY_BREAK}"
-  echo "Removing Azure RedHat OpenShift Resources"
+  echo "Removing Azure Red Hat OpenShift Resources"
   echo "${DISPLAY_BREAK}"
 
   az aro delete --yes --resource-group "${RESOURCE_GROUP_NAME}" --name "${ARO_CLUSTER_NAME}" --no-wait
