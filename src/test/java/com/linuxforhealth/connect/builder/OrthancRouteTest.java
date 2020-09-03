@@ -19,7 +19,7 @@ import java.util.Properties;
 import java.util.UUID;
 
 /**
- * Tests {@link FhirR4RouteBuilder}
+ * Tests {@link OrthancRouteBuilder}
  */
 public class OrthancRouteTest extends RouteTestSupport {
 
