@@ -39,8 +39,9 @@ When provisioning is complete, view connection information
 
 To remove/delete the OCP quickstart
 ```shell script
-# the script will return once the deletion requests are sent to the Azure Resource Manager
 ./aro-quickstart [Subscription Name] [Resource Group Name] [Region Name] remove
+# the script will return once the deletion requests are sent to the Azure Resource Manager, and provide commands
+# to monitor deletion progress and remove remaining resources.
 ```
 
 ## Provision LFH Within an Existing OCP Cluster
