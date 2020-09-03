@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # aro-quickstart.sh
 # Install or removes Azure Redhat OpenShift resources (OCP) within an existing Azure Subscription.
 #

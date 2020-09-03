@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # start-stack.sh
 # Starts the LFH Docker Compose Stack for a specified profile. The profile determines which configurations are included
 # in the startup process.

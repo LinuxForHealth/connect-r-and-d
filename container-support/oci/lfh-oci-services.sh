@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # lfh-oci-services.sh
 #
 # Usage:

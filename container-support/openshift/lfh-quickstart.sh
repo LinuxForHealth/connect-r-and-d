@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # lfh-quickstart.sh
 # Provisions the LFH quick start stack into an existing OpenShift 4.x cluster.
 #
