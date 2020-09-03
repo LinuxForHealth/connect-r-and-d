@@ -185,8 +185,17 @@ function remove() {
   echo "${DISPLAY_BREAK}"
 
   az aro delete --yes --resource-group "${RESOURCE_GROUP_NAME}" --name "${ARO_CLUSTER_NAME}" --no-wait
-  az ad sp delete --id "${SERVICE_PRINCIPAL_NAME}"
-  az group delete --yes --name "${RESOURCE_GROUP_NAME}"
+  echo "The request to delete the ARO Cluster has been submitted. Please monitor progress using the Azure Portal or Azure CLI."
+  echo "Azure CLI monitoring command:"
+  echo "az aro show --name ${ARO_CLUSTER_NAME} --resource-group ${RESOURCE_GROUP_NAME} --query \"[provisioningState]\" --output tsv"
+  echo "${DISPLAY_BREAK}"
+  echo "The command will return the following error, once the cluster is deleted:"
+  echo "     The Resource Microsoft.RedHatOpenShift/OpenShiftClusters/lfh-aro-cluster under resource group ${RESOURCE_GROUP_NAME} was not found"
+  echo "${DISPLAY_BREAK}"
+  echo "Once the cluster id deleted, use the following commands to remove the remaining ARO resources:"
+  echo "az ad sp delete --id ${SERVICE_PRINCIPAL_NAME}"
+  echo "az group delete --yes --name ${RESOURCE_GROUP_NAME}"
+  echo "${DISPLAY_BREAK}"
 }
 
 function connection_info() {
