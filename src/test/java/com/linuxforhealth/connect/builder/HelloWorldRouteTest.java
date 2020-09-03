@@ -55,11 +55,8 @@ public class HelloWorldRouteTest extends RouteTestSupport {
      */
     @Test
     void testRoute() throws Exception {
-        String expectedMessage = "Hello World! It's me.";
-        expectedMessage = Base64.getEncoder().encodeToString(expectedMessage.getBytes(StandardCharsets.UTF_8));
 
         mockResult.expectedMessageCount(1);
-        mockResult.expectedBodiesReceived(expectedMessage);
         mockResult.expectedPropertyReceived("dataStoreUri", "kafka:EXAMPLE_TEXT?brokers=localhost:9094");
         mockResult.expectedPropertyReceived("dataFormat", "EXAMPLE");
         mockResult.expectedPropertyReceived("messageType", "TEXT");
