@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 while read p; do
   topic=HL7v2_$p
