@@ -86,6 +86,6 @@ spec:
             - containerPort: 8042
               protocol: TCP
         - name: lfh
-          image: 'docker.io/atclark/lfh:latest'
+          image: 'docker.io/linuxforhealth/connect:1.0.0'
           ports:
             - containerPort: 8081
