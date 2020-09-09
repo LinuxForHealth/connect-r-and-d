@@ -3,22 +3,7 @@
 # Install or removes Azure Red Hat OpenShift resources (OCP) within an existing Azure Subscription.
 #
 # Usage:
-# ./aro-quickstart.sh [subscription name] [resource group name] [region name] [install|remove|connection-info]
-#
-# Requirements:
-# - Azure CLI tool
-# - An existing Azure account with the following permissions:
-# - - Create app registrations/service principals
-# - - Membership in the User Access Administrator role at the "Subscription Level"
-# - Subscription Limits/Quotes:
-# - - Minimum of 40 vCPUs/Cores are required for the OpenShift Cluster (DsV3 family)
-#
-# Script Parameters (mapped to variables):
-# - SUBSCRIPTION_ID: The Azure Subscription ID
-# - RESOURCE_GROUP_NAME: The resource group used to support the Azure OCP installation.
-#                         The resource group is considered "disposable" as it is removed by the "remove" setup option.
-# - REGION_NAME: The Azure Region Name where resources are created.
-# - SETUP_MODE: One of "install", "remove", or "connection-info"
+# ./aro-quickstart.sh [install|remove|connection-info] [subscription name] [resource group name] [region name]
 #
 # The aro-quickstart.sh script supports three setup modes, install, remove, and connection-info.
 #
@@ -30,6 +15,21 @@
 # "connection-info" is intended for use after the cluster is provisioned. "connection-info" returns cluster credentials,
 # and URLs for the OpenShift console and api.
 #
+# Script Requirements:
+# - Azure CLI tool
+# - An existing Azure account with the following permissions:
+# - - Create app registrations/service principals
+# - - Membership in the User Access Administrator role at the "Subscription Level"
+# - Subscription Limits/Quotes:
+# - - Minimum of 40 vCPUs/Cores are required for the OpenShift Cluster (DsV3 family)
+#
+# Script Parameters (mapped to variables):
+# - SETUP_MODE: One of "install", "remove", or "connection-info"
+# - SUBSCRIPTION_ID: The Azure Subscription ID
+# - RESOURCE_GROUP_NAME: The resource group used to support the Azure OCP installation.
+#                         The resource group is considered "disposable" as it is removed by the "remove" setup option.
+# - REGION_NAME: The Azure Region Name where resources are created.
+#
 # Note: Access to Red Hat repositories within the cluster is not supported at this time.
 
 set -o errexit
@@ -37,10 +37,10 @@ set -o nounset
 set -o pipefail
 
 # script arguments
-SUBSCRIPTION_NAME=${1:-""}
-RESOURCE_GROUP_NAME=${2:-""}
-REGION_NAME=${3:-""}
-SETUP_MODE=${4:-""}
+SETUP_MODE=${1:-""}
+SUBSCRIPTION_NAME=${2:-""}
+RESOURCE_GROUP_NAME=${3:-""}
+REGION_NAME=${4:-""}
 
 # azure resource identifiers
 SUBSCRIPTION_ID=""
