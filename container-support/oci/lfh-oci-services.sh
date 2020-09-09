@@ -116,7 +116,6 @@ function start() {
                 --env LFH_CONNECT_MESSAGING_URI="nats:lfh-events?servers=nats-server:4222" \
                 --env LFH_CONNECT_MESSAGING_SUBSCRIBE_HOSTS="nats-server:4222" \
                 --env LFH_CONNECT_ORTHANC_SERVER_URI="http://orthanc:{{lfh.connect.orthanc_server.port}}/instances" \
-                --env LFH_CONNECT_MESSAGING_SUBSCRIBE_HOSTS="nats-server:4222" \
                 --env LFH_CONNECT_DATASTORE_BROKERS="kafka:9092" \
                 "${LFH_CONNECT_IMAGE}"
 
