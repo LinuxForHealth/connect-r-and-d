@@ -2,8 +2,9 @@
 # lfh-oci-services.sh
 #
 # Usage:
-# ./lfh-oci-services.sh [start | remove]
-
+# ./lfh-oci-services.sh [start | remove] [oci_command]
+#
+# The oci_command defaults to "docker"
 
 set -o errexit
 set -o nounset
@@ -14,6 +15,8 @@ source ../compose/.env
 source .env
 
 SERVICE_OPERATION=$1
+# the container command used - docker, podman, etc
+OCI_COMMAND=${2:-"docker"}
 
 function is_ready {
   # returns 0 if the service is "ready" or 1 if the service is not ready after "${LFH_RETRY_ATTEMPTS}" are exhausted
