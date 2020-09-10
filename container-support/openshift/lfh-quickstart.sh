@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# (C) Copyright IBM Corp. 2020
+# SPDX-License-Identifier: Apache-2.0
+#
 # lfh-quickstart.sh
 # Provisions the LFH quick start stack into an existing OpenShift 4.x cluster.
 #
