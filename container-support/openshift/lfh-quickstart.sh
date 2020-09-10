@@ -46,6 +46,8 @@ function install() {
     --name="lfh-nats-server" \
     --generator='route/v1'
 
+  oc apply -f nats-server-ingress.yml --wait=true
+
   # Zookeeper - Kafka Metadata
   oc new-app "${LFH_ZOOKEEPER_IMAGE}" \
       --name="${LFH_ZOOKEEPER_SERVICE_NAME}" \
