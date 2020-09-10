@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# (C) Copyright IBM Corp. 2020
+# SPDX-License-Identifier: Apache-2.0
+#
 # start-stack.sh
 # Starts the LFH Docker Compose Stack for a specified profile. The profile determines which configurations are included
 # in the startup process.

@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# (C) Copyright IBM Corp. 2020
+# SPDX-License-Identifier: Apache-2.0
+#
 # aro-quickstart.sh
 # Install or removes Azure Red Hat OpenShift resources (OCP) within an existing Azure Subscription.
 #
