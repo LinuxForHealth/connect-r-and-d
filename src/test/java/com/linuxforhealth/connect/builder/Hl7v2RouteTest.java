@@ -33,7 +33,7 @@ public class Hl7v2RouteTest extends RouteTestSupport {
     }
 
     /**
-     * Overriden to register beans, apply advice, and register a mock endpoint
+     * Overridden to register beans, apply advice, and register a mock endpoint
      * @throws Exception if an error occurs applying advice
      */
     @BeforeEach

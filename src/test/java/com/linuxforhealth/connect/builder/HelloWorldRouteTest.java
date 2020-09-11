@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Properties;
 import java.util.UUID;
 
