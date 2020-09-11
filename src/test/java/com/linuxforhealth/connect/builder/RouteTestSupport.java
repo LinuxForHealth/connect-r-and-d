@@ -7,9 +7,7 @@ package com.linuxforhealth.connect.builder;
 
 import com.linuxforhealth.connect.support.TestUtils;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
-import org.apache.camel.model.DynamicRouterDefinition;
 import org.apache.camel.model.RouteDefinition;
-import org.apache.camel.model.ToDynamicDefinition;
 import org.apache.camel.model.language.ConstantExpression;
 import org.apache.camel.test.junit5.CamelTestSupport;
 import org.junit.jupiter.api.AfterEach;

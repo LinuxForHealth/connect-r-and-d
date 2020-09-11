@@ -9,10 +9,9 @@ import com.linuxforhealth.connect.support.LFHKafkaConsumer;
 import com.linuxforhealth.connect.support.TestUtils;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.RoutesBuilder;
-import org.apache.camel.component.kafka.KafkaConstants;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.kafka.common.TopicPartition;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -21,6 +20,7 @@ import java.util.Base64;
 /**
  * Tests {@link LinuxForHealthRouteBuilder#REMOTE_EVENTS_ROUTE_ID}
  */
+@Disabled
 public class LinuxForHealthRemoteEventsTest extends RouteTestSupport {
 
     private MockEndpoint mockRemoteEventsResult;
