@@ -16,15 +16,29 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Properties;
 
 /**
  * Tests {@link LinuxForHealthRouteBuilder#REMOTE_EVENTS_ROUTE_ID}
  */
-@Disabled
 public class LinuxForHealthRemoteEventsTest extends RouteTestSupport {
 
     private MockEndpoint mockRemoteEventsResult;
     private ProducerTemplate mockKafkaProducer;
+
+    /**
+     * Provides properties to support mocking data and messaging components.
+     * @return {@link Properties}
+     */
+    @Override
+    protected Properties useOverridePropertiesWithPropertiesComponent() {
+        Properties props = super.useOverridePropertiesWithPropertiesComponent();
+
+        props.setProperty("lfh.connect.test.uri", "direct:test-notify");
+        props.setProperty("lfh.connect.messaging.uri", "mock:messaging");
+        props.setProperty("lfh.connect.datastore.remote-events.consumer.uri", "direct:remote-events");
+        return props;
+    }
 
     @Override
     protected RoutesBuilder createRouteBuilder() throws Exception {
@@ -38,17 +52,16 @@ public class LinuxForHealthRemoteEventsTest extends RouteTestSupport {
     @BeforeEach
     @Override
     protected void configureContext() throws Exception {
-
         mockProducerEndpointById(LinuxForHealthRouteBuilder.REMOTE_EVENTS_ROUTE_ID,
                 LinuxForHealthRouteBuilder.REMOTE_EVENTS_PRODUCER_ID,
                 "mock:remote-events-result");
-                
+
         context.getRegistry().bind("LFHKafkaConsumer", new LFHKafkaConsumer());
         super.configureContext();
 
-        mockRemoteEventsResult = MockEndpoint.resolve(context, "mock:remote-events-result");
-        mockConsumer(LinuxForHealthRouteBuilder.REMOTE_EVENTS_ROUTE_ID, "direct:kafka-from");
+        mockConsumer(LinuxForHealthRouteBuilder.REMOTE_EVENTS_ROUTE_ID, "direct:remote-events");
         mockKafkaProducer = context.createProducerTemplate();
+        mockRemoteEventsResult = MockEndpoint.resolve(context, "mock:remote-events-result");
     }
 
     /**
@@ -65,7 +78,7 @@ public class LinuxForHealthRemoteEventsTest extends RouteTestSupport {
             .getTypeConverter()
             .convertTo(String.class, TestUtils.getMessage("lfh", "remote-events-producer-input.json"));
 
-        mockKafkaProducer.sendBody("direct:kafka-from", inputMsg);
+        mockKafkaProducer.sendBody("direct:remote-events", inputMsg);
 
         mockRemoteEventsResult.expectedMessageCount(1);
         mockRemoteEventsResult.expectedBodiesReceived(expectedMsg);
@@ -76,7 +89,6 @@ public class LinuxForHealthRemoteEventsTest extends RouteTestSupport {
         mockRemoteEventsResult.expectedPropertyReceived("dataFormat", "DICOM");
         mockRemoteEventsResult.expectedPropertyReceived("timestamp", 1598619641);
         mockRemoteEventsResult.expectedPropertyReceived("success", "success");
-        //mockRemoteEventsResult.assertIsSatisfied(); => fails
-        assertMockEndpointsSatisfied();
+        mockRemoteEventsResult.assertIsSatisfied();
     }
 }
