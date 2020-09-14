@@ -89,3 +89,12 @@ spec:
           image: 'docker.io/linuxforhealth/connect:1.0.0'
           ports:
             - containerPort: 8081
+          env:
+            - name: lfh_connect_fhir-r4_port
+              value: '8081'
+            - name: lfh_connect_bluebutton-20_port
+              value: '8081'
+            - name: lfh_connect_bluebutton-20_callback_port
+              value: '8081'
+            - name: lfh_connect_datastore_brokers
+              value: 'localhost:9092'
