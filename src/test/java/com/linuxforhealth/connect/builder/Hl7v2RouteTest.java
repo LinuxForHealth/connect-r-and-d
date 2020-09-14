@@ -61,7 +61,7 @@ public class Hl7v2RouteTest extends RouteTestSupport {
         String testMessage = context
                 .getTypeConverter()
                 .convertTo(String.class, TestUtils.getMessage("hl7", "ADT_A01.txt"))
-                .replace("\n", "\r");
+                .replace(System.lineSeparator(), "\r");
 
         String expectedMessage = Base64.getEncoder().encodeToString(testMessage.getBytes(StandardCharsets.UTF_8));
 
