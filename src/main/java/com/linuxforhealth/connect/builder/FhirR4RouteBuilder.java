@@ -68,7 +68,9 @@ public class FhirR4RouteBuilder extends BaseRouteBuilder {
         from(EXTERNAL_FHIR_ROUTE_URI)
         .routeId(EXTERNAL_FHIR_ROUTE_ID)
         .choice()
-			.when(simple("${properties:lfh.connect.fhir-r4.externalservers:doesnotexist} == 'doesnotexist' || ${properties:lfh.connect.fhir-r4.externalservers:doesnotexist} == ''"))
+			.when(simple("${properties:lfh.connect.fhir-r4.externalservers:doesnotexist} == 'doesnotexist'"))
+				.stop()
+            .when(simple("${properties:lfh.connect.fhir-r4.externalservers:doesnotexist} == ''"))
 				.stop()
         .end()
         .process(exchange -> {
