@@ -9,13 +9,10 @@ import com.linuxforhealth.connect.processor.MetaDataProcessor;
 import com.linuxforhealth.connect.support.CamelContextSupport;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.Base64;
 
 import org.apache.camel.AggregationStrategy;
-import org.apache.camel.CamelExecutionException;
 import org.apache.camel.Exchange;
-import org.apache.camel.LoggingLevel;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +82,7 @@ public class FhirR4RouteBuilder extends BaseRouteBuilder {
             
             // Form the URIs for this resource type from the baseURIs
             for (String uri : uris) {
-                if (!uri.substring(uri.length() - 1).equals("/")) uri += "/";
+                if (!uri.endsWith("/")) uri += "/";
                 uri += resource;
                 if (!headerStr.equals("")) headerStr += ",";
                 headerStr += uri;
