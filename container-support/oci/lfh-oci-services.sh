@@ -1,9 +1,14 @@
 #!/bin/bash
+#
+# (C) Copyright IBM Corp. 2020
+# SPDX-License-Identifier: Apache-2.0
+#
 # lfh-oci-services.sh
 #
 # Usage:
-# ./lfh-oci-services.sh [start | remove]
-
+# ./lfh-oci-services.sh [start | remove] [oci_command]
+#
+# The oci_command defaults to "docker"
 
 set -o errexit
 set -o nounset
@@ -14,6 +19,8 @@ source ../compose/.env
 source .env
 
 SERVICE_OPERATION=$1
+# the container command used - docker, podman, etc
+OCI_COMMAND=${2:-"docker"}
 
 function is_ready {
   # returns 0 if the service is "ready" or 1 if the service is not ready after "${LFH_RETRY_ATTEMPTS}" are exhausted
@@ -113,6 +120,7 @@ function start() {
                 --env LFH_CONNECT_MESSAGING_URI="nats:lfh-events?servers=nats-server:4222" \
                 --env LFH_CONNECT_MESSAGING_SUBSCRIBE_HOSTS="nats-server:4222" \
                 --env LFH_CONNECT_ORTHANC_SERVER_URI="http://orthanc:{{lfh.connect.orthanc_server.port}}/instances" \
+                --env LFH_CONNECT_DATASTORE_BROKERS="kafka:9092" \
                 "${LFH_CONNECT_IMAGE}"
 
   is_ready localhost "${LFH_CONNECT_MLLP_PORT}"

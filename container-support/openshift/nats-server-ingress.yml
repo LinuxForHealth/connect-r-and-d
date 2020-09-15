@@ -1,0 +1,12 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: nats-server-ingress
+spec:
+  selector:
+    app: nats-server
+  ports:
+    - protocol: TCP
+      port: 4222
+      nodePort: 32321
+  type: NodePort
