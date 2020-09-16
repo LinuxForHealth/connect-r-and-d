@@ -5,19 +5,19 @@
  */
 package com.linuxforhealth.connect.builder;
 
-import com.linuxforhealth.connect.support.TestUtils;
+import java.io.IOException;
+import java.util.Properties;
+
 import org.apache.camel.builder.AdviceWithRouteBuilder;
-import org.apache.camel.model.DynamicRouterDefinition;
+import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.RouteDefinition;
-import org.apache.camel.model.ToDynamicDefinition;
 import org.apache.camel.model.language.ConstantExpression;
 import org.apache.camel.test.junit5.CamelTestSupport;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 
-import java.io.IOException;
-import java.util.Properties;
+import com.linuxforhealth.connect.support.TestUtils;
 
 /**
  * Provides base configuration and convenience methods for Linux for Health Route Builder tests.
@@ -116,6 +116,31 @@ abstract class RouteTestSupport extends CamelTestSupport {
             }
         };
         context.adviceWith(routeDefinition, advice);
+    }
+    
+    /**
+     * Intercept an outgoing route and redirect it to a mock endpoint instead.
+     * 
+     * @param routeId the route definition id
+     * @param interceptEndpoint endpoint uri to intercept
+     * @param mockEndpoint desired endpoint uri the intercepted route should be redirected to
+     * @return MockEndpoint
+     * @throws Exception
+     */
+    protected MockEndpoint mockProducerEndpoint(String routeId, String interceptEndpoint, String mockEndpoint) throws Exception {
+    	
+    	RouteDefinition routeDef = context.getRouteDefinition(routeId);
+    	
+    	context.adviceWith(routeDef, new AdviceWithRouteBuilder() {
+			@Override
+			public void configure() throws Exception {
+				interceptSendToEndpoint(interceptEndpoint)
+				.skipSendToOriginalEndpoint()
+				.to(mockEndpoint)
+				;
+			}
+		});
+    	return MockEndpoint.resolve(context, mockEndpoint);
     }
 
    /**

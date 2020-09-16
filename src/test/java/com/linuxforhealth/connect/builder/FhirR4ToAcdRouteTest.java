@@ -2,9 +2,7 @@ package com.linuxforhealth.connect.builder;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.RoutesBuilder;
-import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.model.RouteDefinition;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,25 +28,10 @@ public class FhirR4ToAcdRouteTest extends RouteTestSupport {
     @BeforeEach
     @Override
     protected void configureContext() throws Exception {
-        
-        RouteDefinition routeDef = context.getRouteDefinition(FhirR4ToAcdRouteBuilder.FHIR_R4_TO_ACD_ROUTE_ID);
-        
-        context.adviceWith(routeDef, new AdviceWithRouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				
-				// Intercept acd-analyze request sent from within
-				// a process operation (outside route definition).
-				interceptSendToEndpoint("direct:acd-analyze")
-				.skipSendToOriginalEndpoint()
-				.to("mock:result")
-				;
-			}
-		});
-
-        super.configureContext();
-
-        mockResult = MockEndpoint.resolve(context, "mock:result");
+    	
+    	// Redirect message route from "direct:acd-analyze" to "mock:result"
+    	mockResult = mockProducerEndpoint(FhirR4ToAcdRouteBuilder.FHIR_R4_TO_ACD_ROUTE_ID, "direct:acd-analyze", "mock:result");
+    	
     }
     
     @Test
