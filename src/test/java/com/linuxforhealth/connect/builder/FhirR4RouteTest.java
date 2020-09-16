@@ -31,7 +31,7 @@ public class FhirR4RouteTest extends RouteTestSupport {
     }
 
     /**
-     * Overriden to register beans, apply advice, and register a mock endpoint
+     * Overridden to register beans, apply advice, and register a mock endpoint
      * @throws Exception if an error occurs applying advice
      */
     @BeforeEach
@@ -53,7 +53,7 @@ public class FhirR4RouteTest extends RouteTestSupport {
         String testMessage = context
                 .getTypeConverter()
                 .convertTo(String.class, TestUtils.getMessage("fhir", "fhir-r4-patient-bundle.json"))
-                .replace("\n", "");
+                .replace(System.lineSeparator(), "");
 
         String expectedMessage = Base64.getEncoder().encodeToString(testMessage.getBytes(StandardCharsets.UTF_8));
 
