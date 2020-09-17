@@ -5,10 +5,8 @@
  */
 package com.linuxforhealth.connect.builder;
 
-import org.apache.camel.ProducerTemplate;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.impl.engine.DefaultProducerTemplate;
 import org.apache.camel.test.junit5.CamelTestSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

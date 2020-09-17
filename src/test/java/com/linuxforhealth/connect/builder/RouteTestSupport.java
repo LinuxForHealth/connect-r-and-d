@@ -7,7 +7,6 @@ package com.linuxforhealth.connect.builder;
 
 import java.io.IOException;
 import java.util.Properties;
-
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.RouteDefinition;
