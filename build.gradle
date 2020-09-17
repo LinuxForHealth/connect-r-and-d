@@ -113,3 +113,9 @@ processResources {
         expand(project.properties)
     }
 }
+
+test {
+    testLogging {
+        events "failed"
+    }
+}
