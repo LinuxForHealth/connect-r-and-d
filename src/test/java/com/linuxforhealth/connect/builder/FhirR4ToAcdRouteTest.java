@@ -31,7 +31,7 @@ public class FhirR4ToAcdRouteTest extends RouteTestSupport {
     	
     	// Redirect message route from "direct:acd-analyze" to "mock:result"
     	mockResult = mockProducerEndpoint(FhirR4ToAcdRouteBuilder.FHIR_R4_TO_ACD_ROUTE_ID, "direct:acd-analyze", "mock:result");
-    	
+    	super.configureContext();
     }
     
     @Test
