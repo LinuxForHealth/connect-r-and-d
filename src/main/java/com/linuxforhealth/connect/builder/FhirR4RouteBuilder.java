@@ -12,7 +12,6 @@ import com.linuxforhealth.connect.support.ExternalServerAggregationStrategy;
 import java.net.URI;
 import java.util.Base64;
 
-import org.apache.camel.AggregationStrategy;
 import org.apache.camel.Exchange;
 import org.json.JSONObject;
 import org.slf4j.Logger;
