@@ -116,18 +116,60 @@ abstract class RouteTestSupport extends CamelTestSupport {
         context.adviceWith(routeDefinition, advice);
     }
 
+    /**
+      * Intercepts a producer endpoint using {@link AdviceWithRouteBuilder} to return a sample, or "mock" response.
+      * The sample of mock response is loaded from the file system using {@link TestUtils#getMessage(String, String)}
+      * Producer endpoints are matched using a String expression "expr".
+      *
+      * @param routeId The route id where the producer is located.
+      * @param expr The "ToString" expression to match. Example: "recipientList*"
+      * @param messageDirectory The directory in the test source tree where the message is located.
+      * @param messageName The message file name
+      */
+    protected void setProducerResponseByToString(String routeId,
+                                                 String expr,
+                                                 String messageDirectory,
+                                                 String messageName) throws Exception {
+        String mockedResponse = context
+                .getTypeConverter()
+                .convertTo(String.class, TestUtils.getMessage(messageDirectory, messageName));
+        
+        RouteDefinition routeDefinition = context.getRouteDefinition(routeId);
+        AdviceWithRouteBuilder advice = new AdviceWithRouteBuilder() {
+            @Override
+            public void configure() {
+                weaveByToString(expr).replace().setBody(new ConstantExpression(mockedResponse));
+            }
+        };
+        context.adviceWith(routeDefinition, advice);
+    }
+
    /**
      * Replaces a consumer with a mock consumer for a route.
      *
      * @param routeId The route id where the producer is located.
-     * @param mockRoute The mocked direct route.  Example: "direct:kafka-from"
+     * @param mockUri The mock uri which replaces the consumer uri.  Example: "direct:kafka-from"
      */
-    protected void mockConsumer(String routeId, String mockRoute) throws Exception {
+    protected void mockConsumer(String routeId, String mockUri) throws Exception {
         // Swap the FROM component in the route with a direct component
         AdviceWithRouteBuilder.adviceWith(context, 
             routeId, 
             routeBuilder -> {
-                routeBuilder.replaceFromWith(mockRoute);
+                routeBuilder.replaceFromWith(mockUri);
+        });
+    }
+
+   /**
+     * Adds a final To endpoint to a route.
+     *
+     * @param routeId The route id where the producer is located.
+     * @param mockUri The mock uri which replaces the consumer uri.  Example: "direct:kafka-from"
+     */
+    protected void addLast(String routeId, String mockUri) throws Exception {
+        AdviceWithRouteBuilder.adviceWith(context,
+            routeId,
+            routeBuilder -> {
+                routeBuilder.weaveAddLast().to(mockUri);
         });
     }
 

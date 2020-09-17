@@ -7,6 +7,7 @@ package com.linuxforhealth.connect.builder;
 
 import com.linuxforhealth.connect.processor.MetaDataProcessor;
 import com.linuxforhealth.connect.support.CamelContextSupport;
+import com.linuxforhealth.connect.support.ExternalServerAggregationStrategy;
 
 import java.net.URI;
 import java.util.Base64;
@@ -56,11 +57,11 @@ public class FhirR4RouteBuilder extends BaseRouteBuilder {
                 .to(EXTERNAL_FHIR_ROUTE_URI);
 
         /*
-         * Use the recipientList eip to optionally send data to one or more external fhir servers when 
-         * sending FHIR resources to Linux for Health. 
+         * Use the Camel Recipient List EIP to optionally send data to one or more external fhir servers
+         * when sending FHIR resources to Linux for Health. 
          
          * Set the lfh.connect.fhir-r4.externalservers property to a comma-delimited list of servers to 
-         * configure this feature.  Example:
+         * enable this feature.  Example:
          * lfh.connect.fhir-r4.externalservers=http://localhost:9081/fhir-server/api/v4,http://localhost:9083/fhir-server/api/v4
          *
          * If lfh.connect.fhir-r4.externalservers does not exist or is not defined, no exception will be logged.
@@ -70,7 +71,7 @@ public class FhirR4RouteBuilder extends BaseRouteBuilder {
         .choice()
 			.when(simple("${properties:lfh.connect.fhir-r4.externalservers:doesnotexist} == 'doesnotexist'"))
 				.stop()
-            .when(simple("${properties:lfh.connect.fhir-r4.externalservers:doesnotexist} == ''"))
+            .when(simple("${properties:lfh.connect.fhir-r4.externalservers} == ''"))
 				.stop()
         .end()
         .process(exchange -> {
@@ -104,46 +105,7 @@ public class FhirR4RouteBuilder extends BaseRouteBuilder {
         })
         .recipientList(header("recipientList"))
         .ignoreInvalidEndpoints()
-        .aggregationStrategy(new AggregationStrategy() {
-            public Exchange aggregate(Exchange oldExchange, Exchange newExchange) {
-                if (oldExchange == null) {
-                    // Get the original result - the data store location
-                    String result = newExchange.getProperty("result", String.class);
-                    JSONObject resultObj = new JSONObject(result);
-
-                    // Add the location header to the new result
-                    JSONObject msg = addHeaderToResult(newExchange);
-
-                    // Create JSONObject[] and add new result to it
-                    JSONObject[] resultArray = new JSONObject[1];
-                    resultArray[0] = msg;
-
-                    // Place both results in a new JSON object & set that as the result
-                    JSONObject metaResult = new JSONObject();
-                    metaResult.put("DataStoreResult", resultObj);
-                    metaResult.put("ExternalServerResult", resultArray);
-                    newExchange.getIn().setBody(metaResult.toString());
-                    return newExchange;
-                }
-
-                // Get the new result and add the location header
-                JSONObject msg = addHeaderToResult(newExchange);
-
-                // Get the meta result from the old exchange, add new result and set as body
-                JSONObject metaResult = new JSONObject(oldExchange.getIn().getBody(String.class));
-                JSONObject newMeta = metaResult.append("ExternalServerResult", msg);
-                oldExchange.getIn().setBody(newMeta.toString());
-                return oldExchange;
-            }
-        })
+        .aggregationStrategy(new ExternalServerAggregationStrategy())
         .id(EXTERNAL_FHIR_PRODUCER_ID);
-    }
-
-    private JSONObject addHeaderToResult(Exchange exchange) {
-        JSONObject msg = new JSONObject();
-        JSONObject result = new JSONObject(exchange.getIn().getBody(String.class));
-        msg.put("Location", exchange.getIn().getHeader("Location", String.class));
-        msg.put("Result", result);
-        return msg;
     }
 }
