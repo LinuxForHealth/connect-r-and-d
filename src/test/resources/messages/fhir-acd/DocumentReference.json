@@ -1,0 +1,27 @@
+{
+  "resourceType": "DocumentReference",
+  "status": "current",
+  "type": {
+    "coding": [
+      {
+        "system": "http://loinc.org",
+        "code": "18842-5",
+        "display": "Discharge summary"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/001"
+  },
+  "content": [
+    {
+      "attachment": {
+        "contentType": "text/plain",
+        "language": "en-US",
+        "data": "VGhlIHBhdGllbnQgd2FzIHByZXNjcmliZWQgY2lzcGxhdGluIGZvciBsdW5nIGNhbmNlciB0cmVhdG1lbnQuCg==",
+        "title": "discharge.txt",
+        "creation": "2020-05-04T09:35:00+11:00"
+      }
+    }
+  ]
+}
