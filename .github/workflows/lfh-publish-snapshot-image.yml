@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 name: Linux for Health Publish Snapshot Image
-description: Publishes a snapshot image to linuxforhealth/connect when a commit is pushed to the Linux for Health master branch.
+# Publishes a snapshot image to linuxforhealth/connect when a commit is pushed to the
+# Linux for Health master branch.
 
 on:
   push:

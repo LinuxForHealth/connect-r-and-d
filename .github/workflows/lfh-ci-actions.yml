@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 name: Linux for Health Continuous Integration
-description: Runs CI tests with a PR is submitted against the Linux For Health master branch.
+# Runs CI tests with a PR is submitted against the Linux For Health master branch.
 
 on:
   pull_request:
