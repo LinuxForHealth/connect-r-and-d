@@ -1,0 +1,15 @@
+{
+    "issue": [
+        {
+            "severity": "information",
+            "code": "informational",
+            "expression": [
+                "<no expression>"
+            ],
+            "details": {
+                "text": "The create request resource included id: '001'; this id has been replaced"
+            }
+        }
+    ],
+    "resourceType": "OperationOutcome"
+}
