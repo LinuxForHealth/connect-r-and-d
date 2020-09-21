@@ -1,9 +1,10 @@
 # (C) Copyright IBM Corp. 2020
 # SPDX-License-Identifier: Apache-2.0
 
-name: Linux for Health Publish Snapshot Image
-# Publishes a snapshot image to linuxforhealth/connect when a commit is pushed to the
-# Linux for Health master branch.
+name: Linux for Health Publish Image
+# Publishes linuxforhealth/connect snapshot and release images.
+# Snapshot images are pushed when commits are made against master.
+# Release images are pushed with a GitHub release tag is created an published.
 
 on:
   push:
@@ -49,7 +50,7 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
       - name: Build And Push Snapshot Image
         if:  ${{ env.GITHUB_EVENT_NAME == 'push' }}
-        id: docker_build
+        id: docker_build_snapshot
         uses: docker/build-push-action@v2
         with:
           context: .
@@ -59,7 +60,7 @@ jobs:
           tags: linuxforhealth/connect:snapshot
       - name: Build And Push Image Tag
         if:  ${{ env.GITHUB_EVENT_NAME == 'published' }}
-        id: docker_build
+        id: docker_build_release
         uses: docker/build-push-action@v2
         with:
           context: .
