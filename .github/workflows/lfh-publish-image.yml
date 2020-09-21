@@ -55,10 +55,10 @@ jobs:
     name: Generates Image Tags Based on the GitHub Action Event
     needs: [setup_docker_build]
     runs-on: ubuntu-latest
-    env:
-      IMAGE_REPO_NAME: "linuxforhealth/connect"
-      GITHUB_EVENT_NAME: ${{ env.GITHUB_EVENT_NAME }}
-      GITHUB_REF: ${{ env.GITHUB_REF }}
     steps:
       - name: Generate Image Tags
         run: ./github/workflows/generate-image-tag.sh
+        env:
+          IMAGE_REPO_NAME: "linuxforhealth/connect"
+          GITHUB_EVENT_NAME: ${{ env.GITHUB_EVENT_NAME }}
+          GITHUB_REF: ${{ env.GITHUB_REF }}
