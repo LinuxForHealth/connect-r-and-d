@@ -19,7 +19,7 @@ jobs:
       - name: Checkout LFH Project
         uses: actions/checkout@v2
       - name: Generate Image Tags
-        run: ./github/workflows/generate-image-tag.sh
+        run: .github/workflows/generate-image-tag.sh
         env:
           IMAGE_REPO_NAME: "linuxforhealth/connect"
           GITHUB_EVENT_NAME: ${{ env.GITHUB_EVENT_NAME }}
