@@ -5,7 +5,7 @@
  */
 package com.linuxforhealth.connect;
 
-import com.linuxforhealth.connect.support.NATSSubscriberManager;
+import com.linuxforhealth.connect.support.LFHServiceManager;
 import org.apache.camel.component.jasypt.JasyptPropertiesParser;
 import org.apache.camel.component.properties.PropertiesComponent;
 import org.apache.camel.main.Main;
@@ -202,15 +202,16 @@ public final class App {
             Properties appProperties = loadProperties();
             logger.info("configuring camel context");
             configure(appProperties);
+            logger.info("starting LFH services");
+            LFHServiceManager.startServices(appProperties, camelMain);
             logger.info("starting camel context");
             camelMain.start();
-            logger.info("starting NATS subscribers");
-            NATSSubscriberManager.startSubscribers(appProperties);
-
         } catch (Exception ex) {
             logger.error("an error occurred starting linux for health connect", ex);
 
             if (camelMain.isStarted()) {
+                logger.error("shutting down LFH services");
+                LFHServiceManager.stopServices();
                 logger.error("shutting down camel context");
                 camelMain.shutdown();
             }

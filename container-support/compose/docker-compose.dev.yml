@@ -19,3 +19,12 @@ services:
   orthanc:
     ports:
       - ${LFH_ORTHANC_HTTP_PORT}:${LFH_ORTHANC_HTTP_PORT}
+  postgres:
+    image: ${LFH_PG_IMAGE}
+    restart: "always"
+    expose:
+      - ${LFH_PG_SERVER_PORT}
+    ports:
+      - ${LFH_PG_SERVER_PORT}:${LFH_PG_SERVER_PORT}
+    environment:
+      PGDATA: ${LFH_PG_DATA}

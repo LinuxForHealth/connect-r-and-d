@@ -23,8 +23,7 @@ public class LFHKafkaProducer {
     private final Logger logger = LoggerFactory.getLogger(LFHKafkaProducer.class);
     private KafkaProducer producer = null;
 
-    public void LFHKafkaProducer() {
-    }
+    public void LFHKafkaProducer() { }
 
     /**
      * Start the KafkaProducer
