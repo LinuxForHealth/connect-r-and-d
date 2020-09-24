@@ -26,5 +26,20 @@ services:
       - ${LFH_PG_SERVER_PORT}
     ports:
       - ${LFH_PG_SERVER_PORT}:${LFH_PG_SERVER_PORT}
+  kong:
+    image: ${LFH_KONG_IMAGE}
+    restart: always
+    depends_on:
+      - postgres
+    ports:
+      - ${LFH_KONG_PORT}:${LFH_KONG_PORT}
+      - ${LFH_KONG_SSL_PORT}:${LFH_KONG_SSL_PORT}
+      - ${LFH_KONG_ADMIN_PORT}:${LFH_KONG_ADMIN_PORT}
+      - ${LFH_KONG_ADMIN_SSL_PORT}:${LFH_KONG_ADMIN_SSL_PORT}
     environment:
-      PGDATA: ${LFH_PG_DATA}
+      KONG_DATABASE: ${LFH_KONG_DATABASE_TYPE}
+      KONG_PG_HOST: postgres
+      KONG_PG_USER: ${LFH_PG_USER}
+      KONG_ADMIN_LISTEN: ${LFH_KONG_ADMIN_LISTEN}
+volumes:
+  pg_data: {}

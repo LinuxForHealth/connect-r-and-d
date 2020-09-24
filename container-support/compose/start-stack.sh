@@ -30,6 +30,8 @@ echo "LFH compose profile is set to ${LFH_COMPOSE_PROFILE}"
 case "${LFH_COMPOSE_PROFILE}" in
   dev)
   echo "starting LFH compose development profile"
+  export COMPOSE_FILE=docker-compose.yml:docker-compose.dev.yml:docker-compose.kong-migration.yml
+  . ./run-kong-migration.sh
   export COMPOSE_FILE=docker-compose.yml:docker-compose.dev.yml
   ;;
   server)
@@ -49,7 +51,7 @@ esac
 if [ -n "${COMPOSE_FILE}" ]; then
   echo "Parsing compose files for ${LFH_COMPOSE_PROFILE} profile."
   echo "COMPOSE_FILE=${COMPOSE_FILE}"
-  docker-compose up -d
+  docker-compose up -d --remove-orphans
   docker-compose ps
 fi
 echo "==============================================="

@@ -1,0 +1,12 @@
+version: "3.7"
+
+services:
+  kong-migration:
+    image: ${LFH_KONG_IMAGE}
+    depends_on:
+      - postgres
+    environment:
+      KONG_DATABASE: ${LFH_KONG_DATABASE_TYPE}
+      KONG_PG_HOST: postgres
+      KONG_PG_USER: ${LFH_PG_USER}
+    command: kong migrations bootstrap -v
