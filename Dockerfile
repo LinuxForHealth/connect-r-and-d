@@ -27,8 +27,8 @@ LABEL description="Provides Route Based Processing for Inbound Data Flows"
 RUN mkdir -p /opt/lfh/libs
 COPY --from=builder /tmp/lfh /opt/lfh/
 
-# expose MLLP, REST
-EXPOSE 2575 8080 9090
+# expose MLLP, HTTP
+EXPOSE 2575 8080
 
 WORKDIR ${APP_ROOT}
 USER lfh

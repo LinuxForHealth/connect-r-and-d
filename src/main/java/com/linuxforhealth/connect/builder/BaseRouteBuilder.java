@@ -63,6 +63,12 @@ public abstract class BaseRouteBuilder extends RouteBuilder {
     public final void configure() {
         configureErrorHandling();
         validateRequiredProperties();
+
+        restConfiguration()
+                .component("jetty")
+                .host("{{lfh.connect.host}}")
+                .port("{{lfh.connect.http.port}}");
+
         buildRoute(getRoutePropertyNamespace());
     }
 }

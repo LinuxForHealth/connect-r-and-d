@@ -61,7 +61,7 @@ public class BlueButton20AuthTest extends RouteTestSupport {
 
         mockResult.expectedPropertyReceived("location", expectedLocation);
 
-        fluentTemplate.to("{{lfh.connect.bluebutton-20.authorizeuri}}")
+        fluentTemplate.to("https://sandbox.bluebutton.cms.gov/v1/o/authorize/")
                 .send();
 
         mockResult.assertIsSatisfied();

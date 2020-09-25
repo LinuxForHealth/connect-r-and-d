@@ -66,7 +66,7 @@ public class BlueButton20CallbackTest extends RouteTestSupport {
         mockResult.expectedHeaderReceived("Content-Type", "application/x-www-form-urlencoded");
         mockResult.expectedHeaderReceived("Content-Length", expectedBody.length());
 
-        fluentTemplate.to("{{lfh.connect.bluebutton-20.handleruri}}")
+        fluentTemplate.to("http://localhost:8080/bluebutton/handler")
                 .withHeader("code", "auth-code")
                 .send();
 

@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "5d0a6a53-9e0e-4fc2-a889-5974f3927b57",
+		"_postman_id": "77f5774b-2f57-4f00-9d36-44b3b102ccab",
 		"name": "Linux for Health Examples",
 		"description": "Sample workflow for Creating and Updating Patient Resources\n\n- Search for an existing patient resource using either a GET or POST request.\n- Create a patient resource using POST.\n- Add an email address to the patient record using UPDATE.\n- Add an emergency contact to the patient resource using PATCH (json patch not FHIR patch)\n- Execute a search to view the current state of the patient resource.\n- View resource history using either /_history for all versions or /_history/<version number> for a specific version\n\nThe delete endpoint was used to \"cleanup\" records as this sample was being built.\n",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -20,7 +20,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://127.0.0.1:9090/hello-world?name=me",
+					"raw": "http://127.0.0.1:8080/hello-world?name=me",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -28,7 +28,7 @@
 						"0",
 						"1"
 					],
-					"port": "9090",
+					"port": "8080",
 					"path": [
 						"hello-world"
 					],
@@ -121,7 +121,7 @@
 			]
 		},
 		{
-			"name": "FHIR-R4 - Create patient resource Copy",
+			"name": "FHIR-R4 - Create patient resource",
 			"protocolProfileBehavior": {
 				"disabledSystemHeaders": {
 					"accept": true,
@@ -781,7 +781,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:9090/orthanc/instances",
+					"raw": "http://127.0.0.1:8080/orthanc/instances",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -789,7 +789,7 @@
 						"0",
 						"1"
 					],
-					"port": "9090",
+					"port": "8080",
 					"path": [
 						"orthanc",
 						"instances"
@@ -905,7 +905,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://127.0.0.1:9090/datastore/message?topic=FHIR-R4_PATIENT&partition=0&offset=0",
+					"raw": "http://127.0.0.1:8080/datastore/message?topic=FHIR-R4_PATIENT&partition=0&offset=0",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -913,7 +913,7 @@
 						"0",
 						"1"
 					],
-					"port": "9090",
+					"port": "8080",
 					"path": [
 						"datastore",
 						"message"
@@ -1029,7 +1029,7 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "55d0c2c4-1cda-4210-b558-db7dc83a3ea8",
+				"id": "da0fc9b6-b4d7-49fa-be3f-8d931f3b8465",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -1039,7 +1039,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "ec9d8c25-0ce9-4cb2-bf83-a0309b728112",
+				"id": "2d09542a-8e97-47d1-ae8b-69700b1938a4",
 				"type": "text/javascript",
 				"exec": [
 					""
