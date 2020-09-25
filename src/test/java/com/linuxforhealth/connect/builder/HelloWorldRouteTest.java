@@ -26,7 +26,7 @@ public class HelloWorldRouteTest extends RouteTestSupport {
     @Override
     protected Properties useOverridePropertiesWithPropertiesComponent() {
         Properties props = super.useOverridePropertiesWithPropertiesComponent();
-        props.setProperty("lfh.connect.example.uri", "direct:http://0.0.0.0:9090/hello-world");
+        props.setProperty("lfh.connect.example.uri", "direct:http://0.0.0.0:8080/hello-world");
         return props;
     }
 
@@ -60,7 +60,7 @@ public class HelloWorldRouteTest extends RouteTestSupport {
         mockResult.expectedPropertyReceived("messageType", "TEXT");
         mockResult.expectedPropertyReceived("routeId", "hello-world");
 
-        fluentTemplate.to("{{lfh.connect.example.uri}}")
+        fluentTemplate.to("direct:http://0.0.0.0:8080/hello-world")
                 .withHeader("name", "me")
                 .request();
 
@@ -68,7 +68,7 @@ public class HelloWorldRouteTest extends RouteTestSupport {
 
         Exchange mockExchange = mockResult.getExchanges().get(0);
 
-        String expectedRouteUri = "direct://http://0.0.0.0:9090/hello-world";
+        String expectedRouteUri = "direct://http://0.0.0.0:8080/hello-world";
         String actualRouteUri = mockExchange.getProperty("routeUri", String.class);
         LinuxForHealthAssertions.assertEndpointUriSame(expectedRouteUri, actualRouteUri);
 
