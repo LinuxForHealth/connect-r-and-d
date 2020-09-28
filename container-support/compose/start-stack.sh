@@ -31,7 +31,7 @@ case "${LFH_COMPOSE_PROFILE}" in
   dev)
   echo "starting LFH compose development profile"
   export COMPOSE_FILE=docker-compose.yml:docker-compose.dev.yml:docker-compose.kong-migration.yml
-  . ./run-kong-migration.sh
+  . ./configure-kong.sh
   export COMPOSE_FILE=docker-compose.yml:docker-compose.dev.yml
   ;;
   server)
