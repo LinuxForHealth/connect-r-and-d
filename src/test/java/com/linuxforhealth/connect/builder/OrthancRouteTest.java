@@ -92,7 +92,7 @@ public class OrthancRouteTest extends RouteTestSupport {
 
         File inputFile = TestUtils.getMessage("orthanc", "image-00020.dcm");
         byte[] inputMessage = Files.readAllBytes(Paths.get(inputFile.toURI()));
-        fluentTemplate.to("{{lfh.connect.orthanc.uri}}")
+        fluentTemplate.to("direct:http://0.0.0.0:9090/orthanc/instances")
                 .withBody(inputMessage)
                 .request();
 

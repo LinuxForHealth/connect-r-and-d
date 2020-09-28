@@ -64,7 +64,7 @@ public class FhirR4RouteTest extends RouteTestSupport {
         mockResult.expectedPropertyReceived("messageType", "PATIENT");
         mockResult.expectedPropertyReceived("routeId", "fhir-r4");
 
-        fluentTemplate.to("{{lfh.connect.fhir-r4.uri}}/Patient")
+        fluentTemplate.to("http://0.0.0.0:8080/fhir/r4/Patient")
                 .withBody(testMessage)
                 .send();
 

@@ -114,17 +114,15 @@ function start() {
                 --network "${LFH_NETWORK_NAME}" \
                 --name "${LFH_CONNECT_SERVICE_NAME}" \
                 -p "${LFH_CONNECT_MLLP_PORT}":"${LFH_CONNECT_MLLP_PORT}" \
-                -p "${LFH_CONNECT_REST_PORT}":"${LFH_CONNECT_REST_PORT}" \
                 -p "${LFH_CONNECT_HTTP_PORT}":"${LFH_CONNECT_HTTP_PORT}" \
-                --env LFH_CONNECT_DATASTORE_URI="{{lfh.connect.datastore.host}}:<topicName>?brokers=kafka:9092" \
+                --env LFH_CONNECT_DATASTORE_URI="kafka:<topicName>?brokers=kafka:9092" \
                 --env LFH_CONNECT_MESSAGING_URI="nats:lfh-events?servers=nats-server:4222" \
                 --env LFH_CONNECT_MESSAGING_SUBSCRIBE_HOSTS="nats-server:4222" \
-                --env LFH_CONNECT_ORTHANC_SERVER_URI="http://orthanc:{{lfh.connect.orthanc_server.port}}/instances" \
+                --env LFH_CONNECT_ORTHANC_SERVER_URI="http://orthanc:8042/instances" \
                 --env LFH_CONNECT_DATASTORE_BROKERS="kafka:9092" \
                 "${LFH_CONNECT_IMAGE}"
 
   is_ready localhost "${LFH_CONNECT_MLLP_PORT}"
-  is_ready localhost "${LFH_CONNECT_REST_PORT}"
   is_ready localhost "${LFH_CONNECT_HTTP_PORT}"
 }
 

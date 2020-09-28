@@ -104,13 +104,7 @@ function install() {
   oc rollout status deployment/"${LFH_CONNECT_SERVICE_NAME}" -w
 
   oc expose service "${LFH_CONNECT_SERVICE_NAME}" \
-    --name="lfh-rest-server" \
-    --port="${LFH_CONNECT_REST_PORT}" \
-    --labels='app='"${LFH_CONNECT_SERVICE_NAME}" \
-    --generator='route/v1'
-
-  oc expose service "${LFH_CONNECT_SERVICE_NAME}" \
-    --name="lfh-imaging-server" \
+    --name="lfh-http-server" \
     --port="${LFH_CONNECT_HTTP_PORT}" \
     --labels='app='"${LFH_CONNECT_SERVICE_NAME}" \
     --generator='route/v1'

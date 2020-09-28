@@ -75,7 +75,7 @@ public class Hl7v2RouteTest extends RouteTestSupport {
         mockResult.expectedPropertyReceived("messageType", "ADT");
         mockResult.expectedPropertyReceived("routeId", "hl7-v2");
 
-        fluentTemplate.to("{{lfh.connect.hl7-v2.uri}}")
+        fluentTemplate.to("netty:tcp://localhost:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder")
                 .withBody(testMessage)
                 .send();
 

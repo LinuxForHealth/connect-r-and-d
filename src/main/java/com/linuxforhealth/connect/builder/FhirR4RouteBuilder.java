@@ -37,23 +37,18 @@ public class FhirR4RouteBuilder extends BaseRouteBuilder {
 
     @Override
     protected void buildRoute(String routePropertyNamespace) {
-        CamelContextSupport contextSupport = new CamelContextSupport(getContext());
-        URI fhirBaseUri = URI.create(contextSupport.getProperty("lfh.connect.fhir-r4.uri"));
-
-        restConfiguration()
-                .host(fhirBaseUri.getHost())
-                .port(fhirBaseUri.getPort());
-
-        rest(fhirBaseUri.getPath())
-                .post("/{resource}")
-                .route()
-                .routeId(ROUTE_ID)
-                .unmarshal().fhirJson("R4")
-                .marshal().fhirJson("R4")
-                .process(new MetaDataProcessor(routePropertyNamespace))
-                .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
-                .id(ROUTE_PRODUCER_ID)
-                .to(EXTERNAL_FHIR_ROUTE_URI);
+        CamelContextSupport ctxSupport = new CamelContextSupport(getContext());
+        String fhirUri = ctxSupport.getProperty("lfh.connect.fhir-r4.uri");
+        rest(fhirUri)
+            .post("/{resource}")
+            .route()
+            .routeId(ROUTE_ID)
+            .unmarshal().fhirJson("R4")
+            .marshal().fhirJson("R4")
+            .process(new MetaDataProcessor(routePropertyNamespace))
+            .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
+            .id(ROUTE_PRODUCER_ID)
+            .to(EXTERNAL_FHIR_ROUTE_URI);
 
         /*
          * Use the Camel Recipient List EIP to optionally send data to one or more external fhir servers
