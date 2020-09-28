@@ -3,7 +3,7 @@
 # (C) Copyright IBM Corp. 2020
 # SPDX-License-Identifier: Apache-2.0
 #
-# run-kong-migration.sh
+# configure-kong.sh
 # Configures the postgres database for Kong.
 # Must be run at least once in the database lifecycle, but subsequent runs are not harmful.
 
@@ -14,6 +14,8 @@ MAX_CHECKS=10
 DB_SERVICE="postgres"
 DB_CONFIG_SERVICE="kong-migration"
 DB_CONFIG_SERVICE_MESSAGE="Database is up-to-date"
+KONG_SERVICE="kong"
+KONG_SERVICE_MESSAGE="finished preloading 'plugins' into the core_cache"
 
 function is_ready() {
     local service_name=$1
@@ -92,7 +94,35 @@ create_kong_database
 wait_for_kong_database
 
 # start kong migration and wait for ephemeral container to complete
-docker-compose up "$DB_CONFIG_SERVICE"
+docker-compose up -d "$DB_CONFIG_SERVICE"
 is_ready "$DB_CONFIG_SERVICE" "$DB_CONFIG_SERVICE_MESSAGE"
 
-echo "Database configuration complete"
+# start kong and wait for kong to come up
+docker-compose up -d "$KONG_SERVICE"
+is_ready "$KONG_SERVICE" "$KONG_SERVICE_MESSAGE"
+
+# Add a kong service for all linux for health http routes
+curl http://localhost:8001/services \
+  -H 'Content-Type: application/json' \
+  -d '{"name": "lfh-http-service", "url": "http://host.docker.internal:8080"}'
+echo ""
+
+# Add a kong route that matches incoming requests and sends them to the url above
+curl http://localhost:8001/services/lfh-http-service/routes \
+  -H 'Content-Type: application/json' \
+  -d '{"hosts": ["host.docker.internal","127.0.0.1","localhost"]}'
+echo ""
+
+# Add a kong service for all linux for health hl7v2 mllp route
+curl http://localhost:8001/services \
+  -H 'Content-Type: application/json' \
+  -d '{"name": "lfh-hl7v2-service", "url": "tcp://host.docker.internal:2576"}'
+echo ""
+
+# Add a kong route that matches incoming requests and sends them to the url above
+curl http://localhost:8001/services/lfh-hl7v2-service/routes \
+  -H 'Content-Type: application/json' \
+  -d '{"protocols": ["tcp", "tls"], "destinations": [{"port":2575}]}'
+echo ""
+
+echo "Kong configuration complete"
