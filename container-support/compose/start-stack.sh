@@ -20,6 +20,8 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+export LFH_KONG_LFHHOST="compose_lfh_1"
+
 LFH_COMPOSE_PROFILE=${1:-dev}
 echo "${LFH_COMPOSE_PROFILE}"
 
@@ -31,6 +33,7 @@ case "${LFH_COMPOSE_PROFILE}" in
   dev)
   echo "starting LFH compose development profile"
   export COMPOSE_FILE=docker-compose.yml:docker-compose.dev.yml:docker-compose.kong-migration.yml
+  export LFH_KONG_LFHHOST="host.docker.internal"
   . ./configure-kong.sh
   export COMPOSE_FILE=docker-compose.yml:docker-compose.dev.yml
   ;;

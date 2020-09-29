@@ -101,28 +101,34 @@ is_ready "$DB_CONFIG_SERVICE" "$DB_CONFIG_SERVICE_MESSAGE"
 docker-compose up -d "$KONG_SERVICE"
 is_ready "$KONG_SERVICE" "$KONG_SERVICE_MESSAGE"
 
+# host is how kong needs to reference LFH, depending on where LFH is running
+host=${LFH_KONG_LFHHOST}
+lfhhttp=${LFH_CONNECT_REST_PORT}
+lfhmllp=${LFH_CONNECT_MLLP_PORT}
+kongmllp=${LFH_KONG_MLLP_PORT}
+
 # Add a kong service for all linux for health http routes
 curl http://localhost:8001/services \
   -H 'Content-Type: application/json' \
-  -d '{"name": "lfh-http-service", "url": "http://host.docker.internal:8080"}'
+  -d '{"name": "lfh-http-service", "url": "http://'"${host}"':'"${lfhhttp}"'"}'
 echo ""
 
 # Add a kong route that matches incoming requests and sends them to the url above
 curl http://localhost:8001/services/lfh-http-service/routes \
   -H 'Content-Type: application/json' \
-  -d '{"hosts": ["host.docker.internal","127.0.0.1","localhost"]}'
+  -d '{"hosts": ["'"${host}"'","127.0.0.1","localhost"]}'
 echo ""
 
 # Add a kong service for all linux for health hl7v2 mllp route
 curl http://localhost:8001/services \
   -H 'Content-Type: application/json' \
-  -d '{"name": "lfh-hl7v2-service", "url": "tcp://host.docker.internal:2576"}'
+  -d '{"name": "lfh-hl7v2-service", "url": "tcp://'"${host}"':'"${lfhmllp}"'"}'
 echo ""
 
 # Add a kong route that matches incoming requests and sends them to the url above
 curl http://localhost:8001/services/lfh-hl7v2-service/routes \
   -H 'Content-Type: application/json' \
-  -d '{"protocols": ["tcp", "tls"], "destinations": [{"port":2575}]}'
+  -d '{"protocols": ["tcp", "tls"], "destinations": [{"port":'"${kongmllp}"'}]}'
 echo ""
 
 echo "Kong configuration complete"
