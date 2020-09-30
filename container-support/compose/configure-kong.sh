@@ -8,10 +8,11 @@
 # Must be run at least once in the database lifecycle, but subsequent runs are not harmful.
 
 # wait parameters used to determine when the services within a container are available
-SLEEP_INTERVAL=5
+SLEEP_INTERVAL=2
 MAX_CHECKS=10
 
 DB_SERVICE="postgres"
+DB_SERVICE_MESSAGE="database system is ready to accept connections"
 DB_CONFIG_SERVICE="kong-migration"
 DB_CONFIG_SERVICE_MESSAGE="Database is up-to-date"
 KONG_SERVICE="kong"
@@ -38,60 +39,9 @@ function is_ready() {
     return 1
 }
 
-function wait_for_postgres() {
-    local retry_count=0
-
-    while [ "$retry_count" -lt "$MAX_CHECKS" ]
-    do
-        if docker-compose exec postgres sh -c "psql -c '\q'"; then
-            echo "postgres is ready"
-            return 0
-        else
-            echo "postgres is not ready"
-            ((retry_count=$retry_count+1))
-            sleep "$SLEEP_INTERVAL"
-        fi
-    done
-
-    return 1
-}
-
-function create_kong_database() {
-    if docker-compose exec -u postgres postgres sh -c "createdb kong"; then
-        echo "created kong database: $?"
-        return 0
-    else
-        echo "error creating kong database: $?"
-    fi
-
-    return 1
-}
-
-function wait_for_kong_database() {
-    local retry_count=0
-
-    while [ "$retry_count" -lt "$MAX_CHECKS" ]
-    do
-        if docker-compose exec postgres sh -c "psql kong postgres -c '\q'"; then
-            echo "postgres is ready"
-            return 0
-        else
-            echo "postgres is not ready"
-            ((retry_count=$retry_count+1))
-            sleep "$SLEEP_INTERVAL"
-        fi
-    done
-
-    return 1
-}
-
 # wait for postgres
 docker-compose up -d "$DB_SERVICE"
-wait_for_postgres
-
-# once postgres is ready, create the kong database and wait for it
-create_kong_database
-wait_for_kong_database
+is_ready "$DB_SERVICE" "$DB_SERVICE_MESSAGE"
 
 # start kong migration and wait for ephemeral container to complete
 docker-compose up -d "$DB_CONFIG_SERVICE"
@@ -113,19 +63,19 @@ curl http://localhost:8001/services \
   -d '{"name": "lfh-http-service", "url": "http://'"${host}"':'"${lfhhttp}"'"}'
 echo ""
 
-# Add a kong route that matches incoming requests and sends them to the url above
+# Add a kong route that matches incoming requests and sends them to the lfh-http-service url
 curl http://localhost:8001/services/lfh-http-service/routes \
   -H 'Content-Type: application/json' \
-  -d '{"hosts": ["'"${host}"'","127.0.0.1","localhost"]}'
+  -d '{"hosts": ["127.0.0.1","localhost"]}'
 echo ""
 
-# Add a kong service for all linux for health hl7v2 mllp route
+# Add a kong service for the linux for health hl7v2 mllp route
 curl http://localhost:8001/services \
   -H 'Content-Type: application/json' \
   -d '{"name": "lfh-hl7v2-service", "url": "tcp://'"${host}"':'"${lfhmllp}"'"}'
 echo ""
 
-# Add a kong route that matches incoming requests and sends them to the url above
+# Add a kong route that matches incoming requests and sends them to the lfh-hl7v2-service url
 curl http://localhost:8001/services/lfh-hl7v2-service/routes \
   -H 'Content-Type: application/json' \
   -d '{"protocols": ["tcp", "tls"], "destinations": [{"port":'"${kongmllp}"'}]}'

@@ -9,4 +9,5 @@ services:
       KONG_DATABASE: ${LFH_KONG_DATABASE_TYPE}
       KONG_PG_HOST: postgres
       KONG_PG_USER: ${LFH_PG_USER}
+      KONG_PG_PASSWORD: ${LFH_PG_PASSWORD}
     command: kong migrations bootstrap -v
