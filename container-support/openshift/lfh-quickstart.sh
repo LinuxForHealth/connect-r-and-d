@@ -80,7 +80,7 @@ function install() {
   oc rollout status deployment/"${LFH_KAFDROP_SERVICE_NAME}" -w
 
   oc expose service "${LFH_KAFDROP_SERVICE_NAME}" \
-    --name='lfh-kafdrop-server' \
+    --name='kafdrop' \
     --labels='app='"${LFH_KAFDROP_SERVICE_NAME}" \
     --generator='route/v1'
 
@@ -98,7 +98,7 @@ function install() {
   oc rollout status deployment/"${LFH_CONNECT_SERVICE_NAME}" -w
 
   oc expose service "${LFH_CONNECT_SERVICE_NAME}" \
-    --name="lfh-http-server" \
+    --name="connect-api" \
     --port="${LFH_CONNECT_HTTP_PORT}" \
     --labels='app='"${LFH_CONNECT_SERVICE_NAME}" \
     --generator='route/v1'
