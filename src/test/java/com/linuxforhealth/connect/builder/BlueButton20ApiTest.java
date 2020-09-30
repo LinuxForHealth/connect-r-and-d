@@ -74,7 +74,7 @@ public class BlueButton20ApiTest extends RouteTestSupport {
         mockResult.expectedPropertyReceived("routeId", "bluebutton-20");
 
 
-        fluentTemplate.to("{{lfh.connect.bluebutton-20.uri}}/Patient?-19990000002154")
+        fluentTemplate.to("http://localhost:8080/bluebutton/v1/Patient?-19990000002154")
                 .withHeader("Authorization", "387Rf1c2JTuduYuOQIuRHUlVOvJsib")
                 .request();
 

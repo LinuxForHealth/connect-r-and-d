@@ -44,12 +44,6 @@ function install() {
 
   oc rollout status deployment/"${LFH_NATS_SERVICE_NAME}" -w
 
-  oc expose service "${LFH_NATS_SERVICE_NAME}" \
-    --labels='app='"${LFH_NATS_SERVICE_NAME}" \
-    --port="${LFH_NATS_CLIENT_PORT}" \
-    --name="lfh-nats-server" \
-    --generator='route/v1'
-
   oc apply -f nats-server-ingress.yml --wait=true
 
   # Zookeeper - Kafka Metadata
@@ -86,7 +80,7 @@ function install() {
   oc rollout status deployment/"${LFH_KAFDROP_SERVICE_NAME}" -w
 
   oc expose service "${LFH_KAFDROP_SERVICE_NAME}" \
-    --name='lfh-kafdrop-server' \
+    --name='kafdrop' \
     --labels='app='"${LFH_KAFDROP_SERVICE_NAME}" \
     --generator='route/v1'
 
@@ -94,23 +88,17 @@ function install() {
   oc new-app "${LFH_CONNECT_IMAGE}" \
     --name "${LFH_CONNECT_SERVICE_NAME}" \
     --labels='app='"${LFH_CONNECT_SERVICE_NAME}" \
-    --env LFH_CONNECT_DATASTORE_URI="{{lfh.connect.datastore.host}}:<topicName>?brokers=kafka:9092" \
+    --env LFH_CONNECT_DATASTORE_URI="kafka:<topicName>?brokers=kafka:9092" \
     --env LFH_CONNECT_MESSAGING_URI="nats:lfh-events?servers=nats-server:4222" \
     --env LFH_CONNECT_MESSAGING_SUBSCRIBE_HOSTS="nats-server:4222" \
-    --env LFH_CONNECT_ORTHANC_SERVER_URI="http://orthanc:{{lfh.connect.orthanc_server.port}}/instances" \
+    --env LFH_CONNECT_ORTHANC_SERVER_URI="http://orthanc:8042/instances" \
     --env LFH_CONNECT_DATASTORE_BROKERS="kafka:9092" \
     --show-all=true
 
   oc rollout status deployment/"${LFH_CONNECT_SERVICE_NAME}" -w
 
   oc expose service "${LFH_CONNECT_SERVICE_NAME}" \
-    --name="lfh-rest-server" \
-    --port="${LFH_CONNECT_REST_PORT}" \
-    --labels='app='"${LFH_CONNECT_SERVICE_NAME}" \
-    --generator='route/v1'
-
-  oc expose service "${LFH_CONNECT_SERVICE_NAME}" \
-    --name="lfh-imaging-server" \
+    --name="connect-api" \
     --port="${LFH_CONNECT_HTTP_PORT}" \
     --labels='app='"${LFH_CONNECT_SERVICE_NAME}" \
     --generator='route/v1'

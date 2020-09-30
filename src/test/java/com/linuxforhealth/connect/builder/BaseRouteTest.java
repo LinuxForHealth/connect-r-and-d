@@ -27,6 +27,9 @@ public class BaseRouteTest extends CamelTestSupport {
     @Override
     protected Properties useOverridePropertiesWithPropertiesComponent() {
         Properties props = new Properties();
+        props.setProperty("lfh.connect.host", "0.0.0.0");
+        props.setProperty("lfh.connect.http.port", "8080");
+
         props.setProperty("lfh.connect.default.uri", "direct:start");
         props.setProperty("lfh.connect.default.dataformat", "csv");
         props.setProperty("lfh.connect.default.messagetype", "person");

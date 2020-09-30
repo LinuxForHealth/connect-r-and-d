@@ -1,32 +1,46 @@
 # Linux for Health OCI (Open Container Initiative) Scripts
 
-The Linux for Health OCI scripts support LFH containers within OCI compliant tools such as [podman](http://docs.podman.io/en/latest/Introduction.html)
+The Linux for Health OCI script supports LFH containers within OCI compliant tools such as [podman](http://docs.podman.io/en/latest/Introduction.html)
 and [docker](https://www.docker.com/)
 
-## Script Overview
+## Script Configuration
 
-The OCI scripts source configuration data, typically image coordinates and ports from the [docker compose env](../compose/.env)
-and the [OCI env](.env). Consult these scripts to update configuration settings as needed.
+The OCI script sources configuration data, typically image coordinates and ports from the [docker compose env](../compose/.env)
+and the [OCI env](.env). Review these files as needed to update configuration settings.
 
-## Review the OCI_COMMAND
-The OCI_COMMAND is set to execute podman as root. Please adjust this command prior to use, based on your system's
-installation.
+## Script Usage
+
+The OCI script accepts two arguments, the SERVICE_OPERATION and OCI_COMMAND.
 
 ```shell script
-OCI_COMMAND="sudo podman"
-```  
+./lfh-oci-services.sh [SERVICE_OPERATION] [OCI_COMMAND]
+```
 
-Linux for Health provides OCI scripts for starting and removing the container environment. Please consult the appropriate
-implementation specific documentation for the commands used to administer and interact with the container environment.
+| Argument Name | Argument Description |
+| :--- | :--- |
+| SERVICE_OPERATION | Valid values include: start and remove. |
+| OCI_COMMAND | The command, or executable used to execute container commands. Defaults to "docker". |
 
-## Starting Containers
+## Starting Containers with Docker
 
 ```shell script
 ./lfh-oci-services.sh start
 ```
 
-## Removing Containers
+## Removing Containers with Docker
 
 ```shell script
 ./lfh-oci-services.sh remove
+```
+
+## Starting Containers with "rooted" Podman
+
+```shell script
+./lfh-oci-services.sh start "sudo podman"
+```
+
+## Removing Containers with "rooted" Podman
+
+```shell script
+./lfh-oci-services.sh remove "sudo podman"
 ```
