@@ -18,7 +18,6 @@ services:
       LFH_CONNECT_EXTERNAL_HOST_IP: "127.0.0.1"
     ports:
       - ${LFH_CONNECT_MLLP_PORT}:${LFH_CONNECT_MLLP_PORT}
-      - ${LFH_CONNECT_REST_PORT}:${LFH_CONNECT_REST_PORT}
       - ${LFH_CONNECT_HTTP_PORT}:${LFH_CONNECT_HTTP_PORT}
     depends_on:
       - "kafka"

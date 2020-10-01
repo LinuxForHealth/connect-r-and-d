@@ -53,7 +53,7 @@ is_ready "$KONG_SERVICE" "$KONG_SERVICE_MESSAGE"
 
 # host is how kong needs to reference LFH, depending on where LFH is running
 host=${LFH_KONG_LFHHOST}
-lfhhttp=${LFH_CONNECT_REST_PORT}
+lfhhttp=${LFH_CONNECT_HTTP_PORT}
 lfhmllp=${LFH_CONNECT_MLLP_PORT}
 kongmllp=${LFH_KONG_MLLP_PORT}
 
