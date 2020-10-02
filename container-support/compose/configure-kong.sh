@@ -11,6 +11,8 @@
 SLEEP_INTERVAL=2
 MAX_CHECKS=10
 
+source .env
+
 DB_SERVICE="postgres"
 DB_SERVICE_MESSAGE="database system is ready to accept connections"
 DB_CONFIG_SERVICE="kong-migration"
