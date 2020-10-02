@@ -10,19 +10,14 @@ import com.linuxforhealth.connect.support.LFHKafkaConsumer;
 import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.builder.SimpleBuilder;
 import org.apache.camel.component.kafka.KafkaConstants;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Base64;
-import java.util.UUID;
 
 /**
  * Defines the Linux for Health "internal" routes for data storage, notification, and error handling
