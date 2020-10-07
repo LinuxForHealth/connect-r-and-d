@@ -75,14 +75,14 @@ public class Hl7v2RouteTest extends RouteTestSupport {
         mockResult.expectedPropertyReceived("messageType", "ADT");
         mockResult.expectedPropertyReceived("routeId", "hl7-v2");
 
-        fluentTemplate.to("netty:tcp://localhost:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder")
+        fluentTemplate.to("netty:tcp://localhost:2576?sync=true&encoders=#hl7encoder&decoders=#hl7decoder")
                 .withBody(testMessage)
                 .send();
 
         mockResult.assertIsSatisfied();
 
         Exchange mockExchange = mockResult.getExchanges().get(0);
-        String expectedRouteUri = "netty://tcp://0.0.0.0:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder";
+        String expectedRouteUri = "netty://tcp://0.0.0.0:2576?sync=true&encoders=#hl7encoder&decoders=#hl7decoder";
         String actualRouteUri = mockExchange.getProperty("routeUri", String.class);
         LinuxForHealthAssertions.assertEndpointUriSame(expectedRouteUri, actualRouteUri);
 

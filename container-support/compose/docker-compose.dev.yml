@@ -28,3 +28,28 @@ services:
       - ${LFH_PG_SERVER_PORT}:${LFH_PG_SERVER_PORT}
     environment:
       PGDATA: ${LFH_PG_DATA}
+      POSTGRES_USER: ${LFH_PG_USER}
+      POSTGRES_PASSWORD: ${LFH_PG_PASSWORD}
+      POSTGRES_DB: ${LFH_KONG_DATABASE}
+    volumes:
+      - pg_data:${LFH_PG_DATA}
+  kong:
+    image: ${LFH_KONG_IMAGE}
+    restart: always
+    depends_on:
+      - postgres
+    ports:
+      - ${LFH_KONG_PORT}:${LFH_KONG_PORT}
+      - ${LFH_KONG_SSL_PORT}:${LFH_KONG_SSL_PORT}
+      - ${LFH_KONG_ADMIN_PORT}:${LFH_KONG_ADMIN_PORT}
+      - ${LFH_KONG_ADMIN_SSL_PORT}:${LFH_KONG_ADMIN_SSL_PORT}
+      - ${LFH_KONG_MLLP_PORT}:${LFH_KONG_MLLP_PORT}
+    environment:
+      KONG_DATABASE: ${LFH_KONG_DATABASE_TYPE}
+      KONG_PG_HOST: postgres
+      KONG_PG_USER: ${LFH_PG_USER}
+      KONG_PG_PASSWORD: ${LFH_PG_PASSWORD}
+      KONG_ADMIN_LISTEN: ${LFH_KONG_ADMIN_LISTEN}
+      KONG_STREAM_LISTEN: ${LFH_KONG_STREAM_LISTEN}
+volumes:
+  pg_data: {}
