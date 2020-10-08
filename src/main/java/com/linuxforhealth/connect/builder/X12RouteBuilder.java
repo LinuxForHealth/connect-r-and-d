@@ -8,7 +8,6 @@ package com.linuxforhealth.connect.builder;
 import com.linuxforhealth.connect.processor.MetaDataProcessor;
 import com.linuxforhealth.connect.support.CamelContextSupport;
 import org.apache.camel.LoggingLevel;
-import org.apache.camel.model.dataformat.JsonLibrary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
