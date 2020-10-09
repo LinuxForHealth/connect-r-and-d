@@ -1,3 +1,8 @@
+/*
+ * (C) Copyright IBM Corp. 2020
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.linuxforhealth.connect.support.x12;
 
 import org.junit.jupiter.api.Assertions;
@@ -61,5 +66,4 @@ class IsaValidatingParserTest {
             new IsaValidatingParser(isaSegment);
         });
     }
-
 }

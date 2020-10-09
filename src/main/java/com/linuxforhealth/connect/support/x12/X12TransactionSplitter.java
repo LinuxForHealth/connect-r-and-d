@@ -1,9 +1,15 @@
+/*
+ * (C) Copyright IBM Corp. 2020
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.linuxforhealth.connect.support.x12;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.function.Predicate;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -12,16 +18,23 @@ import java.util.stream.Collectors;
  */
 public final class X12TransactionSplitter {
 
-    private final Predicate<String> isIncludedSegment = s -> !s.startsWith("ISA") &&
-            !s.startsWith("ISE") &&
-            !s.startsWith("GE");
+    private final static String INTERCHANGE_HEADER_SEGMENT = "ISA";
+
+    private final static String INTERCHANGE_FOOTER_SEGMENT = "IEA";
 
     private final static String FUNCTIONAL_GROUP_HEADER_SEGMENT = "GS";
+
+    private final static String FUNCTIONAL_GROUP_FOOTER_SEGMENT = "GE";
+
     private final static String TRANSACTION_HEADER_SEGMENT = "ST";
+
     private final static String TRANSACTION_FOOTER_SEGMENT = "SE";
 
     private String fieldDelimiter;
+
     private String lineSeparator;
+
+    private Map<String, String> segmentCache = new HashMap<>();
 
     /**
      * Sets X12 message delimiters using the ISA/interchange segment
@@ -35,8 +48,24 @@ public final class X12TransactionSplitter {
     }
 
     /**
+     * Writes a x12 transaction, including "control segments" (ISA, GS, ST segments) to the transaction list.
+     * The working transaction is cleared once it is written.
+     * @param sourceTransactionSegments The current transaction {@link List<String> of segments} to "write"
+     * @param targetTransactionList The "master" transaction list for the X12 message.
+     */
+    private void writeTransaction(List<String> sourceTransactionSegments, List<String> targetTransactionList) {
+        String transactionData = segmentCache.get(INTERCHANGE_HEADER_SEGMENT) + lineSeparator +
+                segmentCache.get(FUNCTIONAL_GROUP_HEADER_SEGMENT) + lineSeparator +
+                segmentCache.get(TRANSACTION_HEADER_SEGMENT) + lineSeparator +
+                String.join(lineSeparator, sourceTransactionSegments) + lineSeparator;
+
+        targetTransactionList.add(transactionData);
+        sourceTransactionSegments.clear();
+    }
+
+    /**
      * Splits the X12 Data Message/Batch into separate transactions.
-     * The Functional Group Header (GS Segment) and Transaction Header (ST segment) are included to preserve metadata.
+     * Selected control segments (ISA, GS, ST segments) are included for metadata and provenance.
      * @param x12Data The source message/batch
      * @return {@link List<String>} of messages
      */
@@ -48,34 +77,30 @@ public final class X12TransactionSplitter {
         // filter metadata segments to simplify processing
         List<String> x12Segments = Arrays
                 .stream(x12Data.split(lineSeparator))
-                .filter(isIncludedSegment)
+                .filter(s -> !s.startsWith(INTERCHANGE_FOOTER_SEGMENT)
+                        && !s.startsWith(FUNCTIONAL_GROUP_FOOTER_SEGMENT))
                 .collect(Collectors.toList());
 
         List<String> x12Transaction = new ArrayList<>();
 
-        String segmentType = null;
-        String functionalGroupHeader = null;
-        String transactionHeader = null;
-
         for (String segment: x12Segments) {
-            segmentType = segment.substring(0, segment.indexOf(fieldDelimiter));
+            String segmentType = segment.substring(0, segment.indexOf(fieldDelimiter));
 
             switch (segmentType.toUpperCase()) {
+                case INTERCHANGE_HEADER_SEGMENT:
+                    segmentCache.put(INTERCHANGE_HEADER_SEGMENT, segment);
+                    break;
+
                 case FUNCTIONAL_GROUP_HEADER_SEGMENT:
-                    functionalGroupHeader = segment;
+                    segmentCache.put(FUNCTIONAL_GROUP_HEADER_SEGMENT, segment);
                     break;
 
                 case TRANSACTION_HEADER_SEGMENT:
-                    transactionHeader = segment;
+                    segmentCache.put(TRANSACTION_HEADER_SEGMENT, segment);
                     break;
 
                 case TRANSACTION_FOOTER_SEGMENT:
-                    String transactionData = functionalGroupHeader + lineSeparator;
-                    transactionData += transactionHeader + lineSeparator;
-                    transactionData += String.join(lineSeparator, x12Transaction) + lineSeparator;
-                    x12Transactions.add(transactionData);
-
-                    x12Transaction.clear();
+                    writeTransaction(x12Transaction, x12Transactions);
                     break;
 
                 default:

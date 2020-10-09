@@ -1,3 +1,8 @@
+/*
+ * (C) Copyright IBM Corp. 2020
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.linuxforhealth.connect.support.x12;
 
 import java.util.Arrays;
@@ -8,7 +13,11 @@ import java.util.List;
  */
 public class IsaValidatingParser {
 
+    public final static String SEGMENT_NAME = "ISA";
+
     public final static int ISA_SEGMENT_LENGTH = 106;
+
+    private final static List<String> META_CHARACTERS = Arrays.asList("*", "?", "|");
 
     private final String isaSegment;
 
@@ -19,10 +28,6 @@ public class IsaValidatingParser {
     private String componentSeparator;
 
     private String lineSeparator;
-
-    private final static String SEGMENT_NAME = "ISA";
-
-    private final static List<String> META_CHARACTERS = Arrays.asList("*", "?", "|");
 
     private static final int[] fieldLengths = new int[]{
             2, // ISA 01
@@ -74,7 +79,13 @@ public class IsaValidatingParser {
         }
 
         this.isaSegment = isaSegment;
-        init();
+        validateSegmentLength();
+        validateSegmentName();
+        fieldDelimiter = isaSegment.substring(3, 4);
+        validateFieldLengths();
+        repetitionCharacter = isaSegment.substring(82, 83);
+        componentSeparator = isaSegment.substring(104, 105);
+        lineSeparator = isaSegment.substring(105, 106);
     }
 
     /**
@@ -126,19 +137,5 @@ public class IsaValidatingParser {
                 throw new X12ValidationException(message);
             }
         }
-    }
-
-    /**
-     * Validates and parses the ISA segment
-     * @throws X12ValidationException if a validation error is found
-     */
-    private void init()  {
-        validateSegmentLength();
-        validateSegmentName();
-        fieldDelimiter = isaSegment.substring(3, 4);
-        validateFieldLengths();
-        repetitionCharacter = isaSegment.substring(82, 83);
-        componentSeparator = isaSegment.substring(104, 105);
-        lineSeparator = isaSegment.substring(105, 106);
     }
 }

@@ -5,18 +5,16 @@
  */
 package com.linuxforhealth.connect.builder;
 
-import com.linuxforhealth.connect.support.LinuxForHealthAssertions;
 import com.linuxforhealth.connect.support.TestUtils;
-import org.apache.camel.Exchange;
+import com.linuxforhealth.connect.support.x12.X12TransactionSplitter;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.UUID;
+import java.util.stream.Stream;
 
 /**
  * Tests {@link X12RouteTest}
@@ -37,6 +35,8 @@ public class X12RouteTest extends RouteTestSupport {
     @BeforeEach
     @Override
     protected void configureContext() throws Exception {
+        context.getRegistry().bind("x12splitter", new X12TransactionSplitter());
+
         mockProducerEndpoint(X12RouteBuilder.ROUTE_ID,
                 LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI,
                 "mock:result");
@@ -46,39 +46,28 @@ public class X12RouteTest extends RouteTestSupport {
         mockResult = MockEndpoint.resolve(context, "mock:result");
     }
 
-    @Test
-    void testRoute() throws Exception {
+    /**
+     * @return arguments for testX12Route
+     */
+    private static Stream<Arguments> getX12RouteArgs() {
+        return Stream.of(
+          Arguments.of("270-005010X279A1.json", 1),
+          Arguments.of("270-837-005010X279A1.json", 3)
+        );
+    }
+    @ParameterizedTest
+    @MethodSource("getX12RouteArgs")
+    void testX12Route(String x12RequestFile, int expectedMessageCount) throws Exception {
         String testMessage = context
                 .getTypeConverter()
-                .convertTo(String.class, TestUtils.getMessage("x12", "270-005010X279A1.json"))
-                .replace(System.lineSeparator(), "");
+                .convertTo(String.class, TestUtils.getMessage("x12", x12RequestFile));
 
-        String expectedRequest = Base64.getEncoder().encodeToString(testMessage.getBytes(StandardCharsets.UTF_8));
-
-        mockResult.expectedMessageCount(1);
-        mockResult.expectedBodiesReceived(expectedRequest);
-        mockResult.expectedPropertyReceived("dataStoreUri", "kafka:X12_X12?brokers=localhost:9094");
-        mockResult.expectedPropertyReceived("dataFormat", "X12");
-        mockResult.expectedPropertyReceived("messageType", "X12");
-        mockResult.expectedPropertyReceived("routeId", "x12");
+        mockResult.expectedMessageCount(expectedMessageCount);
 
         fluentTemplate.to("http://0.0.0.0:8080/x12")
                 .withBody(testMessage)
                 .send();
 
         mockResult.assertIsSatisfied();
-
-        String expectedRouteUri = "jetty:http://0.0.0.0:8080/x12?httpMethodRestrict=POST";
-        String actualRouteUri = mockResult.getExchanges().get(0).getProperty("routeUri", String.class);
-        LinuxForHealthAssertions.assertEndpointUriSame(expectedRouteUri, actualRouteUri);
-
-        Exchange mockExchange = mockResult.getExchanges().get(0);
-
-        Long actualTimestamp = mockExchange.getProperty("timestamp", Long.class);
-        Assertions.assertNotNull(actualTimestamp);
-        Assertions.assertTrue(actualTimestamp > 0);
-
-        UUID actualUuid = UUID.fromString(mockExchange.getProperty("uuid", String.class));
-        Assertions.assertEquals(36, actualUuid.toString().length());
     }
 }
