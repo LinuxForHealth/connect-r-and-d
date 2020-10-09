@@ -36,7 +36,7 @@ public class X12RouteBuilder extends BaseRouteBuilder {
     }
 
     /**
-     * Accepts incoming X12 POST requests. Transactions are split
+     * Accepts incoming X12 POST requests. Transactions are split and processed in parallel.
      *
      * @param routePropertyNamespace The property namespace for the route.
      */
