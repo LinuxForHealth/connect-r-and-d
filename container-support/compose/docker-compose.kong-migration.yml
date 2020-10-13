@@ -4,10 +4,24 @@ services:
   kong-migration:
     image: ${LFH_KONG_IMAGE}
     depends_on:
-      - postgres
+      - "postgres"
     environment:
       KONG_DATABASE: ${LFH_KONG_DATABASE_TYPE}
       KONG_PG_HOST: postgres
       KONG_PG_USER: ${LFH_PG_USER}
       KONG_PG_PASSWORD: ${LFH_PG_PASSWORD}
     command: kong migrations bootstrap -v
+  postgres:
+    image: ${LFH_PG_IMAGE}
+    restart: "always"
+    expose:
+      - ${LFH_PG_SERVER_PORT}
+    ports:
+      - ${LFH_PG_SERVER_PORT}:${LFH_PG_SERVER_PORT}
+    environment:
+      PGDATA: ${LFH_PG_DATA}
+      POSTGRES_USER: ${LFH_PG_USER}
+      POSTGRES_PASSWORD: ${LFH_PG_PASSWORD}
+      POSTGRES_DB: ${LFH_KONG_DATABASE}
+    volumes:
+      - pg_data:${LFH_PG_DATA}
