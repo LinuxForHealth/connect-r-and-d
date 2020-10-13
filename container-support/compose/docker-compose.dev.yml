@@ -1,4 +1,12 @@
 version: "3.7"
+
+volumes:
+  pg_data: {}
+
+networks:
+  kong-net:
+    external: false
+
 services:
   nats-server:
     image: ${LFH_NATS_IMAGE}
@@ -6,11 +14,17 @@ services:
       - ${LFH_NATS_CLIENT_PORT}:${LFH_NATS_CLIENT_PORT}
       - ${LFH_NATS_CLUSTER_PORT}:${LFH_NATS_CLUSTER_PORT}
       - ${LFH_NATS_MANAGEMENT_PORT}:${LFH_NATS_MANAGEMENT_PORT}
+    networks:
+      - kong-net
+
   zookeeper:
     restart: "always"
     image: ${LFH_ZOOKEEPER_IMAGE}
     ports:
       - ${LFH_ZOOKEEPER_PORT}:${LFH_ZOOKEEPER_PORT}
+    networks:
+      - kong-net
+
   kafka:
     image: ${LFH_KAFDROP_IMAGE}
     restart: "always"
@@ -21,12 +35,18 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: ${LFH_KAFKA_INTER_BROKER_LISTENER_NAME}
     ports:
       - ${LFH_KAFKA_EXTERNAL_LISTENER_PORT}:${LFH_KAFKA_EXTERNAL_LISTENER_PORT}
+    networks:
+      - kong-net
+
   orthanc:
     image: ${LFH_ORTHANC_IMAGE}
     restart: "always"
     ports:
       - ${LFH_ORTHANC_HTTP_PORT}:${LFH_ORTHANC_HTTP_PORT}
-  postgres:
+    networks:
+      - kong-net
+
+  db:
     image: ${LFH_PG_IMAGE}
     restart: "always"
     expose:
@@ -38,32 +58,48 @@ services:
       POSTGRES_USER: ${LFH_PG_USER}
       POSTGRES_PASSWORD: ${LFH_PG_PASSWORD}
       POSTGRES_DB: ${LFH_KONG_DATABASE}
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${KONG_PG_USER:-kong}"]
+      interval: 10s
+      timeout: 10s
+      retries: 2
     volumes:
       - pg_data:${LFH_PG_DATA}
+    networks:
+      - kong-net
+
   kong-migration:
     image: ${LFH_KONG_IMAGE}
     depends_on:
-      - "postgres"
+      - db
     environment:
-      KONG_DATABASE: ${LFH_KONG_DATABASE}
-      KONG_PG_HOST: postgres
+      KONG_DATABASE: ${LFH_KONG_DATABASE_TYPE}
+      KONG_PG_DATABASE: ${LFH_KONG_DATABASE}
+      KONG_PG_HOST: db
       KONG_PG_USER: ${LFH_PG_USER}
       KONG_PG_PASSWORD: ${LFH_PG_PASSWORD}
     command: kong migrations bootstrap -v
-  postgres:
-    image: ${LFH_PG_IMAGE}
-    restart: "always"
-    expose:
-      - ${LFH_PG_SERVER_PORT}
-    ports:
-      - ${LFH_PG_SERVER_PORT}:${LFH_PG_SERVER_PORT}
+    networks:
+      - kong-net
+
+  kong-migrations-up:
+    image: ${LFH_KONG_IMAGE}
+    command: kong migrations up && kong migrations finish
+    depends_on:
+      - "kong-migration"
     environment:
-      PGDATA: ${LFH_PG_DATA}
-      POSTGRES_USER: ${LFH_PG_USER}
-      POSTGRES_PASSWORD: ${LFH_PG_PASSWORD}
-      POSTGRES_DB: ${LFH_KONG_DATABASE}
-    volumes:
-      - pg_data:${LFH_PG_DATA}
+      KONG_DATABASE: ${LFH_KONG_DATABASE_TYPE}
+      KONG_PG_DATABASE: ${LFH_KONG_DATABASE}
+      KONG_PG_HOST: db
+      KONG_PG_USER: ${LFH_PG_USER}
+      KONG_PG_PASSWORD: ${LFH_PG_PASSWORD}
+    networks:
+      - kong-net
+    restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
+
   kong:
     image: ${LFH_KONG_IMAGE}
     restart: "always"
@@ -76,8 +112,8 @@ services:
       - ${LFH_KONG_ADMIN_SSL_PORT}:${LFH_KONG_ADMIN_SSL_PORT}
       - ${LFH_KONG_MLLP_PORT}:${LFH_KONG_MLLP_PORT}
     environment:
-      KONG_DATABASE: ${LFH_KONG_DATABASE}
-      KONG_PG_HOST: postgres
+      KONG_DATABASE: ${LFH_KONG_DATABASE_TYPE}
+      KONG_PG_HOST: db
       KONG_PG_USER: ${LFH_PG_USER}
       KONG_PG_PASSWORD: ${LFH_PG_PASSWORD}
       KONG_CASSANDRA_CONTACT_POINTS: kong-database
@@ -89,10 +125,11 @@ services:
       KONG_PROXY_LISTEN: 0.0.0.0:8000
       KONG_ADMIN_LISTEN: 0.0.0.0:8001, 0.0.0.0:8444 ssl
     healthcheck:
-      test: ["CMD", "curl", "-f", "-I", "-s", "-L", "http://127.0.0.1:8001/"]
-      interval: 60s
-      timeout: 2s
-      retries: 10
-      start_period: 180s
-volumes:
-  pg_data: {}
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 10s
+      retries: 2
+      start_period: 30s
+    networks:
+      - kong-net
+
