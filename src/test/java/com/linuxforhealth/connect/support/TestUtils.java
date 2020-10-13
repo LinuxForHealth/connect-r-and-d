@@ -15,6 +15,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -26,6 +27,7 @@ public class TestUtils {
 
     /**
      * Loads a properties file by filename.
+     *
      * @param filename to load
      * @return {@link Properties} instance
      * @throws IOException if an error occurs reading application.properties
@@ -51,13 +53,13 @@ public class TestUtils {
      * Loads a sample message from test resources, returning a {@link File} for use in unit tests.
      *
      * @param messageDirectory The message subdirectory under src/test/resources/messages. Example: hl7, fhir, etc.
-     * @param messageName The name of the message file.
+     * @param messageName      The name of the message file.
      * @return {@link File}
-     * @throws URISyntaxException if an error occurs loading the message file
+     * @throws URISyntaxException    if an error occurs loading the message file
      * @throws FileNotFoundException if the message file is not found
      */
     public static File getMessage(String messageDirectory, String messageName) throws URISyntaxException,
-            FileNotFoundException {
+            IOException {
         String messagePath = "messages/" + messageDirectory + "/" + messageName;
 
         Path filePath = Paths.get(
@@ -71,5 +73,36 @@ public class TestUtils {
             throw new FileNotFoundException("unable to load " + messageFile.getAbsolutePath());
         }
         return messageFile;
+    }
+
+    /**
+     * Loads  sample message data from test resources, returning a {@link List<String>} of data, for use in unit tests.
+     *
+     * @param messageDirectory The message subdirectory under src/test/resources/messages. Example: hl7, fhir, etc.
+     * @param messageName      The name of the message file.
+     * @return {@link List<String>}
+     * @throws URISyntaxException if an error occurs loading the message file
+     * @throws IOException        if the message file is not found or an error occurs reading the file
+     */
+    public static List<String> getMessageAsList(String messageDirectory, String messageName) throws URISyntaxException,
+            IOException {
+        File messageFile = getMessage(messageDirectory, messageName);
+        return Files.readAllLines(messageFile.toPath());
+    }
+
+    /**
+     * Loads  sample message data from test resources, returning a {@link String} of data, for use in unit tests.
+     *
+     * @param messageDirectory The message subdirectory under src/test/resources/messages. Example: hl7, fhir, etc.
+     * @param messageName      The name of the message file.
+     * @param delimiter        The delimiter used to "join" the separate message lines
+     * @return {@link List<String>}
+     * @throws URISyntaxException if an error occurs loading the message file
+     * @throws IOException        if the message file is not found or an error occurs reading the file
+     */
+    public static String getMessageAsString(String messageDirectory, String messageName, String delimiter) throws
+            IOException, URISyntaxException {
+        List<String> message = getMessageAsList(messageDirectory, messageName);
+        return String.join(delimiter, message);
     }
 }

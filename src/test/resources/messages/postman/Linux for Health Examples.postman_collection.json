@@ -1013,6 +1013,109 @@
 					"body": "{\n    \"resourceType\": \"OperationOutcome\",\n    \"issue\": [\n        {\n            \"severity\": \"information\",\n            \"code\": \"informational\",\n            \"details\": {\n                \"text\": \"All OK\"\n            }\n        }\n    ]\n}"
 				}
 			]
+		},
+		{
+			"name": "X12 - POST X12 Transactions",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"x12\":\"ISA*00*          *00*          *ZZ*890069730      *ZZ*154663145      *200929*1705*|*00501*000000001*0*T*:~GS*HS*890069730*154663145*20200929*1705*0001*X*005010X279A1~ST*270*0001*005010X279A1~BHT*0022*13*10001234*20200929*1319~HL*1**20*1~NM1*PR*2*UNIFIED INSURANCE CO*****PI*842610001~HL*2*1*21*1~NM1*1P*2*DOWNTOWN MEDICAL CENTER*****XX*2868383243~HL*3*2*22*0~TRN*1*1*1453915417~NM1*IL*1*DOE*JOHN****MI*11122333301~DMG*D8*19800519~DTP*291*D8*20200101~EQ*30~SE*13*0001~GE*1*0001~IEA*1*000010216~\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/x12",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"x12"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "X12 - POST X12 Transactions",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"x12\":\"ISA*00*          *00*          *ZZ*890069730      *ZZ*154663145      *200929*1705*|*00501*000000001*0*T*:~GS*HS*890069730*154663145*20200929*1705*0001*X*005010X279A1~ST*270*0001*005010X279A1~BHT*0022*13*10001234*20200929*1319~HL*1**20*1~NM1*PR*2*UNIFIED INSURANCE CO*****PI*842610001~HL*2*1*21*1~NM1*1P*2*DOWNTOWN MEDICAL CENTER*****XX*2868383243~HL*3*2*22*0~TRN*1*1*1453915417~NM1*IL*1*DOE*JOHN****MI*11122333301~DMG*D8*19800519~DTP*291*D8*20200101~EQ*30~SE*13*0001~GE*1*0001~IEA*1*000010216~\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/x12",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"x12"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Accept",
+							"value": "*/*"
+						},
+						{
+							"key": "Accept-Encoding",
+							"value": "gzip, deflate, br"
+						},
+						{
+							"key": "Authorization",
+							"value": "Bearer bPAB7uSImcwatFS1UBG7arYnt9oGI8"
+						},
+						{
+							"key": "org.apache.kafka.clients.producer.RecordMetadata",
+							"value": "X12_270-0@3"
+						},
+						{
+							"key": "Postman-Token",
+							"value": "d4972fff-1b60-4de5-be24-a4260b7455d3"
+						},
+						{
+							"key": "User-Agent",
+							"value": "PostmanRuntime/7.26.5"
+						},
+						{
+							"key": "X12MessageType",
+							"value": "270"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Server",
+							"value": "Jetty(9.4.29.v20200521)"
+						}
+					],
+					"cookie": [],
+					"body": "[\n    {\n        \"data\": \"SVNBKjAwKiAgICAgICAgICAqMDAqICAgICAgICAgICpaWio4OTAwNjk3MzAgICAgICAqWloqMTU0NjYzMTQ1ICAgICAgKjIwMDkyOSoxNzA1KnwqMDA1MDEqMDAwMDAwMDAxKjAqVCo6fkdTKkhTKjg5MDA2OTczMCoxNTQ2NjMxNDUqMjAyMDA5MjkqMTcwNSowMDAxKlgqMDA1MDEwWDI3OUExflNUKjI3MCowMDAxKjAwNTAxMFgyNzlBMX5CSFQqMDAyMioxMyoxMDAwMTIzNCoyMDIwMDkyOSoxMzE5fkhMKjEqKjIwKjF+Tk0xKlBSKjIqVU5JRklFRCBJTlNVUkFOQ0UgQ08qKioqKlBJKjg0MjYxMDAwMX5ITCoyKjEqMjEqMX5OTTEqMVAqMipET1dOVE9XTiBNRURJQ0FMIENFTlRFUioqKioqWFgqMjg2ODM4MzI0M35ITCozKjIqMjIqMH5UUk4qMSoxKjE0NTM5MTU0MTd+Tk0xKklMKjEqRE9FKkpPSE4qKioqTUkqMTExMjIzMzMzMDF+RE1HKkQ4KjE5ODAwNTE5fkRUUCoyOTEqRDgqMjAyMDAxMDF+RVEqMzB+\",\n        \"meta\": {\n            \"dataStoreUri\": \"kafka:X12_270?brokers=localhost:9094\",\n            \"routeUri\": \"jetty:http://0.0.0.0:8080/x12?httpMethodRestrict=POST\",\n            \"routeId\": \"x12\",\n            \"messageType\": \"270\",\n            \"dataFormat\": \"X12\",\n            \"dataRecordLocation\": [\n                \"X12_270:0:3\"\n            ],\n            \"uuid\": \"9d11bdce-d587-4fdf-8ae5-a95228a41b32\",\n            \"timestamp\": 1602272209,\n            \"status\": \"success\"\n        }\n    }\n]"
+				}
+			]
 		}
 	],
 	"auth": {
@@ -1020,7 +1123,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "JPGB2oE6fFeIs6erOUzLiDNawy6qAL",
+				"value": "bPAB7uSImcwatFS1UBG7arYnt9oGI8",
 				"type": "string"
 			}
 		]
