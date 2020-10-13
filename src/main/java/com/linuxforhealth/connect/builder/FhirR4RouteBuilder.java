@@ -52,7 +52,7 @@ public class FhirR4RouteBuilder extends BaseRouteBuilder {
 
         /*
          * Use the Camel Recipient List EIP to optionally send data to one or more external fhir servers
-         * when sending FHIR resources to Linux for Health. 
+         * when sending FHIR resources to LinuxForHealth.
          
          * Set the lfh.connect.fhir-r4.externalservers property to a comma-delimited list of servers to 
          * enable this feature.  Example:

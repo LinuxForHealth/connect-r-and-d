@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Assertions;
 import java.util.Arrays;
 
 /**
- * Provides Linux For Health test case assertions
+ * Provides LinuxForHealth test case assertions
  */
 public class LinuxForHealthAssertions {
 

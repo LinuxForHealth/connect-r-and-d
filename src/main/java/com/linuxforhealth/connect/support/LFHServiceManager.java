@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Class that creates and manages Linux for Health service instances
+ * Class that creates and manages LinuxForHealth service instances
  */
 public class LFHServiceManager {
 
@@ -35,7 +35,7 @@ public class LFHServiceManager {
     public void LFHServiceManager() { }
 
    /**
-    * Start the services needed for Linux for Health:
+    * Start the services needed for LinuxForHealth:
     *   1. NATS subscribers defined in application.properties.
     *   2. Kafka producer needed to store remote LFH messages to the local Kafka.
     *   3. Kafka consumer needed to retrieve datat from a (topic, partition, offset)
@@ -62,7 +62,7 @@ public class LFHServiceManager {
     }
 
    /**
-    * Stop the Linux for Health services.
+    * Stop the LinuxForHealth services.
     */
     public static void stopServices() {
         try {
