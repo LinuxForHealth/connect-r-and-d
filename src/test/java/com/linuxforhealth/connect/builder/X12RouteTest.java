@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests {@link X12RouteTest}
  */
-@Disabled
 public class X12RouteTest extends RouteTestSupport {
 
     private MockEndpoint mockResult;

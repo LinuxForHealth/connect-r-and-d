@@ -58,6 +58,10 @@ public class X12RouteBuilder extends BaseRouteBuilder {
         .transform(body().regexReplaceAll(getSystemLineSeparator(), ""))
         .split(method("x12splitter", "split"), new LFHMultiResultStrategy())
         .parallelProcessing()
+        .to("direct:process-x12-transaction")
+        .end();
+
+        from("direct:process-x12-transaction")
         .process( e-> {
             String x12Transaction = e.getIn().getBody(String.class);
 
