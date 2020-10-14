@@ -11,6 +11,7 @@ import com.linuxforhealth.connect.support.LFHMultiResultStrategy;
 import com.linuxforhealth.connect.support.x12.IsaValidatingParser;
 import com.linuxforhealth.connect.support.x12.X12RouteRequest;
 import org.apache.camel.model.dataformat.JsonLibrary;
+import org.hl7.fhir.r4.model.Meta;
 
 /**
  * Supports X12 Transaction Processing via a REST endpoint.
@@ -56,8 +57,9 @@ public class X12RouteBuilder extends BaseRouteBuilder {
             e.getIn().setBody(request.getX12(), String.class);
         })
         .transform(body().regexReplaceAll(getSystemLineSeparator(), ""))
-        .split(method("x12splitter", "split"), new LFHMultiResultStrategy())
+        .split(method("x12splitter", "split"))
         .parallelProcessing()
+        .aggregationStrategy(new LFHMultiResultStrategy())
         .process( e-> {
             String x12Transaction = e.getIn().getBody(String.class);
 
@@ -69,8 +71,9 @@ public class X12RouteBuilder extends BaseRouteBuilder {
                     isaParser.getLineSeparator());
 
             e.getIn().setHeader("X12MessageType", x12MessageType);
+            MetaDataProcessor metaDataProcessor = new MetaDataProcessor(routePropertyNamespace);
+            metaDataProcessor.process(e);
         })
-        .process(new MetaDataProcessor(routePropertyNamespace))
         .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI);
     }
 
