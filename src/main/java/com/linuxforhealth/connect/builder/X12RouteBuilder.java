@@ -71,7 +71,8 @@ public class X12RouteBuilder extends BaseRouteBuilder {
             e.getIn().setHeader("X12MessageType", x12MessageType);
         })
         .process(new MetaDataProcessor(routePropertyNamespace))
-        .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI);
+        .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
+        .end();
     }
 
     /**
