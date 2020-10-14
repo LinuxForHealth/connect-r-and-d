@@ -19,7 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import com.linuxforhealth.connect.support.TestUtils;
 
 /**
- * Provides base configuration and convenience methods for Linux for Health Route Builder tests.
+ * Provides base configuration and convenience methods for LinuxForHealth Route Builder tests.
  * Features includes:
  * <ul>
  *     <li>Loading application.properties from the classpath</li>

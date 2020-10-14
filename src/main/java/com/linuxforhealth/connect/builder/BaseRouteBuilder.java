@@ -11,7 +11,7 @@ import org.apache.camel.builder.RouteBuilder;
 import java.util.Arrays;
 
 /**
- * Base class for Linux for Health {@link RouteBuilder} implementations.
+ * Base class for LinuxForHealth {@link RouteBuilder} implementations.
  * Provides basic property validation and error handling.
  * Route implementations are provided by overriding <code>BaseRouteBuilder.buildRoute</code>.
  */
@@ -42,7 +42,7 @@ public abstract class BaseRouteBuilder extends RouteBuilder {
     }
 
     /**
-     * Builds a Linux for Health Route, using Camel's Java DSL.
+     * Builds a LinuxForHealth Route, using Camel's Java DSL.
      * @param routePropertyNamespace The property namespace for the route.
      */
     protected abstract void buildRoute(String routePropertyNamespace);

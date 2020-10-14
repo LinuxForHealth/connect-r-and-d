@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "77f5774b-2f57-4f00-9d36-44b3b102ccab",
-		"name": "Linux for Health Examples",
+		"name": "LinuxForHealth Examples",
 		"description": "Sample workflow for Creating and Updating Patient Resources\n\n- Search for an existing patient resource using either a GET or POST request.\n- Create a patient resource using POST.\n- Add an email address to the patient record using UPDATE.\n- Add an emergency contact to the patient resource using PATCH (json patch not FHIR patch)\n- Execute a search to view the current state of the patient resource.\n- View resource history using either /_history for all versions or /_history/<version number> for a specific version\n\nThe delete endpoint was used to \"cleanup\" records as this sample was being built.\n",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -240,7 +240,7 @@
 			]
 		},
 		{
-			"name": "BlueB - Authorize Linux for Health",
+			"name": "BlueB - Authorize LinuxForHealth",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true,
 				"disabledSystemHeaders": {

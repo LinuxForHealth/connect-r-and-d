@@ -20,7 +20,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 
 /**
- * Defines the Linux for Health "internal" routes for data storage, notification, and error handling
+ * Defines the LinuxForHealth "internal" routes for data storage, notification, and error handling
  */
 public final class LinuxForHealthRouteBuilder extends RouteBuilder {
 
