@@ -51,17 +51,10 @@ public class X12RouteBuilder extends BaseRouteBuilder {
         .route()
         .routeId(ROUTE_ID)
         .unmarshal().json(JsonLibrary.Jackson, X12RouteRequest.class)
-        .process( e-> {
-            X12RouteRequest request = e.getIn().getBody(X12RouteRequest.class);
-            e.getIn().setBody(request.getX12(), String.class);
-        })
-        .transform(body().regexReplaceAll(getSystemLineSeparator(), ""))
+        .setBody(simple("${body.x12}"))
         .split(method("x12splitter", "split"), new LFHMultiResultStrategy())
         .parallelProcessing()
-        .to("direct:process-x12-transaction")
-        .end();
-
-        from("direct:process-x12-transaction")
+        .parallelAggregate()
         .process( e-> {
             String x12Transaction = e.getIn().getBody(String.class);
 
@@ -75,8 +68,7 @@ public class X12RouteBuilder extends BaseRouteBuilder {
             e.getIn().setHeader("X12MessageType", x12MessageType);
         })
         .process(new MetaDataProcessor(routePropertyNamespace))
-        .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
-        .end();
+        .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI);
     }
 
     /**
