@@ -52,9 +52,9 @@ public class X12RouteBuilder extends BaseRouteBuilder {
         .routeId(ROUTE_ID)
         .unmarshal().json(JsonLibrary.Jackson, X12RouteRequest.class)
         .setBody(simple("${body.x12}"))
-        .split(method("x12splitter", "split"), new LFHMultiResultStrategy())
+        .split(method("x12splitter", "split"))
+        .aggregationStrategy(new LFHMultiResultStrategy())
         .parallelProcessing()
-        .parallelAggregate()
         .process( e-> {
             String x12Transaction = e.getIn().getBody(String.class);
 
