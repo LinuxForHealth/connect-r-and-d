@@ -5,12 +5,14 @@
  */
 package com.linuxforhealth.connect.builder;
 
-import com.linuxforhealth.connect.processor.MetaDataProcessor;
 import com.linuxforhealth.connect.support.CamelContextSupport;
-import com.linuxforhealth.connect.support.LFHMultiResultStrategy;
-import com.linuxforhealth.connect.support.x12.IsaValidatingParser;
-import com.linuxforhealth.connect.support.x12.X12RouteRequest;
+import com.linuxforhealth.connect.support.X12ParserUtil;
+import org.apache.camel.LoggingLevel;
 import org.apache.camel.model.dataformat.JsonLibrary;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static org.apache.camel.builder.Builder.bean;
 
 /**
  * Supports X12 Transaction Processing via a REST endpoint.
@@ -22,12 +24,17 @@ import org.apache.camel.model.dataformat.JsonLibrary;
  */
 public class X12RouteBuilder extends BaseRouteBuilder {
 
-    public static final String ROUTE_ID = "x12";
+    private Logger logger = LoggerFactory.getLogger(X12RouteBuilder.class);
 
-    private final String systemLineSeparator = System.lineSeparator();
+    // route constants
+    public static final String ROUTE_ID = "x12";
+    public static final String PROCESS_X12_TRANSACTION_URI = "direct:x12-transaction";
+
+    // x12 constants
+    public static final int ISA_SEGMENT_LENGTH = 106;
 
     protected String getSystemLineSeparator() {
-        return systemLineSeparator;
+        return System.lineSeparator();
     }
 
     @Override
@@ -50,54 +57,25 @@ public class X12RouteBuilder extends BaseRouteBuilder {
         .post()
         .route()
         .routeId(ROUTE_ID)
-        .unmarshal().json(JsonLibrary.Jackson, X12RouteRequest.class)
-        .setBody(simple("${body.x12}"))
-        .split(method("x12splitter", "split"))
-        .aggregationStrategy(new LFHMultiResultStrategy())
-        .parallelProcessing()
-        .process( e-> {
-            String x12Transaction = e.getIn().getBody(String.class);
+        .unmarshal().json(JsonLibrary.Jackson)
+        .setBody(jsonpath("x12"))
+        .validate(e -> e.getIn().getBody(String.class).length() > ISA_SEGMENT_LENGTH)
+        .log(LoggingLevel.DEBUG, logger, "Parsing X12 Delimiters . . . ")
+        .setProperty("fieldDelimiter", simple("${body.substring(3,4)}"))
+        .log(LoggingLevel.DEBUG, logger, "Field Delimiter ${exchangeProperty.fieldDelimiter}")
+        .setProperty("repetitionCharacter", simple("${body.substring(82,83)}"))
+        .log(LoggingLevel.DEBUG, logger, "Repetition Character ${exchangeProperty.repetitionCharacter}")
+        .setProperty("componentSeparator", simple("${body.substring(104,105)}"))
+        .log(LoggingLevel.DEBUG, logger, "Component Separator ${exchangeProperty.componentSeparator}")
+        .setProperty("lineSeparator", simple("${body.substring(105,106)}"))
+        .log(LoggingLevel.DEBUG, logger, "Line Separator to ${exchangeProperty.lineSeparator}")
+        .log(LoggingLevel.DEBUG, logger, "Completed parsing X12 Delimiters")
+        .split(bean(X12ParserUtil.class, "split(${body}, ${exchangeProperty.fieldDelimiter}, ${exchangeProperty.lineSeparator})"))
+        .to(PROCESS_X12_TRANSACTION_URI)
+        .end();
 
-            String isaSegment = x12Transaction.substring(0, IsaValidatingParser.ISA_SEGMENT_LENGTH);
-            IsaValidatingParser isaParser = new IsaValidatingParser(isaSegment);
-            String x12MessageType = getX12MessageType(
-                    x12Transaction,
-                    isaParser.getFieldDelimiter(),
-                    isaParser.getLineSeparator());
-
-            e.getIn().setHeader("X12MessageType", x12MessageType);
-        })
-        .process(new MetaDataProcessor(routePropertyNamespace))
+        from(PROCESS_X12_TRANSACTION_URI)
         .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI);
     }
 
-    /**
-     * Parses the X12 Message Type from the ST segment transaction code and specification version
-     * Example ST Segment:
-     * <code>
-     *     ST*270*0010*005010X279A1~
-     * </code>
-     * The transaction code is in the second field, delimited by a "*"
-     *
-     * @param x12Transaction The X12 transaction string
-     * @param fieldDelimiter The field delimiter character
-     * @param lineSeparator The line separator character
-     * @return The X12 message type for the transaction
-     */
-    private String getX12MessageType(String x12Transaction, String fieldDelimiter, String lineSeparator) {
-
-        int transactionStart = x12Transaction.indexOf(lineSeparator + "ST") + 1;
-        int transactionEnd = x12Transaction.indexOf(lineSeparator, transactionStart);
-        String splitCharacter = fieldDelimiter;
-
-        if (splitCharacter.equals("*") || splitCharacter.equals("|") || splitCharacter.equals("?")) {
-            splitCharacter = "\\" + splitCharacter;
-        }
-
-        String[] transactionHeaderFields = x12Transaction
-                .substring(transactionStart, transactionEnd)
-                .split(splitCharacter);
-
-        return transactionHeaderFields[1];
-    }
 }

@@ -6,7 +6,7 @@
 package com.linuxforhealth.connect.builder;
 
 import com.linuxforhealth.connect.support.TestUtils;
-import com.linuxforhealth.connect.support.x12.X12TransactionSplitter;
+import com.linuxforhealth.connect.support.X12ParserUtil;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +31,7 @@ public class X12RouteTest extends RouteTestSupport {
     @BeforeEach
     @Override
     protected void configureContext() throws Exception {
-        context.getRegistry().bind("x12splitter", new X12TransactionSplitter());
+        context.getRegistry().bind("x12splitter", new X12ParserUtil());
 
         mockProducerEndpoint(X12RouteBuilder.ROUTE_ID,
                 LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI,
@@ -48,6 +48,11 @@ public class X12RouteTest extends RouteTestSupport {
                 .getTypeConverter()
                 .convertTo(String.class, TestUtils.getMessage("x12", "270-005010X279A1.json"));
 
+        mockResult.expectedPropertyReceived("fieldDelimiter", "*");
+        mockResult.expectedPropertyReceived("repetitionCharacter", "|");
+        mockResult.expectedPropertyReceived("componentSeparator", ":");
+        mockResult.expectedPropertyReceived("lineSeparator", "~");
+
         mockResult.expectedMessageCount(1);
 
         fluentTemplate.to("http://0.0.0.0:8080/x12")
@@ -62,6 +67,11 @@ public class X12RouteTest extends RouteTestSupport {
         String testMessage = context
                 .getTypeConverter()
                 .convertTo(String.class, TestUtils.getMessage("x12", "270-837-005010X279A1.json"));
+
+        mockResult.expectedPropertyReceived("fieldDelimiter", "*");
+        mockResult.expectedPropertyReceived("repetitionCharacter", "|");
+        mockResult.expectedPropertyReceived("componentSeparator", ":");
+        mockResult.expectedPropertyReceived("lineSeparator", "~");
 
         mockResult.expectedMessageCount(3);
 
