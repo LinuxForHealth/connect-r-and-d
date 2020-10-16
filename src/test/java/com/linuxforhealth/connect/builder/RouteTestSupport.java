@@ -7,6 +7,8 @@ package com.linuxforhealth.connect.builder;
 
 import java.io.IOException;
 import java.util.Properties;
+
+import org.apache.camel.Processor;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.RouteDefinition;
@@ -68,10 +70,31 @@ abstract class RouteTestSupport extends CamelTestSupport {
     }
 
     /**
-     * Mocks a producer endpoint by producer id using a {@link AdviceWithRouteBuilder}.
+     * Mocks a processor component by id using a {@link AdviceWithRouteBuilder}.
      *
      * @param routeId     The route id to update.
-     * @param producerId The producer uri to mock.
+     * @param processorId The component id to mock.
+     * @param mockProcessor The mock uri which replaces the producer uri.
+     * @throws Exception If an error occurs during processing.
+     */
+    protected void mockProcessorById(String routeId, String processorId, Processor mockProcessor) throws Exception {
+
+        RouteDefinition routeDefinition = context.getRouteDefinition(routeId);
+        AdviceWithRouteBuilder advice = new AdviceWithRouteBuilder() {
+            @Override
+            public void configure() {
+                weaveById(processorId).replace().process(mockProcessor);
+            }
+        };
+
+        context.adviceWith(routeDefinition, advice);
+    }
+
+    /**
+     * Mocks a producer component by id using a {@link AdviceWithRouteBuilder}.
+     *
+     * @param routeId     The route id to update.
+     * @param producerId The component id to mock.
      * @param mockUri     The mock uri which replaces the producer uri.
      * @throws Exception If an error occurs during processing.
      */

@@ -6,7 +6,6 @@
 package com.linuxforhealth.connect.builder;
 
 import com.linuxforhealth.connect.support.TestUtils;
-import com.linuxforhealth.connect.support.X12ParserUtil;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,9 +30,13 @@ public class X12RouteTest extends RouteTestSupport {
     @BeforeEach
     @Override
     protected void configureContext() throws Exception {
-        context.getRegistry().bind("x12splitter", new X12ParserUtil());
+        mockProcessorById(X12RouteBuilder.X12_TRANSACTION_ROUTE_ID,
+                X12RouteBuilder.METADATA_PROCESSOR_ID,
+                e -> {
+                    e.getIn().setBody("{\"lfh\":\"message\"}");
+                });
 
-        mockProducerEndpoint(X12RouteBuilder.ROUTE_ID,
+        mockProducerEndpoint(X12RouteBuilder.X12_TRANSACTION_ROUTE_ID,
                 LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI,
                 "mock:result");
 
@@ -53,7 +56,7 @@ public class X12RouteTest extends RouteTestSupport {
         mockResult.expectedPropertyReceived("componentSeparator", ":");
         mockResult.expectedPropertyReceived("lineSeparator", "~");
 
-        mockResult.expectedMessageCount(1);
+        mockResult.expectedHeaderReceived("X12MessageType", "270");
 
         fluentTemplate.to("http://0.0.0.0:8080/x12")
                 .withBody(testMessage)

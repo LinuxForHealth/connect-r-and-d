@@ -5,7 +5,9 @@
  */
 package com.linuxforhealth.connect.builder;
 
+import com.linuxforhealth.connect.processor.MetaDataProcessor;
 import com.linuxforhealth.connect.support.CamelContextSupport;
+import com.linuxforhealth.connect.support.LFHMultiResultStrategy;
 import com.linuxforhealth.connect.support.X12ParserUtil;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.model.dataformat.JsonLibrary;
@@ -27,8 +29,10 @@ public class X12RouteBuilder extends BaseRouteBuilder {
     private Logger logger = LoggerFactory.getLogger(X12RouteBuilder.class);
 
     // route constants
-    public static final String ROUTE_ID = "x12";
+    public static final String X12_REST_ROUTE_ID = "x12";
+    public static final String X12_TRANSACTION_ROUTE_ID = "x12-transaction";
     public static final String PROCESS_X12_TRANSACTION_URI = "direct:x12-transaction";
+    public static final String METADATA_PROCESSOR_ID = "metadata-processor";
 
     // x12 constants
     public static final int ISA_SEGMENT_LENGTH = 106;
@@ -56,7 +60,7 @@ public class X12RouteBuilder extends BaseRouteBuilder {
         rest(x12Uri)
         .post()
         .route()
-        .routeId(ROUTE_ID)
+        .routeId(X12_REST_ROUTE_ID)
         .unmarshal().json(JsonLibrary.Jackson)
         .setBody(jsonpath("x12"))
         .validate(e -> e.getIn().getBody(String.class).length() > ISA_SEGMENT_LENGTH)
@@ -70,11 +74,21 @@ public class X12RouteBuilder extends BaseRouteBuilder {
         .setProperty("lineSeparator", simple("${body.substring(105,106)}"))
         .log(LoggingLevel.DEBUG, logger, "Line Separator to ${exchangeProperty.lineSeparator}")
         .log(LoggingLevel.DEBUG, logger, "Completed parsing X12 Delimiters")
-        .split(bean(X12ParserUtil.class, "split(${body}, ${exchangeProperty.fieldDelimiter}, ${exchangeProperty.lineSeparator})"))
-        .to(PROCESS_X12_TRANSACTION_URI)
+        .split(bean(X12ParserUtil.class,
+                "split(${body}, ${exchangeProperty.fieldDelimiter}, ${exchangeProperty.lineSeparator})"),
+                new LFHMultiResultStrategy())
+            .stopOnException()
+            .streaming()
+            .to(PROCESS_X12_TRANSACTION_URI)
         .end();
 
         from(PROCESS_X12_TRANSACTION_URI)
+        .routeId(X12_TRANSACTION_ROUTE_ID)
+        .setHeader("X12MessageType", bean(X12ParserUtil.class,
+                "getX12MessageType(${body}, ${exchangeProperty.fieldDelimiter}, ${exchangeProperty.lineSeparator})"))
+        .log(LoggingLevel.DEBUG, logger, "Processing X12 Transaction ${header.X12MessageType}")
+        .process(new MetaDataProcessor(routePropertyNamespace)).id(METADATA_PROCESSOR_ID)
+        .id(METADATA_PROCESSOR_ID)
         .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI);
     }
 
