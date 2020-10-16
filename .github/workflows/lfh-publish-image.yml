@@ -1,11 +1,10 @@
 # (C) Copyright IBM Corp. 2020
 # SPDX-License-Identifier: Apache-2.0
-
+#
 name: Linux for Health Publish Image to Registry
 # Publishes linuxforhealth/connect snapshot and release images.
 # Snapshot images are pushed when commits are made against master.
 # Release images are pushed with a GitHub release tag is created an published.
-
 on:
   push:
     branches: [master]
