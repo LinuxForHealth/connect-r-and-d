@@ -35,6 +35,7 @@ dependencies {
     implementation group: 'org.apache.camel', name: 'camel-nats', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-rest', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-support', version: project.camelVersion
+    implementation group: 'org.apache.camel', name: 'camel-xpath', version: project.camelVersion
 
     // Java utils (base64 encoding, OS type)
     implementation group: 'commons-codec', name: 'commons-codec', version: project.commonsVersion
