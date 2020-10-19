@@ -87,7 +87,7 @@ public class X12RouteBuilder extends BaseRouteBuilder {
         .setHeader("X12MessageType", bean(X12ParserUtil.class,
                 "getX12MessageType(${body}, ${exchangeProperty.fieldDelimiter}, ${exchangeProperty.lineSeparator})"))
         .log(LoggingLevel.DEBUG, logger, "Processing X12 Transaction ${header.X12MessageType}")
-        .process(new MetaDataProcessor(routePropertyNamespace)).id(METADATA_PROCESSOR_ID)
+        .process(new MetaDataProcessor(routePropertyNamespace))
         .id(METADATA_PROCESSOR_ID)
         .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI);
     }
