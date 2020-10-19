@@ -194,6 +194,7 @@ function start() {
                 --health-timeout=5s \
                 "${LFH_PG_IMAGE}"
   is_ready localhost "${LFH_PG_SERVER_PORT}"
+  wait_for_log_msg ${LFH_PG_SERVICE_NAME} "database system is ready to accept connections"
 
   echo "launch kong-migration"
   ${OCI_COMMAND} pull "${LFH_KONG_IMAGE}"
