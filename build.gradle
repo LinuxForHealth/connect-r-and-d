@@ -36,6 +36,7 @@ dependencies {
     implementation group: 'org.apache.camel', name: 'camel-nats', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-rest', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-support', version: project.camelVersion
+    implementation group: 'org.apache.camel', name: 'camel-xpath', version: project.camelVersion
 
     // Java utils (OS type)
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: project.commonsLang3Version
