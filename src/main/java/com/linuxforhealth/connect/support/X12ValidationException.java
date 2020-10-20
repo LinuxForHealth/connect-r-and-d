@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package com.linuxforhealth.connect.support.x12;
+package com.linuxforhealth.connect.support;
 
 public class X12ValidationException extends RuntimeException {
 

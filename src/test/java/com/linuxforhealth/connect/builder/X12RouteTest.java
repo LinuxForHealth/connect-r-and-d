@@ -6,17 +6,14 @@
 package com.linuxforhealth.connect.builder;
 
 import com.linuxforhealth.connect.support.TestUtils;
-import com.linuxforhealth.connect.support.x12.X12TransactionSplitter;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
  * Tests {@link X12RouteTest}
  */
-@Disabled
 public class X12RouteTest extends RouteTestSupport {
 
     private MockEndpoint mockResult;
@@ -33,9 +30,13 @@ public class X12RouteTest extends RouteTestSupport {
     @BeforeEach
     @Override
     protected void configureContext() throws Exception {
-        context.getRegistry().bind("x12splitter", new X12TransactionSplitter());
+        mockProcessorById(X12RouteBuilder.X12_TRANSACTION_ROUTE_ID,
+                X12RouteBuilder.METADATA_PROCESSOR_ID,
+                e -> {
+                    e.getIn().setBody("{\"lfh\":\"message\"}");
+                });
 
-        mockProducerEndpoint(X12RouteBuilder.ROUTE_ID,
+        mockProducerEndpoint(X12RouteBuilder.X12_TRANSACTION_ROUTE_ID,
                 LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI,
                 "mock:result");
 
@@ -50,7 +51,12 @@ public class X12RouteTest extends RouteTestSupport {
                 .getTypeConverter()
                 .convertTo(String.class, TestUtils.getMessage("x12", "270-005010X279A1.json"));
 
-        mockResult.expectedMessageCount(1);
+        mockResult.expectedPropertyReceived("fieldDelimiter", "*");
+        mockResult.expectedPropertyReceived("repetitionCharacter", "|");
+        mockResult.expectedPropertyReceived("componentSeparator", ":");
+        mockResult.expectedPropertyReceived("lineSeparator", "~");
+
+        mockResult.expectedHeaderReceived("X12MessageType", "270");
 
         fluentTemplate.to("http://0.0.0.0:8080/x12")
                 .withBody(testMessage)
@@ -64,6 +70,11 @@ public class X12RouteTest extends RouteTestSupport {
         String testMessage = context
                 .getTypeConverter()
                 .convertTo(String.class, TestUtils.getMessage("x12", "270-837-005010X279A1.json"));
+
+        mockResult.expectedPropertyReceived("fieldDelimiter", "*");
+        mockResult.expectedPropertyReceived("repetitionCharacter", "|");
+        mockResult.expectedPropertyReceived("componentSeparator", ":");
+        mockResult.expectedPropertyReceived("lineSeparator", "~");
 
         mockResult.expectedMessageCount(3);
 
