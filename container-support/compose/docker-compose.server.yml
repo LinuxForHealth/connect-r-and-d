@@ -1,8 +1,5 @@
 version: "3.7"
 services:
-  nats-server:
-    ports:
-      - ${LFH_NATS_CLIENT_PORT}:${LFH_NATS_CLIENT_PORT}
   lfh:
     image: ${LFH_CONNECT_IMAGE}
     restart: "always"
@@ -13,9 +10,9 @@ services:
       LFH_CONNECT_ORTHANC_SERVER_URI: "http://orthanc:8042/instances"
       LFH_CONNECT_DATASTORE_BROKERS: "kafka:9092"
       LFH_CONNECT_EXTERNAL_HOST_IP: "127.0.0.1"
-    ports:
-      - ${LFH_CONNECT_MLLP_PORT}:${LFH_CONNECT_MLLP_PORT}
-      - ${LFH_CONNECT_HTTP_PORT}:${LFH_CONNECT_HTTP_PORT}
+    expose:
+      - ${LFH_CONNECT_MLLP_PORT}
+      - ${LFH_CONNECT_HTTP_PORT}
     depends_on:
       - "kafka"
       - "nats-server"
@@ -24,8 +21,6 @@ services:
     restart: "always"
     expose:
       - ${LFH_PG_SERVER_PORT}
-    ports:
-      - ${LFH_PG_SERVER_PORT}:${LFH_PG_SERVER_PORT}
     environment:
       PGDATA: ${LFH_PG_DATA}
       POSTGRES_USER: ${LFH_PG_USER}
@@ -39,9 +34,7 @@ services:
     depends_on:
       - postgres
     ports:
-      - ${LFH_KONG_PORT}:${LFH_KONG_PORT}
       - ${LFH_KONG_SSL_PORT}:${LFH_KONG_SSL_PORT}
-      - ${LFH_KONG_ADMIN_PORT}:${LFH_KONG_ADMIN_PORT}
       - ${LFH_KONG_ADMIN_SSL_PORT}:${LFH_KONG_ADMIN_SSL_PORT}
       - ${LFH_KONG_MLLP_PORT}:${LFH_KONG_MLLP_PORT}
     environment:
@@ -51,5 +44,6 @@ services:
       KONG_PG_PASSWORD: ${LFH_PG_PASSWORD}
       KONG_ADMIN_LISTEN: ${LFH_KONG_ADMIN_LISTEN}
       KONG_STREAM_LISTEN: ${LFH_KONG_STREAM_LISTEN}
+      KONG_LOG_LEVEL: ${LFH_KONG_LOG_LEVEL}
 volumes:
   pg_data: {}
