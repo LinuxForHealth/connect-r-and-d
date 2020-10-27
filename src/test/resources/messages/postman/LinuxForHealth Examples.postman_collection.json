@@ -20,10 +20,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{host}}:8443/hello-world?name=me",
+					"raw": "https://127.0.0.1:8443/hello-world?name=me",
 					"protocol": "https",
 					"host": [
-						"{{host}}"
+						"127",
+						"0",
+						"0",
+						"1"
 					],
 					"port": "8443",
 					"path": [
@@ -140,10 +143,13 @@
 					}
 				},
 				"url": {
-					"raw": "https://{{host}}:8443/fhir/r4/Patient",
+					"raw": "https://127.0.0.1:8443/fhir/r4/Patient",
 					"protocol": "https",
 					"host": [
-						"{{host}}"
+						"127",
+						"0",
+						"0",
+						"1"
 					],
 					"port": "8443",
 					"path": [
@@ -379,10 +385,13 @@
 					}
 				},
 				"url": {
-					"raw": "https://{{host}}:8443/bluebutton/v1/Patient?-19990000002154",
+					"raw": "https://127.0.0.1:8443/bluebutton/v1/Patient?-19990000002154",
 					"protocol": "https",
 					"host": [
-						"{{host}}"
+						"127",
+						"0",
+						"0",
+						"1"
 					],
 					"port": "8443",
 					"path": [
@@ -502,10 +511,13 @@
 					}
 				},
 				"url": {
-					"raw": "https://{{host}}:8443/bluebutton/v1/ExplanationOfBenefit/?patient=-19990000002154",
+					"raw": "https://127.0.0.1:8443/bluebutton/v1/ExplanationOfBenefit/?patient=-19990000002154",
 					"protocol": "https",
 					"host": [
-						"{{host}}"
+						"127",
+						"0",
+						"0",
+						"1"
 					],
 					"port": "8443",
 					"path": [
@@ -626,10 +638,13 @@
 					}
 				},
 				"url": {
-					"raw": "https://{{host}}:8443/bluebutton/v1/Coverage/?beneficiary=-19990000002154",
+					"raw": "https://127.0.0.1:8443/bluebutton/v1/Coverage/?beneficiary=-19990000002154",
 					"protocol": "https",
 					"host": [
-						"{{host}}"
+						"127",
+						"0",
+						"0",
+						"1"
 					],
 					"port": "8443",
 					"path": [
@@ -766,10 +781,13 @@
 					}
 				},
 				"url": {
-					"raw": "https://{{host}}:8443/orthanc/instances",
+					"raw": "https://127.0.0.1:8443/orthanc/instances",
 					"protocol": "https",
 					"host": [
-						"{{host}}"
+						"127",
+						"0",
+						"0",
+						"1"
 					],
 					"port": "8443",
 					"path": [
@@ -887,10 +905,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://{{host}}:8443/datastore/message?topic=FHIR-R4_PATIENT&partition=0&offset=0",
+					"raw": "https://127.0.0.1:8443/datastore/message?topic=FHIR-R4_PATIENT&partition=0&offset=0",
 					"protocol": "https",
 					"host": [
-						"{{host}}"
+						"127",
+						"0",
+						"0",
+						"1"
 					],
 					"port": "8443",
 					"path": [
@@ -1008,10 +1029,13 @@
 					}
 				},
 				"url": {
-					"raw": "https://{{host}}:8443/x12",
+					"raw": "https://127.0.0.1:8443/x12",
 					"protocol": "https",
 					"host": [
-						"{{host}}"
+						"127",
+						"0",
+						"0",
+						"1"
 					],
 					"port": "8443",
 					"path": [
@@ -1108,10 +1132,13 @@
 					}
 				},
 				"url": {
-					"raw": "https://{{host}}:8443/ccd",
+					"raw": "https://127.0.0.1:8443/ccd",
 					"protocol": "https",
 					"host": [
-						"{{host}}"
+						"127",
+						"0",
+						"0",
+						"1"
 					],
 					"port": "8443",
 					"path": [
