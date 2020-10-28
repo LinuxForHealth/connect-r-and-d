@@ -1,19 +1,15 @@
 package com.linuxforhealth.connect.builder;
 
-import com.linuxforhealth.connect.support.LFHKafkaConsumer;
 import com.linuxforhealth.connect.support.TestUtils;
-import org.apache.camel.CamelContext;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.support.processor.validation.SchemaValidationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Properties;
 
 /**
  * Tests {@link CcdRouteBuilder}
@@ -79,6 +75,11 @@ public class CcdRouteTest extends RouteTestSupport{
         fluentTemplate.to("http://0.0.0.0:8080/ccd")
                 .withBody(testMessage)
                 .send();
+
+        if (mockErrorResult.getExchanges().size() > 0) {
+            String errorMessage = mockErrorResult.getExchanges().get(0).getMessage(String.class);
+            Assertions.fail("Received error message " + errorMessage);
+        }
 
         mockErrorResult.assertIsSatisfied();
         mockResult.assertIsSatisfied();
