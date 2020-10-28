@@ -80,6 +80,7 @@ public class CcdRouteTest extends RouteTestSupport{
                 .withBody(testMessage)
                 .send();
 
+        mockErrorResult.assertIsSatisfied();
         mockResult.assertIsSatisfied();
     }
 
