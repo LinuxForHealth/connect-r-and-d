@@ -89,7 +89,8 @@ public class CcdRouteTest extends RouteTestSupport{
         String testMessage = context
                 .getTypeConverter()
                 .convertTo(String.class, TestUtils.getMessage("ccd", "SampleCCDDocument.xml"))
-                .replaceAll(System.lineSeparator(), "").replaceAll("ClinicalDocument", "InvalidDocument");
+                .replaceAll("(?:>)(\\s*)<", "><")
+                .replaceAll("ClinicalDocument", "InvalidDocument");
 
         mockErrorResult.expectedMessageCount(1);
         mockResult.expectedMessageCount(0);
