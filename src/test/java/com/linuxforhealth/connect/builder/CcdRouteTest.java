@@ -71,6 +71,7 @@ public class CcdRouteTest extends RouteTestSupport{
 
         String expectedMessage = Base64.getEncoder().encodeToString(testMessage.getBytes(StandardCharsets.UTF_8));
 
+        mockErrorResult.expectedMessageCount(0);
         mockResult.expectedMessageCount(1);
         mockResult.expectedBodiesReceived(expectedMessage);
         mockResult.expectedPropertyReceived("dataStoreUri", "kafka:HL7-V3_CCD?brokers=localhost:9094");
@@ -82,6 +83,7 @@ public class CcdRouteTest extends RouteTestSupport{
                 .withBody(testMessage)
                 .send();
 
+        mockErrorResult.assertIsSatisfied();
         mockResult.assertIsSatisfied();
     }
 
