@@ -60,7 +60,7 @@ public class CcdRouteTest extends RouteTestSupport{
         String testMessage = context
                 .getTypeConverter()
                 .convertTo(String.class, TestUtils.getMessage("ccd", "SampleCCDDocument.xml"))
-                .replaceAll(System.lineSeparator(), "");
+                .replaceAll("(?:>)(\\s*)<", "><");
 
         String expectedMessage = Base64.getEncoder().encodeToString(testMessage.getBytes(StandardCharsets.UTF_8));
 
@@ -75,11 +75,6 @@ public class CcdRouteTest extends RouteTestSupport{
         fluentTemplate.to("http://0.0.0.0:8080/ccd")
                 .withBody(testMessage)
                 .send();
-
-        if (mockErrorResult.getExchanges().size() > 0) {
-            String errorMessage = mockErrorResult.getExchanges().get(0).getMessage(String.class);
-            Assertions.fail("Received error message " + errorMessage);
-        }
 
         mockErrorResult.assertIsSatisfied();
         mockResult.assertIsSatisfied();
@@ -97,11 +92,13 @@ public class CcdRouteTest extends RouteTestSupport{
                 .replaceAll(System.lineSeparator(), "").replaceAll("ClinicalDocument", "InvalidDocument");
 
         mockErrorResult.expectedMessageCount(1);
+        mockResult.expectedMessageCount(0);
 
         fluentTemplate.to("http://0.0.0.0:8080/ccd")
                 .withBody(testMessage)
                 .send();
 
+        mockResult.assertIsSatisfied();
         mockErrorResult.assertIsSatisfied();
     }
 }
