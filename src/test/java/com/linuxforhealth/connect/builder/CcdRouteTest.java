@@ -44,6 +44,8 @@ public class CcdRouteTest extends RouteTestSupport{
     @BeforeEach
     @Override
     protected void configureContext() throws Exception {
+        super.configureContext();
+
         mockResult = mockProducerEndpoint(CcdRouteBuilder.ROUTE_ID,
                 LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI,
                 "mock:result");
@@ -51,8 +53,6 @@ public class CcdRouteTest extends RouteTestSupport{
         mockErrorResult = mockProducerEndpoint(CcdRouteBuilder.ROUTE_ID,
                 LinuxForHealthRouteBuilder.ERROR_CONSUMER_URI,
                 "mock:error-result");
-
-        super.configureContext();
     }
 
     /**
