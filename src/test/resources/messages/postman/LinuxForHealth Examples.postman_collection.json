@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "c35ca2f8-733e-486a-9e5e-1d925ab41fa3",
+		"_postman_id": "a9472060-26e4-4967-8e98-6358971a4952",
 		"name": "LinuxForHealth Examples",
 		"description": "Sample workflow for Creating and Updating Patient Resources\n\n- Search for an existing patient resource using either a GET or POST request.\n- Create a patient resource using POST.\n- Add an email address to the patient record using UPDATE.\n- Add an emergency contact to the patient resource using PATCH (json patch not FHIR patch)\n- Execute a search to view the current state of the patient resource.\n- View resource history using either /_history for all versions or /_history/<version number> for a specific version\n\nThe delete endpoint was used to \"cleanup\" records as this sample was being built.\n",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -20,15 +20,15 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://127.0.0.1:8080/hello-world?name=me",
-					"protocol": "http",
+					"raw": "https://127.0.0.1:8443/hello-world?name=me",
+					"protocol": "https",
 					"host": [
 						"127",
 						"0",
 						"0",
 						"1"
 					],
-					"port": "8080",
+					"port": "8443",
 					"path": [
 						"hello-world"
 					],
@@ -143,15 +143,15 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8080/fhir/r4/Patient",
-					"protocol": "http",
+					"raw": "https://127.0.0.1:8443/fhir/r4/Patient",
+					"protocol": "https",
 					"host": [
 						"127",
 						"0",
 						"0",
 						"1"
 					],
-					"port": "8080",
+					"port": "8443",
 					"path": [
 						"fhir",
 						"r4",
@@ -266,15 +266,15 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8080/bluebutton/authorize",
-					"protocol": "http",
+					"raw": "https://127.0.0.1:8443/bluebutton/authorize",
+					"protocol": "https",
 					"host": [
 						"127",
 						"0",
 						"0",
 						"1"
 					],
-					"port": "8080",
+					"port": "8443",
 					"path": [
 						"bluebutton",
 						"authorize"
@@ -385,15 +385,15 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8080/bluebutton/v1/Patient?-19990000002154",
-					"protocol": "http",
+					"raw": "https://127.0.0.1:8443/bluebutton/v1/Patient?-19990000002154",
+					"protocol": "https",
 					"host": [
 						"127",
 						"0",
 						"0",
 						"1"
 					],
-					"port": "8080",
+					"port": "8443",
 					"path": [
 						"bluebutton",
 						"v1",
@@ -511,15 +511,15 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8080/bluebutton/v1/ExplanationOfBenefit/?patient=-19990000002154",
-					"protocol": "http",
+					"raw": "https://127.0.0.1:8443/bluebutton/v1/ExplanationOfBenefit/?patient=-19990000002154",
+					"protocol": "https",
 					"host": [
 						"127",
 						"0",
 						"0",
 						"1"
 					],
-					"port": "8080",
+					"port": "8443",
 					"path": [
 						"bluebutton",
 						"v1",
@@ -638,15 +638,15 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8080/bluebutton/v1/Coverage/?beneficiary=-19990000002154",
-					"protocol": "http",
+					"raw": "https://127.0.0.1:8443/bluebutton/v1/Coverage/?beneficiary=-19990000002154",
+					"protocol": "https",
 					"host": [
 						"127",
 						"0",
 						"0",
 						"1"
 					],
-					"port": "8080",
+					"port": "8443",
 					"path": [
 						"bluebutton",
 						"v1",
@@ -772,7 +772,7 @@
 				"body": {
 					"mode": "file",
 					"file": {
-						"src": "/Users/ccorley@us.ibm.com/Documents/image-00020.dcm"
+						"src": "/Users/ccorley@us.ibm.com/Documents/github/connect/src/test/resources/messages/orthanc/image-00020.dcm"
 					},
 					"options": {
 						"raw": {
@@ -781,15 +781,15 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8080/orthanc/instances",
-					"protocol": "http",
+					"raw": "https://127.0.0.1:8443/orthanc/instances",
+					"protocol": "https",
 					"host": [
 						"127",
 						"0",
 						"0",
 						"1"
 					],
-					"port": "8080",
+					"port": "8443",
 					"path": [
 						"orthanc",
 						"instances"
@@ -905,15 +905,15 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://127.0.0.1:8080/datastore/message?topic=FHIR-R4_PATIENT&partition=0&offset=0",
-					"protocol": "http",
+					"raw": "https://127.0.0.1:8443/datastore/message?topic=FHIR-R4_PATIENT&partition=0&offset=0",
+					"protocol": "https",
 					"host": [
 						"127",
 						"0",
 						"0",
 						"1"
 					],
-					"port": "8080",
+					"port": "8443",
 					"path": [
 						"datastore",
 						"message"
@@ -1029,12 +1029,15 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/x12",
-					"protocol": "http",
+					"raw": "https://127.0.0.1:8443/x12",
+					"protocol": "https",
 					"host": [
-						"localhost"
+						"127",
+						"0",
+						"0",
+						"1"
 					],
-					"port": "8080",
+					"port": "8443",
 					"path": [
 						"x12"
 					]
@@ -1125,16 +1128,19 @@
 				"body": {
 					"mode": "file",
 					"file": {
-						"src": "/Users/Dixon.Whitmire@ibm.com/projects/linux-for-health/connect/src/test/resources/messages/ccd/SampleCCDDocument.xml"
+						"src": "/Users/ccorley@us.ibm.com/Documents/github/connect/src/test/resources/messages/ccd/SampleCCDDocument.xml"
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/ccd",
-					"protocol": "http",
+					"raw": "https://127.0.0.1:8443/ccd",
+					"protocol": "https",
 					"host": [
-						"localhost"
+						"127",
+						"0",
+						"0",
+						"1"
 					],
-					"port": "8080",
+					"port": "8443",
 					"path": [
 						"ccd"
 					]
@@ -1217,7 +1223,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "bPAB7uSImcwatFS1UBG7arYnt9oGI8",
+				"value": "G5wnNPyPUIc5Sa16k50pDyC51N7fNJ",
 				"type": "string"
 			}
 		]
@@ -1226,7 +1232,7 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "2d74fa76-f309-496b-84a8-6c9546dbf238",
+				"id": "5ed31b68-1417-4694-b2be-883df2944385",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -1236,7 +1242,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "d84226bf-5473-409f-8f42-e0f10c0d17ac",
+				"id": "40868d33-8844-4656-a683-cd439890efcc",
 				"type": "text/javascript",
 				"exec": [
 					""

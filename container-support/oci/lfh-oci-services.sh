@@ -79,27 +79,27 @@ function wait_for_log_msg {
     return 1
 }
 
-function wait_for_kong {
+function wait_for_cmd {
     local retry_count=0
     local failed=0
+    local cmd="${@}"
 
     while [ "$retry_count" -lt "${LFH_RETRY_ATTEMPTS}" ]
     do
-      { curl --silent http://localhost:8001/services; } || { failed=1; }
+      { ${cmd}; } || { failed=1; }
       if [ $failed -eq 1 ]; then
           failed=0
-          echo "waiting until kong is ready"
+          echo "waiting until service is ready"
           ((retry_count=$retry_count+1))
           sleep "$LFH_SLEEP_INTERVAL"
       else
-          echo ""
-          echo "kong is ready"
+          echo "service is ready"
           return 0
       fi
     done
 
     if [ "${LFH_RETRY_EXIT_ON_FAILURE}" == true ]; then
-      echo "$kong is not ready. Exiting."
+      echo "service is not ready. Exiting."
       exit
     fi
     return 1
@@ -165,8 +165,6 @@ function start() {
   ${OCI_COMMAND} run -d \
                 --network "${LFH_NETWORK_NAME}" \
                 --name "${LFH_CONNECT_SERVICE_NAME}" \
-                -p "${LFH_CONNECT_MLLP_PORT}":"${LFH_CONNECT_MLLP_PORT}" \
-                -p "${LFH_CONNECT_HTTP_PORT}":"${LFH_CONNECT_HTTP_PORT}" \
                 --env LFH_CONNECT_DATASTORE_URI="kafka:<topicName>?brokers=kafka:9092" \
                 --env LFH_CONNECT_MESSAGING_URI="nats:lfh-events?servers=nats-server:4222" \
                 --env LFH_CONNECT_MESSAGING_SUBSCRIBE_HOSTS="nats-server:4222" \
@@ -174,15 +172,11 @@ function start() {
                 --env LFH_CONNECT_DATASTORE_BROKERS="kafka:9092" \
                 "${LFH_CONNECT_IMAGE}"
 
-  is_ready localhost "${LFH_CONNECT_MLLP_PORT}"
-  is_ready localhost "${LFH_CONNECT_HTTP_PORT}"
-
   echo "launch postgres container"
   ${OCI_COMMAND} pull "${LFH_PG_IMAGE}"
   ${OCI_COMMAND} run -d \
                 --network "${LFH_NETWORK_NAME}" \
                 --name "${LFH_PG_SERVICE_NAME}" \
-                -p "${LFH_PG_SERVER_PORT}":"${LFH_PG_SERVER_PORT}" \
                 --env PGDATA="${LFH_PG_DATA}" \
                 --env POSTGRES_USER="${LFH_PG_USER}" \
                 --env POSTGRES_PASSWORD="${LFH_PG_PASSWORD}" \
@@ -193,8 +187,7 @@ function start() {
                 --health-retries=10 \
                 --health-timeout=5s \
                 "${LFH_PG_IMAGE}"
-  is_ready localhost "${LFH_PG_SERVER_PORT}"
-  wait_for_log_msg ${LFH_PG_SERVICE_NAME} "database system is ready to accept connections"
+  wait_for_cmd docker exec -it "${LFH_PG_SERVICE_NAME}" psql --username "${LFH_PG_USER}" -c '\q'
 
   echo "launch kong-migration"
   ${OCI_COMMAND} pull "${LFH_KONG_IMAGE}"
@@ -214,9 +207,7 @@ function start() {
   ${OCI_COMMAND} run -d \
                 --network "${LFH_NETWORK_NAME}" \
                 --name "${LFH_KONG_SERVICE_NAME}" \
-                -p "${LFH_KONG_PORT}":"${LFH_KONG_PORT}" \
                 -p "${LFH_KONG_SSL_PORT}":"${LFH_KONG_SSL_PORT}" \
-                -p "${LFH_KONG_ADMIN_PORT}":"${LFH_KONG_ADMIN_PORT}" \
                 -p "${LFH_KONG_ADMIN_SSL_PORT}":"${LFH_KONG_ADMIN_SSL_PORT}" \
                 -p "${LFH_KONG_MLLP_PORT}":"${LFH_KONG_MLLP_PORT}" \
                 --env KONG_DATABASE="${LFH_KONG_DATABASE_TYPE}" \
@@ -225,14 +216,14 @@ function start() {
                 --env KONG_PG_PASSWORD="${LFH_PG_PASSWORD}" \
                 --env KONG_ADMIN_LISTEN="${LFH_KONG_ADMIN_LISTEN}" \
                 --env KONG_STREAM_LISTEN="${LFH_KONG_STREAM_LISTEN}" \
+                --env KONG_LOG_LEVEL="${LFH_KONG_LOG_LEVEL}" \
+                --env KONG_PLUGINS="${LFH_KONG_PLUGINS}" \
                 "${LFH_KONG_IMAGE}"
-  is_ready localhost "${LFH_KONG_PORT}"
   is_ready localhost "${LFH_KONG_SSL_PORT}"
-  is_ready localhost "${LFH_KONG_ADMIN_PORT}"
   is_ready localhost "${LFH_KONG_ADMIN_SSL_PORT}"
   is_ready localhost "${LFH_KONG_MLLP_PORT}"
-  wait_for_kong
-  configure_kong
+  wait_for_cmd curl --silent --insecure https://localhost:8444/services
+  . ./configure-kong.sh
 }
 
 function remove() {
@@ -248,38 +239,6 @@ function remove() {
   ${OCI_COMMAND} rm -f ${LFH_KONG_MIGRATION_SERVICE_NAME}
 
   ${OCI_COMMAND} network rm ${LFH_NETWORK_NAME}
-}
-
-function configure_kong {
-  host=${LFH_CONNECT_SERVICE_NAME}
-  hostip=${HOST_IP}
-  lfhhttp=${LFH_CONNECT_HTTP_PORT}
-  lfhmllp=${LFH_CONNECT_MLLP_PORT}
-  kongmllp=${LFH_KONG_MLLP_PORT}
-
-  echo "Adding a kong service for all LinuxForHealth http routes"
-  curl http://localhost:8001/services \
-    -H 'Content-Type: application/json' \
-    -d '{"name": "lfh-http-service", "url": "http://'"${host}"':'"${lfhhttp}"'"}'
-  echo ""
-
-  echo "Adding a kong route that matches incoming requests and sends them to the lfh-http-service url"
-  curl http://localhost:8001/services/lfh-http-service/routes \
-    -H 'Content-Type: application/json' \
-    -d '{"name": "lfh-http-route", "hosts": ["'"${hostip}"'","127.0.0.1","localhost"]}'
-  echo ""
-
-  echo "Adding a kong service for the linux for health hl7v2 mllp route"
-  curl http://localhost:8001/services \
-    -H 'Content-Type: application/json' \
-    -d '{"name": "lfh-hl7v2-service", "url": "tcp://'"${host}"':'"${lfhmllp}"'"}'
-  echo ""
-
-  echo "Adding a kong route that matches incoming requests and sends them to the lfh-hl7v2-service url"
-  curl http://localhost:8001/services/lfh-hl7v2-service/routes \
-    -H 'Content-Type: application/json' \
-    -d '{"name": "lfh-hl7v2-route", "protocols": ["tcp", "tls"], "destinations": [{"port":'"${kongmllp}"'}]}'
-  echo ""
 }
 
 case "${SERVICE_OPERATION}" in
