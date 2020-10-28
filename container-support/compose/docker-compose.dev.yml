@@ -11,8 +11,6 @@ services:
   postgres:
     image: ${LFH_PG_IMAGE}
     restart: "always"
-    expose:
-      - ${LFH_PG_SERVER_PORT}
     environment:
       PGDATA: ${LFH_PG_DATA}
       POSTGRES_USER: ${LFH_PG_USER}
