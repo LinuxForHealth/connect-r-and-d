@@ -1,19 +1,15 @@
 package com.linuxforhealth.connect.builder;
 
-import com.linuxforhealth.connect.support.LFHKafkaConsumer;
 import com.linuxforhealth.connect.support.TestUtils;
-import org.apache.camel.CamelContext;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.support.processor.validation.SchemaValidationException;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Properties;
 
 /**
  * Tests {@link CcdRouteBuilder}
@@ -44,18 +40,15 @@ public class CcdRouteTest extends RouteTestSupport{
     @BeforeEach
     @Override
     protected void configureContext() throws Exception {
-        mockProducerEndpoint(CcdRouteBuilder.ROUTE_ID,
+        mockResult = mockProducerEndpoint(CcdRouteBuilder.ROUTE_ID,
             LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI,
             "mock:result");
 
-        mockProducerEndpoint(CcdRouteBuilder.ROUTE_ID,
-            LinuxForHealthRouteBuilder.ERROR_CONSUMER_URI,
-            "mock:error-result");
+        mockErrorResult = mockProducerEndpoint(CcdRouteBuilder.ROUTE_ID,
+                LinuxForHealthRouteBuilder.ERROR_CONSUMER_URI,
+                "mock:error-result");
 
         super.configureContext();
-
-        mockResult = MockEndpoint.resolve(context, "mock:result");
-        mockErrorResult = MockEndpoint.resolve(context, "mock:error-result");
     }
 
     /**
@@ -67,10 +60,11 @@ public class CcdRouteTest extends RouteTestSupport{
         String testMessage = context
                 .getTypeConverter()
                 .convertTo(String.class, TestUtils.getMessage("ccd", "SampleCCDDocument.xml"))
-                .replaceAll(System.lineSeparator(), "");
+                .replaceAll("(?:>)(\\s*)<", "><");
 
         String expectedMessage = Base64.getEncoder().encodeToString(testMessage.getBytes(StandardCharsets.UTF_8));
 
+        mockErrorResult.expectedMessageCount(0);
         mockResult.expectedMessageCount(1);
         mockResult.expectedBodiesReceived(expectedMessage);
         mockResult.expectedPropertyReceived("dataStoreUri", "kafka:HL7-V3_CCD?brokers=localhost:9094");
@@ -82,6 +76,7 @@ public class CcdRouteTest extends RouteTestSupport{
                 .withBody(testMessage)
                 .send();
 
+        mockErrorResult.assertIsSatisfied();
         mockResult.assertIsSatisfied();
     }
 
@@ -94,14 +89,17 @@ public class CcdRouteTest extends RouteTestSupport{
         String testMessage = context
                 .getTypeConverter()
                 .convertTo(String.class, TestUtils.getMessage("ccd", "SampleCCDDocument.xml"))
-                .replaceAll(System.lineSeparator(), "").replaceAll("ClinicalDocument", "InvalidDocument");
+                .replaceAll("(?:>)(\\s*)<", "><")
+                .replaceAll("ClinicalDocument", "InvalidDocument");
 
         mockErrorResult.expectedMessageCount(1);
+        mockResult.expectedMessageCount(0);
 
         fluentTemplate.to("http://0.0.0.0:8080/ccd")
                 .withBody(testMessage)
                 .send();
 
+        mockResult.assertIsSatisfied();
         mockErrorResult.assertIsSatisfied();
     }
 }
