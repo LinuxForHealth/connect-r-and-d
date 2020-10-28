@@ -17,17 +17,11 @@ function add_http_route() {
   local method=$2
   local url=$3
   local service=$4
-  local hostip=${HOST_IP}
-  local hosts='"127.0.0.1","localhost"'
   local admin_url="https://localhost:8444/services/${service}/routes"
-
-  if [ ! $hostip == "127.0.0.1" ]; then
-    hosts='"'"${hostip}"'","127.0.0.1","localhost"'
-  fi
 
   curl --insecure "${admin_url}" \
   -H 'Content-Type: application/json' \
-  -d '{"paths": ["'"${url}"'"], "methods": ["'"${method}"'"], "hosts": ['"${hosts}"'], "name": "'"${name}"'", "protocols": ["http", "https"], "strip_path": false}'
+  -d '{"paths": ["'"${url}"'"], "methods": ["'"${method}"'"], "name": "'"${name}"'", "protocols": ["https"], "strip_path": false}'
   echo ""
 }
 
