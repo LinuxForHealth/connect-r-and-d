@@ -71,6 +71,7 @@ public class CcdRouteTest extends RouteTestSupport{
 
         String expectedMessage = Base64.getEncoder().encodeToString(testMessage.getBytes(StandardCharsets.UTF_8));
 
+        mockErrorResult.expectedBodiesReceived("error message");
         mockErrorResult.expectedMessageCount(0);
         mockResult.expectedMessageCount(1);
         mockResult.expectedBodiesReceived(expectedMessage);
