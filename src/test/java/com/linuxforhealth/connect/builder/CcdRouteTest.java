@@ -44,18 +44,15 @@ public class CcdRouteTest extends RouteTestSupport{
     @BeforeEach
     @Override
     protected void configureContext() throws Exception {
-        mockProducerEndpoint(CcdRouteBuilder.ROUTE_ID,
+        mockResult = mockProducerEndpoint(CcdRouteBuilder.ROUTE_ID,
             LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI,
             "mock:result");
 
-        mockProducerEndpoint(CcdRouteBuilder.ROUTE_ID,
-            LinuxForHealthRouteBuilder.ERROR_CONSUMER_URI,
-            "mock:error-result");
+        mockErrorResult = mockProducerEndpoint(CcdRouteBuilder.ROUTE_ID,
+                LinuxForHealthRouteBuilder.ERROR_CONSUMER_URI,
+                "mock:error-result");
 
         super.configureContext();
-
-        mockResult = MockEndpoint.resolve(context, "mock:result");
-        mockErrorResult = MockEndpoint.resolve(context, "mock:error-result");
     }
 
     /**
@@ -71,10 +68,6 @@ public class CcdRouteTest extends RouteTestSupport{
 
         String expectedMessage = Base64.getEncoder().encodeToString(testMessage.getBytes(StandardCharsets.UTF_8));
 
-        if (mockErrorResult.getExchanges().size() > 0) {
-            String errorMessage = mockErrorResult.getExchanges().get(0).getMessage(String.class);
-            Assertions.fail("Received error " + errorMessage);
-        }
         mockErrorResult.expectedMessageCount(0);
         mockResult.expectedMessageCount(1);
         mockResult.expectedBodiesReceived(expectedMessage);
@@ -87,7 +80,6 @@ public class CcdRouteTest extends RouteTestSupport{
                 .withBody(testMessage)
                 .send();
 
-        mockErrorResult.assertIsSatisfied();
         mockResult.assertIsSatisfied();
     }
 
