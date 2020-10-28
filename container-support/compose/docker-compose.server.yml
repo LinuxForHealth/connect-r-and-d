@@ -10,17 +10,12 @@ services:
       LFH_CONNECT_ORTHANC_SERVER_URI: "http://orthanc:8042/instances"
       LFH_CONNECT_DATASTORE_BROKERS: "kafka:9092"
       LFH_CONNECT_EXTERNAL_HOST_IP: "127.0.0.1"
-    expose:
-      - ${LFH_CONNECT_MLLP_PORT}
-      - ${LFH_CONNECT_HTTP_PORT}
     depends_on:
       - "kafka"
       - "nats-server"
   postgres:
     image: ${LFH_PG_IMAGE}
     restart: "always"
-    expose:
-      - ${LFH_PG_SERVER_PORT}
     environment:
       PGDATA: ${LFH_PG_DATA}
       POSTGRES_USER: ${LFH_PG_USER}

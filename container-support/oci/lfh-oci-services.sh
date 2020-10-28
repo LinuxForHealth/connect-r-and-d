@@ -117,7 +117,6 @@ function start() {
   ${OCI_COMMAND} run -d \
                 --network "${LFH_NETWORK_NAME}" \
                 --name "${LFH_ORTHANC_SERVICE_NAME}" \
-                --expose "${LFH_ORTHANC_HTTP_PORT}" \
                 "${LFH_ORTHANC_IMAGE}"
 
   ${OCI_COMMAND} pull "${LFH_NATS_IMAGE}"
@@ -134,7 +133,6 @@ function start() {
   ${OCI_COMMAND} run -d \
                 --network "${LFH_NETWORK_NAME}" \
                 --name "${LFH_ZOOKEEPER_SERVICE_NAME}" \
-                --expose "${LFH_ZOOKEEPER_PORT}" \
                 "${LFH_ZOOKEEPER_IMAGE}"
 
   echo "launch kafka container"
@@ -147,7 +145,6 @@ function start() {
                 --env KAFKA_ADVERTISED_LISTENERS="${LFH_KAFKA_ADVERTISED_LISTENERS}" \
                 --env KAFKA_LISTENER_SECURITY_PROTOCOL_MAP="${LFH_KAFKA_LISTENER_SECURITY_PROTOCOL_MAP}" \
                 --env KAFKA_INTER_BROKER_LISTENER_NAME="${LFH_KAFKA_INTER_BROKER_LISTENER_NAME}" \
-                --expose "${LFH_KAFKA_EXTERNAL_LISTENER_PORT}" \
                 "${LFH_KAFKA_IMAGE}"
 
   echo "launch kafdrop"
@@ -180,7 +177,6 @@ function start() {
   ${OCI_COMMAND} run -d \
                 --network "${LFH_NETWORK_NAME}" \
                 --name "${LFH_PG_SERVICE_NAME}" \
-                --expose "${LFH_PG_SERVER_PORT}" \
                 --env PGDATA="${LFH_PG_DATA}" \
                 --env POSTGRES_USER="${LFH_PG_USER}" \
                 --env POSTGRES_PASSWORD="${LFH_PG_PASSWORD}" \

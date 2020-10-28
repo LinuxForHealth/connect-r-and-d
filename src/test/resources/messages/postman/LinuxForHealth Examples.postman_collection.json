@@ -266,15 +266,15 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8080/bluebutton/authorize",
-					"protocol": "http",
+					"raw": "https://127.0.0.1:8443/bluebutton/authorize",
+					"protocol": "https",
 					"host": [
 						"127",
 						"0",
 						"0",
 						"1"
 					],
-					"port": "8080",
+					"port": "8443",
 					"path": [
 						"bluebutton",
 						"authorize"
