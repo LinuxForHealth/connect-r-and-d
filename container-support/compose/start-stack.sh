@@ -20,8 +20,6 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-export LFH_KONG_LFHHOST="compose_lfh_1"
-
 LFH_COMPOSE_PROFILE=${1:-dev}
 echo "${LFH_COMPOSE_PROFILE}"
 
@@ -29,43 +27,38 @@ echo "==============================================="
 echo "LFH Compose Startup"
 echo "LFH compose profile is set to ${LFH_COMPOSE_PROFILE}"
 
-function set_lfh_host() {
-  if [ "$(uname -s)" == "Darwin" ]; then
-    # Set Docker container to localhost connection workaround on MacOS
-    export LFH_KONG_LFHHOST="host.docker.internal"
-  else
-    export LFH_KONG_LFHHOST="localhost"
-  fi
-}
-
+# configures the LFH Kong API Gateway for the dev, integration, and server profiles
 case "${LFH_COMPOSE_PROFILE}" in
   dev)
-  echo "starting LFH compose development profile"
-  export COMPOSE_FILE=docker-compose.yml:docker-compose.dev.yml:docker-compose.kong-migration.yml
-  set_lfh_host
-  . ./configure-kong.sh
-  export COMPOSE_FILE=docker-compose.yml:docker-compose.dev.yml
-  ;;
-  server)
-  echo "starting LFH compose server profile"
-  export COMPOSE_FILE=docker-compose.yml:docker-compose.server.yml:docker-compose.kong-migration.yml
-  . ./configure-kong.sh
-  export COMPOSE_FILE=docker-compose.yml:docker-compose.server.yml
-  ;;
-  pi)
-  echo "starting LFH compose pi profile"
-  export COMPOSE_FILE=docker-compose.yml:docker-compose.pi.yml
-  ;;
-  *)
-  echo "invalid LFH Compose Profile. Expecting one of:dev, server, pi"
-  export COMPOSE_FILE=""
-  ;;
+    export LFH_KONG_LFHHOST="localhost"
+    [ "$(uname -s)" == "Darwin" ] && export LFH_KONG_LFHHOST="host.docker.internal"
+    export COMPOSE_FILE=docker-compose.yml:docker-compose.dev.yml:docker-compose.kong-migration.yml
+    source ./configure-kong.sh
+    ;;
+  integration|server)
+    export LFH_KONG_LFHHOST="compose_lfh_1"
+    export COMPOSE_FILE=docker-compose.yml:docker-compose.server.yml:docker-compose.kong-migration.yml
+    source ./configure-kong.sh
+    ;;
 esac
 
-if [ -n "${COMPOSE_FILE}" ]; then
-  echo "Parsing compose files for ${LFH_COMPOSE_PROFILE} profile."
-  echo "COMPOSE_FILE=${COMPOSE_FILE}"
-  docker-compose up -d --remove-orphans
-  docker-compose ps
+# set the compose override file
+OVERRIDE_FILE=docker-compose."${LFH_COMPOSE_PROFILE}".yml
+
+if [ ! -f "${OVERRIDE_FILE}" ]; then
+  echo "Invalid LFH Compose Profile ${LFH_COMPOSE_PROFILE}."
+  echo "Expecting one of: dev, integration, server, or pi"
+  return
 fi
+
+export COMPOSE_FILE=docker-compose.yml:"${OVERRIDE_FILE}"
+
+# integration includes external systems used as route producers
+if [[ "${LFH_COMPOSE_PROFILE}" == "integration" ]]; then
+  export COMPOSE_FILE="${COMPOSE_FILE}":docker-compose.server.yml
+fi
+
+echo "starting LFH compose ${LFH_COMPOSE_PROFILE}"
+docker-compose up -d --remove-orphans
+docker-compose ps
 echo "==============================================="
