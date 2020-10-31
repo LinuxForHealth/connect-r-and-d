@@ -3,7 +3,6 @@ services:
   ibm-fhir:
     image: ${IBM_FHIR_IMAGE}
     ports:
-      - ${IBM_FHIR_HTTP_PORT}:${IBM_FHIR_HTTP_PORT}
       - ${IBM_FHIR_HTTPS_PORT}:${IBM_FHIR_HTTPS_PORT}
   msft-fhir:
     restart: on-failure
