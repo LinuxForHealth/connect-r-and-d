@@ -10,6 +10,8 @@ services:
       LFH_CONNECT_ORTHANC_SERVER_URI: "http://orthanc:8042/instances"
       LFH_CONNECT_DATASTORE_BROKERS: "kafka:9092"
       LFH_CONNECT_EXTERNAL_HOST_IP: "127.0.0.1"
+      LFH_CONNECT_FHIR-R4_EXTERNALSERVERS: "https://ibm-fhir:9443/fhir-server/api/v4"
+#      LFH_CONNECT_FHIR-R4_EXTERNALSERVERS: "https://fhiruser:change-password@ibm-fhir:9443/fhir-server/api/v4,http://msft-fhir:8080"
     depends_on:
       - "kafka"
       - "nats-server"
