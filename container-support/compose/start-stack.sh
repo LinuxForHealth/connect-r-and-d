@@ -35,7 +35,7 @@ case "${LFH_COMPOSE_PROFILE}" in
     export COMPOSE_FILE=docker-compose.yml:docker-compose.dev.yml:docker-compose.kong-migration.yml
     source ./configure-kong.sh
     ;;
-  integration|server)
+  integration|pi|server)
     export LFH_KONG_LFHHOST="compose_lfh_1"
     export COMPOSE_FILE=docker-compose.yml:docker-compose.server.yml:docker-compose.kong-migration.yml
     source ./configure-kong.sh
