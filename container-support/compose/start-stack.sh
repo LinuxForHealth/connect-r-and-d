@@ -54,6 +54,8 @@ case "${LFH_COMPOSE_PROFILE}" in
   ;;
   pi)
   echo "starting LFH compose pi profile"
+  export COMPOSE_FILE=docker-compose.yml:docker-compose.pi.yml:docker-compose.kong-migration.yml
+  . ./configure-kong.sh
   export COMPOSE_FILE=docker-compose.yml:docker-compose.pi.yml
   ;;
   *)
