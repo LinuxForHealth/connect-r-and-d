@@ -60,5 +60,6 @@ fi
 
 echo "starting LFH compose ${LFH_COMPOSE_PROFILE}"
 docker-compose up -d --remove-orphans
+source ./configure-nats.sh
 docker-compose ps
 echo "==============================================="
