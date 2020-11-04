@@ -9,7 +9,7 @@
 
 # wait parameters used to determine when the services within a container are available
 SLEEP_INTERVAL=2
-MAX_CHECKS=10
+MAX_CHECKS=5
 
 source .env
 
@@ -17,8 +17,12 @@ DB_SERVICE="postgres"
 DB_SERVICE_MESSAGE="database system is ready to accept connections"
 DB_CONFIG_SERVICE="kong-migration"
 DB_CONFIG_SERVICE_MESSAGE="Database is up-to-date"
+DB_CONFIG_CONFIGURED_MESSAGE="Database already bootstrapped"
 KONG_SERVICE="kong"
 KONG_SERVICE_MESSAGE="finished preloading 'plugins' into the core_cache"
+
+# curl flags
+FLAGS="--insecure --silent --output /dev/null"
 
 function is_ready() {
     local service_name=$1
@@ -70,10 +74,9 @@ function add_http_route() {
   local service=$4
   local admin_url="https://localhost:8444/services/${service}/routes"
 
-  curl --insecure "${admin_url}" \
+  curl $FLAGS "${admin_url}" \
   -H 'Content-Type: application/json' \
   -d '{"paths": ["'"${url}"'"], "methods": ["'"${method}"'"], "name": "'"${name}"'", "protocols": ["https"], "strip_path": false}'
-  echo ""
 }
 
 # wait for postgres
@@ -83,7 +86,8 @@ wait_for_cmd docker exec -it compose_"$DB_SERVICE"_1 psql --username "${LFH_PG_U
 
 # start kong migration and wait for ephemeral container to complete
 docker-compose up -d "$DB_CONFIG_SERVICE"
-is_ready "$DB_CONFIG_SERVICE" "$DB_CONFIG_SERVICE_MESSAGE"
+{ is_ready "$DB_CONFIG_SERVICE" "$DB_CONFIG_SERVICE_MESSAGE"; } || \
+{ is_ready "$DB_CONFIG_SERVICE" "$DB_CONFIG_CONFIGURED_MESSAGE"; }
 
 # start kong and wait for kong to come up
 docker-compose up -d "$KONG_SERVICE"
@@ -97,10 +101,9 @@ lfhmllp=${LFH_CONNECT_MLLP_PORT}
 kongmllp=${LFH_KONG_MLLP_PORT}
 
 echo "Adding a kong service for all LinuxForHealth http routes"
-curl --insecure https://localhost:8444/services \
+curl $FLAGS https://localhost:8444/services \
   -H 'Content-Type: application/json' \
   -d '{"name": "lfh-http-service", "url": "http://'"${host}"':'"${lfhhttp}"'"}'
-echo ""
 
 echo "Adding kong http routes that match incoming requests and send them to the lfh-http-service url"
 add_http_route "hello-world-route" "GET" "/hello-world" "lfh-http-service"
@@ -111,22 +114,19 @@ add_http_route "x12-post-route" "POST" "/x12" "lfh-http-service"
 add_http_route "ccd-post-route" "POST" "/ccd" "lfh-http-service"
 
 echo "Adding a kong service for the LinuxForHealth hl7v2 mllp route"
-curl --insecure https://localhost:8444/services \
+curl $FLAGS https://localhost:8444/services \
   -H 'Content-Type: application/json' \
   -d '{"name": "lfh-hl7v2-service", "url": "tcp://'"${host}"':'"${lfhmllp}"'"}'
-echo ""
 
 echo "Adding a kong route that matches incoming requests and sends them to the lfh-hl7v2-service url"
-curl --insecure https://localhost:8444/services/lfh-hl7v2-service/routes \
+curl $FLAGS https://localhost:8444/services/lfh-hl7v2-service/routes \
   -H 'Content-Type: application/json' \
-  -d '{"protocols": ["tcp", "tls"], "destinations": [{"port":'"${kongmllp}"'}]}'
-echo ""
+  -d '{"name": "lfh-hl7v2-route", "protocols": ["tcp", "tls"], "destinations": [{"port":'"${kongmllp}"'}]}'
 
 echo "Adding a kong service for the LinuxForHealth Blue Button 2.0 routes"
-curl --insecure https://localhost:8444/services \
+curl $FLAGS https://localhost:8444/services \
   -H 'Content-Type: application/json' \
   -d '{"name": "lfh-bluebutton-service", "url": "http://'"${host}"':'"${lfhhttp}"'"}'
-echo ""
 
 echo "Adding Kong http routes that match incoming requests and send them to the lfh-bluebutton-service url"
 add_http_route "bb-authorize-route" "GET" "/bluebutton/authorize" "lfh-bluebutton-service"
