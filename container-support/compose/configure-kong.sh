@@ -21,8 +21,7 @@ DB_CONFIG_CONFIGURED_MESSAGE="Database already bootstrapped"
 KONG_SERVICE="kong"
 KONG_SERVICE_MESSAGE="finished preloading 'plugins' into the core_cache"
 
-# curl flags
-FLAGS="--insecure --silent --output /dev/null"
+CURL_FLAGS="--insecure --silent --output /dev/null"
 
 function is_ready() {
     local service_name=$1
@@ -74,7 +73,7 @@ function add_http_route() {
   local service=$4
   local admin_url="https://localhost:8444/services/${service}/routes"
 
-  curl $FLAGS "${admin_url}" \
+  curl $CURL_FLAGS "${admin_url}" \
   -H 'Content-Type: application/json' \
   -d '{"paths": ["'"${url}"'"], "methods": ["'"${method}"'"], "name": "'"${name}"'", "protocols": ["https"], "strip_path": false}'
 }
@@ -101,7 +100,7 @@ lfhmllp=${LFH_CONNECT_MLLP_PORT}
 kongmllp=${LFH_KONG_MLLP_PORT}
 
 echo "Adding a kong service for all LinuxForHealth http routes"
-curl $FLAGS https://localhost:8444/services \
+curl $CURL_FLAGS https://localhost:8444/services \
   -H 'Content-Type: application/json' \
   -d '{"name": "lfh-http-service", "url": "http://'"${host}"':'"${lfhhttp}"'"}'
 
@@ -114,17 +113,17 @@ add_http_route "x12-post-route" "POST" "/x12" "lfh-http-service"
 add_http_route "ccd-post-route" "POST" "/ccd" "lfh-http-service"
 
 echo "Adding a kong service for the LinuxForHealth hl7v2 mllp route"
-curl $FLAGS https://localhost:8444/services \
+curl $CURL_FLAGS https://localhost:8444/services \
   -H 'Content-Type: application/json' \
   -d '{"name": "lfh-hl7v2-service", "url": "tcp://'"${host}"':'"${lfhmllp}"'"}'
 
 echo "Adding a kong route that matches incoming requests and sends them to the lfh-hl7v2-service url"
-curl $FLAGS https://localhost:8444/services/lfh-hl7v2-service/routes \
+curl $CURL_FLAGS https://localhost:8444/services/lfh-hl7v2-service/routes \
   -H 'Content-Type: application/json' \
   -d '{"name": "lfh-hl7v2-route", "protocols": ["tcp", "tls"], "destinations": [{"port":'"${kongmllp}"'}]}'
 
 echo "Adding a kong service for the LinuxForHealth Blue Button 2.0 routes"
-curl $FLAGS https://localhost:8444/services \
+curl $CURL_FLAGS https://localhost:8444/services \
   -H 'Content-Type: application/json' \
   -d '{"name": "lfh-bluebutton-service", "url": "http://'"${host}"':'"${lfhhttp}"'"}'
 
