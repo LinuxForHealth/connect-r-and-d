@@ -200,7 +200,8 @@ function start() {
                 --env KONG_PG_PASSWORD="${LFH_PG_PASSWORD}" \
                 "${LFH_KONG_IMAGE}" \
                 kong migrations bootstrap -v
-  wait_for_log_msg ${LFH_KONG_MIGRATION_SERVICE_NAME} "Database is up-to-date"
+  { wait_for_log_msg ${LFH_KONG_MIGRATION_SERVICE_NAME} "Database is up-to-date"; } || \
+  { wait_for_log_msg ${LFH_KONG_MIGRATION_SERVICE_NAME} "Database already bootstrapped"; }
 
   echo "launch kong"
   ${OCI_COMMAND} pull "${LFH_KONG_IMAGE}"
@@ -237,6 +238,8 @@ function remove() {
   ${OCI_COMMAND} rm -f ${LFH_PG_SERVICE_NAME}
   ${OCI_COMMAND} rm -f ${LFH_KONG_SERVICE_NAME}
   ${OCI_COMMAND} rm -f ${LFH_KONG_MIGRATION_SERVICE_NAME}
+
+  ${OCI_COMMAND} volume rm pg_data
 
   ${OCI_COMMAND} network rm ${LFH_NETWORK_NAME}
 }
