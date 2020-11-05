@@ -4,7 +4,7 @@ Our project gladly welcomes external contributions. To contribute code or docume
 A good way to familiarize yourself with the codebase and contribution process is
 to look for and tackle low-hanging fruit in the [issue tracker](https://github.com/LinuxForHealth/connect/issues).
 Before embarking on a more ambitious contribution, please quickly [get in touch](#communication) with us.
-Also, be sure to take a look at the [ZenHub] (https://github.com/LinuxForHealth/connect/issues#workspaces/linux-for-health-5ee2d7cecec5920ec43ae1cb/board?repos=271668726) to get the full view of the issues and roadmap.
+Also, be sure to take a look at the [ZenHub](https://github.com/LinuxForHealth/connect/issues#workspaces/linux-for-health-5ee2d7cecec5920ec43ae1cb/board?repos=271668726) to get the full view of the issues and roadmap.
 
 **Note: We appreciate your effort, and want to avoid a situation where a contribution
 requires extensive rework (by you or by us), sits in backlog for a long time, or
@@ -58,7 +58,7 @@ LinuxForHealth is built on:
     Standard data formats, including HL7 FHIR R4, HL7 MLLP and EDI, with easy extensiblity to support any format.
 
 
-Instructions for developer setup can be found [here] (https://linuxforhealth.github.io/docs/developer-setup.html).
+Instructions for developer setup can be found [here](https://linuxforhealth.github.io/docs/developer-setup.html).
 
 
 ## Testing
@@ -71,7 +71,7 @@ Formatting has not been strictly enforced, but we'd like to improve it over time
 
 2. Use comments. Preferably javadoc.
 
-3. Keep the [documentation] (https://github.com/LinuxForHealth/docs) up-to-date. Documentation updates require a pull request.
+3. Keep the [documentation](https://github.com/LinuxForHealth/docs) up-to-date. Documentation updates require a pull request.
 
 4. Use spaces (not tabs) in java source. For this we have a checkstyle rule which will fail the build if you're using tabs. We also prefer spaces over tabs in JSON and XML, but its not strictly enforced.
 
