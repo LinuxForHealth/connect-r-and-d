@@ -32,7 +32,15 @@ function wait_for_cmd() {
     return 1
 }
 
+# start NATS JetStream
+echo "Starting NATS JetStream"
+docker-compose up -d --remove-orphans "nats-server"
+
 # configure NATS JetStream
-wait_for_cmd docker exec -it compose_nats-server_1 nats --server=compose_nats-server_1:4222 str add lfh-events --subjects lfh-events --ack --max-msgs=-1 --max-bytes=-1 --max-age=1y --storage file --retention limits --max-msg-size=-1 --discard old --dupe-window=10s
+wait_for_cmd docker exec -it compose_nats-server_1 nats \
+--server=compose_nats-server_1:4222 str add lfh-events \
+--subjects lfh-events --ack --max-msgs=-1 --max-bytes=-1 \
+--max-age=1y --storage file --retention limits \
+--max-msg-size=-1 --discard old --dupe-window=10s > /dev/null
 
 echo "NATS JetStream configuration complete"
