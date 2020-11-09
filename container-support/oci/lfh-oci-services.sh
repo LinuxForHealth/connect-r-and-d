@@ -125,7 +125,8 @@ function start() {
                 --network "${LFH_NETWORK_NAME}" \
                 --name "${LFH_NATS_SERVICE_NAME}" \
                 -p "${LFH_NATS_CLIENT_PORT}":"${LFH_NATS_CLIENT_PORT}" \
-                "${LFH_NATS_IMAGE}"
+                "${LFH_NATS_IMAGE}" \
+                server
   is_ready localhost "${LFH_NATS_CLIENT_PORT}"
   echo "configure NATS JetStream"
   wait_for_cmd docker exec -it "${LFH_NATS_SERVICE_NAME}" nats \
