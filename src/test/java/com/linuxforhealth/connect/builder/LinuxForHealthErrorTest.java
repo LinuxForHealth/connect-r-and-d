@@ -37,7 +37,7 @@ public class LinuxForHealthErrorTest extends RouteTestSupport {
         props.setProperty("lfh.connect.test.messagetype", "person");
 
         props.setProperty("lfh.connect.datastore.uri", "mock:data-store");
-        props.setProperty("lfh.connect.messaging.uri", "mock:messaging");
+        props.setProperty("lfh.connect.messaging.error.uri", "mock:messaging");
         props.setProperty("lfh.connect.datastore.remote-events.consumer.uri", "direct:remote-events");
         return props;
     }

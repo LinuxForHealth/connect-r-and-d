@@ -128,12 +128,29 @@ function start() {
                 "${LFH_NATS_IMAGE}" \
                 server
   is_ready localhost "${LFH_NATS_CLIENT_PORT}"
-  echo "configure NATS JetStream"
-  wait_for_cmd docker exec -it "${LFH_NATS_SERVICE_NAME}" nats \
-                --server="${LFH_NATS_SERVICE_NAME}":4222 str add lfh-events \
-                --subjects lfh-events --ack --max-msgs=-1 --max-bytes=-1 \
-                --max-age=1y --storage file --retention limits \
-                --max-msg-size=-1 --discard old --dupe-window=10s > /dev/null
+  echo "create NATS JetStream stream"
+  wait_for_cmd docker exec -it "${LFH_NATS_SERVICE_NAME}" \
+                nats --server="${LFH_NATS_SERVICE_NAME}":4222 \
+                str add lfh-events \
+                --subjects lfh-events \
+                --ack \
+                --max-msgs=-1 \
+                --max-bytes=-1 \
+                --max-age=1y \
+                --storage file \
+                --retention limits \
+                --max-msg-size=-1 \
+                --discard old \
+                --dupe-window=10s > /dev/null
+  echo "create NATS JetStream consumer"
+  docker exec -it "${LFH_NATS_SERVICE_NAME}" \
+              nats --server="${LFH_NATS_SERVICE_NAME}":4222 \
+              con add EVENTS SUBSCRIBER \
+              --ack none \
+              --target lfh-events \
+              --deliver last \
+              --replay instant \
+              --filter ''
 
   echo "launch zookeeper container"
   ${OCI_COMMAND} pull "${LFH_ZOOKEEPER_IMAGE}"

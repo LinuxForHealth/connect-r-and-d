@@ -10,10 +10,13 @@
 SLEEP_INTERVAL=2
 MAX_CHECKS=10
 
+source .env
+
 function wait_for_cmd() {
     local retry_count=0
     local failed=0
     local cmd="${@}"
+    echo ${cmd}
 
     while [ "$retry_count" -lt "$MAX_CHECKS" ]
     do
@@ -34,13 +37,32 @@ function wait_for_cmd() {
 
 # start NATS JetStream
 echo "Starting NATS JetStream"
-docker-compose up -d --remove-orphans "nats-server"
+service=$LFH_NATS_SERVICE_NAME
+docker-compose up -d --remove-orphans $service
 
-# configure NATS JetStream
-wait_for_cmd docker exec -it compose_nats-server_1 nats \
---server=compose_nats-server_1:4222 str add lfh-events \
---subjects lfh-events --ack --max-msgs=-1 --max-bytes=-1 \
---max-age=1y --storage file --retention limits \
---max-msg-size=-1 --discard old --dupe-window=10s > /dev/null
+# create JetStream stream
+wait_for_cmd docker exec -it compose_"$service"_1 \
+              nats --server=compose_"$service"_1:4222 \
+              str add EVENTS \
+              --subjects EVENTS.* \
+              --ack \
+              --max-msgs=-1 \
+              --max-bytes=-1 \
+              --max-age=1y \
+              --storage file \
+              --retention limits \
+              --max-msg-size=-1 \
+              --discard old \
+              --dupe-window=10s
+
+# create JetStream consumer
+docker exec -it compose_"$service"_1 \
+              nats --server=compose_"$service"_1:4222 \
+              con add EVENTS SUBSCRIBER \
+              --ack none \
+              --target lfh-events \
+              --deliver last \
+              --replay instant \
+              --filter ''
 
 echo "NATS JetStream configuration complete"
