@@ -150,7 +150,7 @@ function start() {
                 --target lfh-events \
                 --deliver last \
                 --replay instant \
-                --filter ''
+                --filter '' > /dev/null
 
   echo "launch zookeeper container"
   ${OCI_COMMAND} pull "${LFH_ZOOKEEPER_IMAGE}"
