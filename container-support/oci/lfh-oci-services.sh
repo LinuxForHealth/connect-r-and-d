@@ -130,7 +130,7 @@ function start() {
   is_ready localhost "${LFH_NATS_CLIENT_PORT}"
   echo "create NATS JetStream stream"
   wait_for_cmd docker exec -it "${LFH_NATS_SERVICE_NAME}" \
-                nats --server="${LFH_NATS_SERVICE_NAME}":4222 \
+                nats --server="${LFH_NATS_SERVICE_NAME}":"${LFH_NATS_CLIENT_PORT}" \
                 str add EVENTS \
                 --subjects EVENTS.* \
                 --ack \
@@ -144,7 +144,7 @@ function start() {
                 --dupe-window=10s > /dev/null
   echo "create NATS JetStream consumer"
   docker exec -it "${LFH_NATS_SERVICE_NAME}" \
-                nats --server="${LFH_NATS_SERVICE_NAME}":4222 \
+                nats --server="${LFH_NATS_SERVICE_NAME}":"${LFH_NATS_CLIENT_PORT}" \
                 con add EVENTS SUBSCRIBER \
                 --ack none \
                 --target lfh-events \

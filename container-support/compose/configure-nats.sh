@@ -37,12 +37,11 @@ function wait_for_cmd() {
 
 # start NATS JetStream
 echo "Starting NATS JetStream"
-service=$LFH_NATS_SERVICE_NAME
-docker-compose up -d --remove-orphans $service
+docker-compose up -d --remove-orphans "${LFH_NATS_SERVICE_NAME}"
 
 # create JetStream stream
-wait_for_cmd docker exec -it compose_"$service"_1 \
-              nats --server=compose_"$service"_1:4222 \
+wait_for_cmd docker exec -it compose_"${LFH_NATS_SERVICE_NAME}"_1 \
+              nats --server=compose_"${LFH_NATS_SERVICE_NAME}"_1:"${LFH_NATS_CLIENT_PORT}" \
               str add EVENTS \
               --subjects EVENTS.* \
               --ack \
@@ -56,8 +55,8 @@ wait_for_cmd docker exec -it compose_"$service"_1 \
               --dupe-window=10s > /dev/null
 
 # create JetStream consumer
-docker exec -it compose_"$service"_1 \
-              nats --server=compose_"$service"_1:4222 \
+docker exec -it compose_"${LFH_NATS_SERVICE_NAME}"_1 \
+              nats --server=compose_"${LFH_NATS_SERVICE_NAME}"_1:"${LFH_NATS_CLIENT_PORT}" \
               con add EVENTS SUBSCRIBER \
               --ack none \
               --target lfh-events \
