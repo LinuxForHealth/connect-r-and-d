@@ -32,7 +32,7 @@ public class LinuxForHealthExternalFhirServersTest extends RouteTestSupport {
         Properties props = super.useOverridePropertiesWithPropertiesComponent();
 
         props.setProperty("lfh.connect.test.uri", "direct:test-notify");
-        props.setProperty("lfh.connect.messaging.uri", "mock:messaging");
+        props.setProperty("lfh.connect.messaging.response.uri", "mock:messaging");
         props.setProperty("lfh.connect.datastore.remote-events.consumer.uri", "direct:remote-events");
         props.setProperty("lfh.connect.fhir-r4.externalservers", "http://localhost:9081/fhir-server/api/v4");
         return props;

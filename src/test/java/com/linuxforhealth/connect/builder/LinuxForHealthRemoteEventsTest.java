@@ -34,7 +34,8 @@ public class LinuxForHealthRemoteEventsTest extends RouteTestSupport {
         Properties props = super.useOverridePropertiesWithPropertiesComponent();
 
         props.setProperty("lfh.connect.test.uri", "direct:test-notify");
-        props.setProperty("lfh.connect.messaging.uri", "mock:messaging");
+        props.setProperty("lfh.connect.messaging.response.uri", "mock:messaging");
+        props.setProperty("lfh.connect.messaging.error.uri", "mock:error-messaging");
         props.setProperty("lfh.connect.datastore.remote-events.consumer.uri", "direct:remote-events");
         return props;
     }

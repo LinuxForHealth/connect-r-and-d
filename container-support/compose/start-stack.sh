@@ -58,7 +58,10 @@ if [[ "${LFH_COMPOSE_PROFILE}" == "integration" ]]; then
   export COMPOSE_FILE="${COMPOSE_FILE}":docker-compose.server.yml
 fi
 
+# start and configure NATS JetStream
+source ./configure-nats.sh
+
 echo "starting LFH compose ${LFH_COMPOSE_PROFILE}"
-docker-compose up -d --remove-orphans
+docker-compose up -d
 docker-compose ps
 echo "==============================================="

@@ -75,7 +75,7 @@ public final class LinuxForHealthRouteBuilder extends RouteBuilder {
             if(jsonMsg.has("data")) msg.setData(jsonMsg.getString("data"));
             exchange.getIn().setBody(msg.toString());
         })
-        .to("{{lfh.connect.messaging.uri}}")
+        .to("{{lfh.connect.messaging.response.uri}}")
         .id(NOTIFY_PRODUCER_ID);
 
         // Send an error notification message
@@ -88,7 +88,7 @@ public final class LinuxForHealthRouteBuilder extends RouteBuilder {
             exchange.getIn().setBody(msg.toString());
         })
         .log(LoggingLevel.ERROR, logger, exceptionMessage().toString())
-        .to("{{lfh.connect.messaging.uri}}")
+        .to("{{lfh.connect.messaging.error.uri}}")
         .id(ERROR_PRODUCER_ID);
 
         // Consume message from kafka lfh-remote-events topic and store in correct kafka topic

@@ -41,7 +41,8 @@ public class LinuxForHealthNotifyTest extends RouteTestSupport {
         props.setProperty("lfh.connect.test.dataformat", "csv");
         props.setProperty("lfh.connect.test.messagetype", "person");
 
-        props.setProperty("lfh.connect.messaging.uri", "mock:messaging");
+        props.setProperty("lfh.connect.messaging.response.uri", "mock:messaging");
+        props.setProperty("lfh.connect.messaging.error.uri", "mock:error-messaging");
         props.setProperty("lfh.connect.datastore.remote-events.consumer.uri", "direct:remote-events");
         return props;
     }
