@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "a9472060-26e4-4967-8e98-6358971a4952",
+		"_postman_id": "82a19b0d-2c01-44ce-80f1-bcc5433e36ba",
 		"name": "LinuxForHealth Examples",
 		"description": "Sample workflow for Creating and Updating Patient Resources\n\n- Search for an existing patient resource using either a GET or POST request.\n- Create a patient resource using POST.\n- Add an email address to the patient record using UPDATE.\n- Add an emergency contact to the patient resource using PATCH (json patch not FHIR patch)\n- Execute a search to view the current state of the patient resource.\n- View resource history using either /_history for all versions or /_history/<version number> for a specific version\n\nThe delete endpoint was used to \"cleanup\" records as this sample was being built.\n",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -1015,6 +1015,181 @@
 			]
 		},
 		{
+			"name": "Get DICOM image as PNG from kafka",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "0e61785b-fb75-4350-8e40-1c5ebf2ecd9a",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "4b9bc6b8-dc29-45c4-9c4e-e7a999aa7d8f",
+						"exec": [
+							"var template = `",
+							"    <div>",
+							"        <img src='data:image/jpeg;base64,{{response.image}}'>",
+							"    </div>",
+							"`;",
+							"",
+							"// Decode the data field",
+							"var resp = pm.response.json()",
+							"var words = CryptoJS.enc.Base64.parse(resp.data)",
+							"var decoded = CryptoJS.enc.Utf8.stringify(words)",
+							"",
+							"// Set visualizer",
+							"pm.visualizer.set(template, {",
+							"    // Pass the response body parsed as JSON",
+							"    response: JSON.parse(decoded)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "orthanc",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "orthanc",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://127.0.0.1:8443/datastore/message?topic=DICOM_IMAGE&partition=0&offset=0",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8443",
+					"path": [
+						"datastore",
+						"message"
+					],
+					"query": [
+						{
+							"key": "topic",
+							"value": "DICOM_IMAGE"
+						},
+						{
+							"key": "partition",
+							"value": "0"
+						},
+						{
+							"key": "offset",
+							"value": "0"
+						}
+					]
+				},
+				"description": "Get a message containing the PNG form of a DICOM image from kafka and display the image by clicking on the Visualize tab in the result pane."
+			},
+			"response": [
+				{
+					"name": "Patient POST - Create Record",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/fhir+json"
+							},
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/fhir+json"
+							},
+							{
+								"key": "Prefer",
+								"value": "return=OperationOutcome",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"resourceType\": \"Patient\",\n    \"text\": {\n        \"status\": \"generated\",\n        \"div\": \"<div xmlns=\\\"http://www.w3.org/1999/xhtml\\\">\\n      \\n      <p>Patient Donald DUCK @ Acme Healthcare, Inc. MR = 654321</p>\\n    \\n    </div>\"\n    },\n    \"identifier\": [\n        {\n            \"use\": \"usual\",\n            \"type\": {\n                \"coding\": [\n                    {\n                        \"system\": \"http://terminology.hl7.org/CodeSystem/v2-0203\",\n                        \"code\": \"MR\"\n                    }\n                ]\n            },\n            \"system\": \"urn:oid:0.1.2.3.4.5.6.7\",\n            \"value\": \"654321\"\n        }\n    ],\n    \"active\": true,\n    \"name\": [\n        {\n            \"use\": \"official\",\n            \"family\": \"Duck\",\n            \"given\": [\n                \"Donald\"\n            ]\n        }\n    ],\n    \"telecom\": [\n        {\n            \"system\": \"phone\",\n            \"value\": \"5551114444\",\n            \"use\": \"home\",\n            \"rank\": 1,\n            \"period\": {\n                \"start\": \"1980-04-15\"\n            }\n        }\n    ],\n    \"gender\": \"male\",\n    \"birthDate\": \"1934-06-09\",\n    \"address\": [\n        {\n            \"use\": \"home\",\n            \"type\": \"both\",\n            \"text\": \"1400 Anyhoo Lane Spartanburg, SC 90210\",\n            \"line\": [\n                \"1400 Anyhoo Lane\"\n            ],\n            \"city\": \"Spartanburg\",\n            \"state\": \"SC\",\n            \"postalCode\": \"90210\",\n            \"country\": \"USA\",\n            \"period\": {\n                \"start\": \"1980-04-15\"\n            }\n        }\n    ],\n    \"maritalStatus\": {\n        \"coding\": [\n            {\n                \"system\": \"http://terminology.hl7.org/CodeSystem/v3-MaritalStatus\",\n                \"code\": \"M\",\n                \"display\": \"Married\"\n            }\n        ]\n    },\n    \"photo\": [\n        {\n            \"contentType\": \"image/gif\",\n            \"data\": \"R0lGODlhEwARAPcAAAAAAAAA/+9aAO+1AP/WAP/eAP/eCP/eEP/eGP/nAP/nCP/nEP/nIf/nKf/nUv/nWv/vAP/vCP/vEP/vGP/vIf/vKf/vMf/vOf/vWv/vY//va//vjP/3c//3lP/3nP//tf//vf///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////yH5BAEAAAEALAAAAAATABEAAAi+AAMIDDCgYMGBCBMSvMCQ4QCFCQcwDBGCA4cLDyEGECDxAoAQHjxwyKhQAMeGIUOSJJjRpIAGDS5wCDly4AALFlYOgHlBwwOSNydM0AmzwYGjBi8IHWoTgQYORg8QIGDAwAKhESI8HIDgwQaRDI1WXXAhK9MBBzZ8/XDxQoUFZC9IiCBh6wEHGz6IbNuwQoSpWxEgyLCXL8O/gAnylNlW6AUEBRIL7Og3KwQIiCXb9HsZQoIEUzUjNEiaNMKAAAA7\"\n        }\n    ],\n    \"contact\": [\n        {\n            \"relationship\": [\n                {\n                    \"coding\": [\n                        {\n                            \"system\": \"http://terminology.hl7.org/CodeSystem/v2-0131\",\n                            \"code\": \"E\"\n                        }\n                    ]\n                }\n            ],\n            \"organization\": {\n                \"reference\": \"Organization/1\",\n                \"display\": \"Walt Disney Corporation\"\n            }\n        }\n    ],\n    \"managingOrganization\": {\n        \"reference\": \"Organization/1\",\n        \"display\": \"ACME Healthcare, Inc\"\n    },\n    \"link\": [\n        {\n            \"other\": {\n                \"reference\": \"Patient/pat2\"\n            },\n            \"type\": \"seealso\"\n        }\n    ],\n    \"meta\": {\n        \"tag\": [\n            {\n                \"system\": \"http://terminology.hl7.org/CodeSystem/v3-ActReason\",\n                \"code\": \"HTEST\",\n                \"display\": \"test health data\"\n            }\n        ]\n    }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:9080/fhir-server/api/v4/Patient",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9080",
+							"path": [
+								"fhir-server",
+								"api",
+								"v4",
+								"Patient"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Location",
+							"value": "http://localhost:9080/fhir-server/api/v4/Patient/5d7dc79a-faf2-453d-9425-a0efe85032ea/_history/1"
+						},
+						{
+							"key": "ETag",
+							"value": "W/\"1\""
+						},
+						{
+							"key": "Last-Modified",
+							"value": "Thu, 02 Apr 2020 16:54:24 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/fhir+json"
+						},
+						{
+							"key": "Date",
+							"value": "Thu, 02 Apr 2020 16:54:24 GMT"
+						},
+						{
+							"key": "Content-Language",
+							"value": "en-US"
+						},
+						{
+							"key": "Content-Length",
+							"value": "123"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"resourceType\": \"OperationOutcome\",\n    \"issue\": [\n        {\n            \"severity\": \"information\",\n            \"code\": \"informational\",\n            \"details\": {\n                \"text\": \"All OK\"\n            }\n        }\n    ]\n}"
+				}
+			]
+		},
+		{
 			"name": "X12 - POST X12 Transactions",
 			"request": {
 				"method": "POST",
@@ -1232,7 +1407,7 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "5ed31b68-1417-4694-b2be-883df2944385",
+				"id": "647a05db-f64e-43b4-a22d-331506bccfca",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -1242,7 +1417,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "40868d33-8844-4656-a683-cd439890efcc",
+				"id": "7a1132f8-cb5c-41a9-92a0-15d43e0d5642",
 				"type": "text/javascript",
 				"exec": [
 					""
