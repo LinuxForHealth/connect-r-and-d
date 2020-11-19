@@ -7,6 +7,7 @@ package com.linuxforhealth.connect.support;
 
 import org.apache.camel.main.Main;
 
+import javax.net.ssl.SSLContext;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,6 @@ import io.nats.client.Connection;
 import io.nats.client.ConnectionListener;
 import io.nats.client.Consumer;
 import io.nats.client.ErrorListener;
-import io.nats.client.Nats;
 import io.nats.client.Options;
 
 import org.slf4j.Logger;
@@ -30,7 +30,8 @@ public class LFHServiceManager {
     private final static Logger logger = LoggerFactory.getLogger(LFHServiceManager.class);
     private static LFHKafkaProducer producer = null;
     private static LFHKafkaConsumer consumer = null;
-    private static List<NATSSubscriber> natsSubscribers = new ArrayList<NATSSubscriber>(); 
+    private static List<NATSSubscriber> natsSubscribers = new ArrayList<NATSSubscriber>();
+    private static SSLContext sslContext = null;
 
     public void LFHServiceManager() { }
 
@@ -44,16 +45,30 @@ public class LFHServiceManager {
         String[] hosts = properties.getProperty("lfh.connect.messaging.subscribe.hosts").split(",");
         String subject = properties.getProperty("lfh.connect.messaging.subscribe.subject");
         String brokers = properties.getProperty("lfh.connect.datastore.brokers");
+        boolean useSSL = Boolean.parseBoolean(properties.getProperty("lfh.connect.ssl.usessl"));
+        String truststore = properties.getProperty("lfh.connect.ssl.truststore.location");
+        String truststorePwd = properties.getProperty("lfh.connect.ssl.truststore.password");
+        String keystore = properties.getProperty("lfh.connect.ssl.keystore.location");
+        String keystorePwd = properties.getProperty("lfh.connect.ssl.keystore.password");
         producer = new LFHKafkaProducer();
         consumer = new LFHKafkaConsumer();
         camelMain.bind("LFHKafkaConsumer", consumer);
 
         try {
+            if (useSSL) {
+                if (truststore == null || truststorePwd == null ||
+                    keystore == null || keystorePwd == null) {
+                    throw new IllegalStateException("SSL property missing from the configuration.");
+                }
+
+                sslContext = SSLUtils.createSSLContext(properties);
+            }
+
             consumer.start(brokers);
             producer.start(brokers);
             for (String host: hosts) {
                 NATSSubscriber sub = new NATSSubscriber();
-                sub.start(host, subject, createOptions(host, true), producer);
+                sub.start(host, subject, createOptions(host, true, useSSL, sslContext), producer);
                 natsSubscribers.add(sub);
             }
         } catch (Exception ex) {
@@ -87,33 +102,39 @@ public class LFHServiceManager {
     /**
      * Set up the NATS connection options for subscribers.
      */
-    public static Options createOptions(String server, boolean allowReconnect) throws Exception {
-        Options.Builder builder = new Options.Builder()
-                    .server(server)
-                    .connectionTimeout(Duration.ofSeconds(5))
-                    .pingInterval(Duration.ofSeconds(10))
-                    .reconnectWait(Duration.ofSeconds(1))
-                    .errorListener(new ErrorListener(){
-                        public void exceptionOccurred(Connection conn, Exception ex) {
-                            logger.error("Exception " + ex.getMessage());
-                        }
+    public static Options createOptions(String server, boolean allowReconnect,
+        boolean useSSL, SSLContext sslContext) throws Exception {
 
-                        public void errorOccurred(Connection conn, String type) {
-                            logger.error("Error " + type);
-                        }
-                        
-                        public void slowConsumerDetected(Connection conn, Consumer consumer) {
-                            logger.error("Slow consumer");
-                        }
-                    })
-                    .connectionListener(new ConnectionListener(){
-                        public void connectionEvent(Connection conn, Events type) {
-                            logger.info("Status change "+type);
-                        }
-                    });
+        if (useSSL) server = "tls://"+server;
+
+        Options.Builder builder = new Options.Builder()
+            .server(server)
+            .connectionTimeout(Duration.ofSeconds(5))
+            .pingInterval(Duration.ofSeconds(10))
+            .reconnectWait(Duration.ofSeconds(1))
+            .errorListener(new ErrorListener() {
+                public void exceptionOccurred(Connection conn, Exception ex) {
+                  logger.error("Exception " + ex.getMessage());
+                }
+
+                public void errorOccurred(Connection conn, String type) {
+                  logger.error("Error " + type);
+                }
+
+                public void slowConsumerDetected(Connection conn, Consumer consumer) {
+                  logger.error("Slow consumer");
+                }
+            })
+            .connectionListener(new ConnectionListener() {
+                public void connectionEvent(Connection conn, Events type) {
+                  logger.info("Status change " + type);
+                }
+            });
 
         if (!allowReconnect) {
             builder = builder.noReconnect();
+        } else if (useSSL) {
+            builder = builder.sslContext(sslContext);
         } else {
             builder = builder.maxReconnects(-1);
         }

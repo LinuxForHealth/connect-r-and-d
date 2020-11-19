@@ -5,7 +5,12 @@ services:
     restart: "always"
     ports:
       - ${LFH_NATS_CLIENT_PORT}:${LFH_NATS_CLIENT_PORT}
-    command: server
+    volumes:
+      - ../certs:/certs
+    command: server --tls \
+      --tlscert=/certs/nats-server.crt \
+      --tlskey=/certs/nats-server.key \
+      --tlscacert=/certs/rootCA.crt
   zookeeper:
     image: ${LFH_ZOOKEEPER_IMAGE}
     expose:

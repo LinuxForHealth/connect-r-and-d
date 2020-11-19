@@ -195,6 +195,7 @@ function start() {
                 --env LFH_CONNECT_MESSAGING_SUBSCRIBE_HOSTS="nats-server:4222" \
                 --env LFH_CONNECT_ORTHANC_SERVER_URI="http://orthanc:8042/instances" \
                 --env LFH_CONNECT_DATASTORE_BROKERS="kafka:9092" \
+                --env LFH_CONNECT_SSL_USESSL="true" \
                 "${LFH_CONNECT_IMAGE}"
 
   echo "launch postgres container"

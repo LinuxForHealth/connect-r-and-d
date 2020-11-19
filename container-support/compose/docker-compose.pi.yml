@@ -17,6 +17,7 @@ services:
       LFH_CONNECT_ORTHANC_SERVER_URI: "http://orthanc:8042/instances"
       LFH_CONNECT_DATASTORE_BROKERS: "kafka:9092"
       LFH_CONNECT_EXTERNAL_HOST_IP: "127.0.0.1"
+      LFH_CONNECT_SSL_USESSL: "true"
     depends_on:
       - "kafka"
       - "nats-server"

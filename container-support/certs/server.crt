@@ -1,0 +1,110 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 28 (0x1c)
+    Signature Algorithm: sha256WithRSAEncryption
+        Issuer: C=US, ST=Texas, L=Austin, O=LinuxForHealth, OU=HealthOS, CN=linuxforhealth.org/emailAddress=info@linuxforhealth.org
+        Validity
+            Not Before: Nov 19 17:16:10 2020 GMT
+            Not After : Aug 16 17:16:10 2023 GMT
+        Subject: C=US, ST=Texas, L=Austin, O=LinuxForHealth, OU=HealthOS, CN=linuxforhealth.org
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (2048 bit)
+                Modulus:
+                    00:97:a1:2f:69:f2:d4:aa:da:6e:d4:28:63:6f:15:
+                    10:9d:88:fe:85:2f:92:cf:b5:b6:8a:4c:b0:af:73:
+                    54:1c:4e:b0:7d:d8:81:1d:35:4e:84:6f:95:ed:58:
+                    95:40:ba:f8:0c:05:b9:0a:64:7a:d9:e9:d5:e1:67:
+                    30:fb:38:30:68:ae:ad:f3:30:52:6c:82:e5:3a:dc:
+                    22:60:78:79:ea:a9:04:92:fd:75:c3:81:e2:f1:36:
+                    bd:d4:7e:3f:66:41:20:26:36:c1:61:87:0b:7d:12:
+                    fd:b2:82:a9:c6:96:35:6d:0d:03:8d:84:a0:42:b3:
+                    ca:a9:60:67:98:f5:09:83:c5:2c:0c:0a:fd:09:e7:
+                    11:1b:11:9e:3e:25:4b:ee:97:f5:a1:8b:f6:59:2b:
+                    2b:79:cd:88:b4:31:a5:c0:23:e7:ad:95:9b:15:a7:
+                    6d:45:83:68:dd:57:77:7f:6d:1f:a2:92:e5:c1:93:
+                    ca:35:d3:45:cb:2c:0c:38:58:3d:f6:fb:73:3b:a1:
+                    03:21:f3:39:de:0a:60:39:77:56:cc:27:dc:23:c3:
+                    8c:96:31:60:6e:91:1a:cf:fe:69:bf:ed:81:24:4f:
+                    39:63:0d:ec:1f:da:af:e0:a6:43:d9:b3:ce:7b:ca:
+                    99:d3:1e:d1:03:5e:9f:3b:70:f1:88:57:33:04:69:
+                    a0:17
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Subject Key Identifier: 
+                56:3F:86:0E:9C:0A:9F:86:D8:CB:36:BB:D9:6F:FA:31:C9:1D:07:E2
+            X509v3 Authority Key Identifier: 
+                keyid:D7:09:A7:78:3D:ED:F9:7D:01:C7:1F:C9:48:92:13:A6:14:C1:B4:14
+
+            X509v3 Basic Constraints: 
+                CA:FALSE
+            X509v3 Key Usage: 
+                Digital Signature, Key Encipherment
+            Netscape Comment: 
+                OpenSSL Generated Certificate
+            X509v3 Extended Key Usage: 
+                TLS Web Client Authentication, TLS Web Server Authentication
+            X509v3 Subject Alternative Name: 
+                IP Address:127.0.0.1, IP Address:0:0:0:0:0:0:0:1, DNS:localhost
+    Signature Algorithm: sha256WithRSAEncryption
+         16:f8:30:2a:43:86:3e:9e:61:d5:98:34:5e:ba:24:9c:6f:c2:
+         31:e8:0b:23:b9:07:be:9f:23:31:07:6d:3a:0a:5f:7e:53:06:
+         18:4a:a0:ee:af:68:ff:ae:37:0e:12:c8:bf:6d:7c:d1:47:09:
+         f6:0d:75:89:f8:68:f6:8a:f3:7c:36:2a:51:62:13:61:cf:95:
+         35:7e:d7:f9:0b:74:6c:e9:13:fe:a0:28:00:e4:c6:f6:b2:b4:
+         fd:7e:16:82:4e:1d:a1:bc:e4:57:95:65:67:0d:78:7a:ca:00:
+         60:8b:4e:41:93:8e:d3:08:18:3b:95:0b:49:dd:d9:7f:d0:eb:
+         9d:7e:b3:31:b6:7e:69:fb:b2:62:6a:3a:4a:82:6b:9b:cb:75:
+         37:8c:df:e2:a6:f1:1d:a0:1e:9a:03:09:6c:d4:98:ab:5c:16:
+         2f:b6:b8:a1:3b:8b:9c:c1:c2:86:b2:f1:46:d7:28:cb:d7:10:
+         11:e1:d9:f6:76:76:b3:e8:e7:cd:94:2d:83:29:23:cd:9d:d4:
+         4e:0d:fc:b6:87:d0:4b:76:9d:30:61:19:23:ea:33:78:bb:3e:
+         4c:e6:93:dc:c7:4b:59:26:3d:80:92:a1:c6:a5:c3:88:a4:60:
+         c9:a8:a2:a9:83:29:4b:19:42:d5:50:e7:a0:15:6c:a1:af:7c:
+         06:35:60:8d:23:ab:91:c8:fe:67:13:42:6a:11:5b:08:83:84:
+         29:cb:54:4a:ff:c4:05:9b:f4:0a:de:86:ff:e4:9a:9c:b6:14:
+         44:52:19:3a:ba:36:7e:e4:89:48:f0:2d:e1:c3:51:2c:36:c9:
+         52:f6:3d:fc:d6:9e:7d:96:98:c8:45:42:6a:25:3d:4e:ef:58:
+         e7:a0:9b:93:fb:7a:d0:b6:b3:88:9c:80:e6:df:01:2a:47:67:
+         3c:60:3b:4a:6b:51:d2:60:4d:f8:4b:83:1f:3d:a6:f9:9d:21:
+         52:dd:01:69:ee:62:8d:3a:cc:63:f7:82:36:14:a9:a9:32:f4:
+         0d:ad:f5:42:41:fb:f8:b2:38:70:4c:35:60:c6:54:d5:64:50:
+         33:78:ec:65:1a:89:18:c2:92:86:36:32:89:ad:1a:e5:de:26:
+         fa:13:3e:12:6a:07:61:a2:be:d8:fa:f1:8a:82:04:c2:d0:82:
+         e3:49:0a:c5:04:bc:1d:15:7c:6a:0c:bb:1f:83:b9:78:63:58:
+         48:8f:bd:48:bb:3a:5d:35:07:19:22:5f:15:a1:62:40:55:06:
+         a3:3b:66:72:05:2c:69:b7:b9:fc:e2:bd:2d:36:b3:d8:77:d7:
+         54:d1:71:89:71:00:ed:c6:bb:93:08:ed:a1:61:82:98:87:90:
+         7c:60:e0:1a:04:7a:20:b8
+-----BEGIN CERTIFICATE-----
+MIIFaTCCA1GgAwIBAgIBHDANBgkqhkiG9w0BAQsFADCBnzELMAkGA1UEBhMCVVMx
+DjAMBgNVBAgMBVRleGFzMQ8wDQYDVQQHDAZBdXN0aW4xFzAVBgNVBAoMDkxpbnV4
+Rm9ySGVhbHRoMREwDwYDVQQLDAhIZWFsdGhPUzEbMBkGA1UEAwwSbGludXhmb3Jo
+ZWFsdGgub3JnMSYwJAYJKoZIhvcNAQkBFhdpbmZvQGxpbnV4Zm9yaGVhbHRoLm9y
+ZzAeFw0yMDExMTkxNzE2MTBaFw0yMzA4MTYxNzE2MTBaMHcxCzAJBgNVBAYTAlVT
+MQ4wDAYDVQQIDAVUZXhhczEPMA0GA1UEBwwGQXVzdGluMRcwFQYDVQQKDA5MaW51
+eEZvckhlYWx0aDERMA8GA1UECwwISGVhbHRoT1MxGzAZBgNVBAMMEmxpbnV4Zm9y
+aGVhbHRoLm9yZzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAJehL2ny
+1KrabtQoY28VEJ2I/oUvks+1topMsK9zVBxOsH3YgR01ToRvle1YlUC6+AwFuQpk
+etnp1eFnMPs4MGiurfMwUmyC5TrcImB4eeqpBJL9dcOB4vE2vdR+P2ZBICY2wWGH
+C30S/bKCqcaWNW0NA42EoEKzyqlgZ5j1CYPFLAwK/QnnERsRnj4lS+6X9aGL9lkr
+K3nNiLQxpcAj562VmxWnbUWDaN1Xd39tH6KS5cGTyjXTRcssDDhYPfb7czuhAyHz
+Od4KYDl3Vswn3CPDjJYxYG6RGs/+ab/tgSRPOWMN7B/ar+CmQ9mzznvKmdMe0QNe
+nztw8YhXMwRpoBcCAwEAAaOB1jCB0zAdBgNVHQ4EFgQUVj+GDpwKn4bYyza72W/6
+MckdB+IwHwYDVR0jBBgwFoAU1wmneD3t+X0Bxx/JSJITphTBtBQwCQYDVR0TBAIw
+ADALBgNVHQ8EBAMCBaAwLAYJYIZIAYb4QgENBB8WHU9wZW5TU0wgR2VuZXJhdGVk
+IENlcnRpZmljYXRlMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATAsBgNV
+HREEJTAjhwR/AAABhxAAAAAAAAAAAAAAAAAAAAABgglsb2NhbGhvc3QwDQYJKoZI
+hvcNAQELBQADggIBABb4MCpDhj6eYdWYNF66JJxvwjHoCyO5B76fIzEHbToKX35T
+BhhKoO6vaP+uNw4SyL9tfNFHCfYNdYn4aPaK83w2KlFiE2HPlTV+1/kLdGzpE/6g
+KADkxvaytP1+FoJOHaG85FeVZWcNeHrKAGCLTkGTjtMIGDuVC0nd2X/Q651+szG2
+fmn7smJqOkqCa5vLdTeM3+Km8R2gHpoDCWzUmKtcFi+2uKE7i5zBwoay8UbXKMvX
+EBHh2fZ2drPo582ULYMpI82d1E4N/LaH0Et2nTBhGSPqM3i7Pkzmk9zHS1kmPYCS
+ocalw4ikYMmooqmDKUsZQtVQ56AVbKGvfAY1YI0jq5HI/mcTQmoRWwiDhCnLVEr/
+xAWb9Arehv/kmpy2FERSGTq6Nn7kiUjwLeHDUSw2yVL2PfzWnn2WmMhFQmolPU7v
+WOegm5P7etC2s4icgObfASpHZzxgO0prUdJgTfhLgx89pvmdIVLdAWnuYo06zGP3
+gjYUqaky9A2t9UJB+/iyOHBMNWDGVNVkUDN47GUaiRjCkoY2MomtGuXeJvoTPhJq
+B2Givtj68YqCBMLQguNJCsUEvB0VfGoMux+DuXhjWEiPvUi7Ol01BxkiXxWhYkBV
+BqM7ZnIFLGm3ufzivS02s9h311TRcYlxAO3Gu5MI7aFhgpiHkHxg4BoEeiC4
+-----END CERTIFICATE-----
