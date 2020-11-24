@@ -1,0 +1,16 @@
+{
+    "data": "eyJyZXNvdXJjZVR5cGUiOiJQYXRpZW50IiwiaWQiOiIwMDEiLCJtZXRhIjp7InRhZyI6W3sic3lzdGVtIjoiaHR0cDovL3Rlcm1pbm9sb2d5LmhsNy5vcmcvQ29kZVN5c3RlbS92My1BY3RSZWFzb24iLCJjb2RlIjoiSFRFU1QiLCJkaXNwbGF5IjoidGVzdCBoZWFsdGggZGF0YSJ9XX0sInRleHQiOnsic3RhdHVzIjoiZ2VuZXJhdGVkIiwiZGl2IjoiPGRpdiB4bWxucz1cImh0dHA6Ly93d3cudzMub3JnLzE5OTkveGh0bWxcIj5cbiAgICAgIFxuICAgICAgPHA+UGF0aWVudCBEYWlzeSBEVUNLIEAgQWNtZSBIZWFsdGhjYXJlLCBJbmMuIE1SID0gNjU0MzIxPC9wPlxuICAgIFxuICAgIDwvZGl2PiJ9LCJpZGVudGlmaWVyIjpbeyJ1c2UiOiJ1c3VhbCIsInR5cGUiOnsiY29kaW5nIjpbeyJzeXN0ZW0iOiJodHRwOi8vdGVybWlub2xvZ3kuaGw3Lm9yZy9Db2RlU3lzdGVtL3YyLTAyMDMiLCJjb2RlIjoiTVIifV19LCJzeXN0ZW0iOiJ1cm46b2lkOjAuMS4yLjMuNC41LjYuNyIsInZhbHVlIjoiNjU0MzIxIn1dLCJhY3RpdmUiOnRydWUsIm5hbWUiOlt7InVzZSI6Im9mZmljaWFsIiwiZmFtaWx5IjoiRHVjayIsImdpdmVuIjpbIkRhaXN5Il19XSwiZ2VuZGVyIjoiZmVtYWxlIiwibWFuYWdpbmdPcmdhbml6YXRpb24iOnsicmVmZXJlbmNlIjoiT3JnYW5pemF0aW9uLzEiLCJkaXNwbGF5IjoiQUNNRSBIZWFsdGhjYXJlLCBJbmMifSwibGluayI6W3sib3RoZXIiOnsicmVmZXJlbmNlIjoiUGF0aWVudC9wYXQxIn0sInR5cGUiOiJzZWVhbHNvIn1dfQ==",
+    "meta": {
+        "dataStoreUri": "kafka:FHIR-R4_PATIENT?brokers=localhost:9094",
+        "routeUri": "jetty:http://0.0.0.0:8080/fhir/r4/Patient?httpMethodRestrict=POST",
+        "routeId": "fhir-r4",
+        "messageType": "PATIENT",
+        "dataFormat": "FHIR-R4",
+        "dataRecordLocation": [
+            "FHIR-R4_PATIENT:0:25"
+        ],
+        "uuid": "e6c290b7-6a60-4632-a2d1-21ad5039b438",
+        "timestamp": 1600183871,
+        "status": "success"
+    }
+}

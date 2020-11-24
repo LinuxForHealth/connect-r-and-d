@@ -5,7 +5,7 @@
  */
 package com.linuxforhealth.connect;
 
-import com.linuxforhealth.connect.support.NATSSubscriberManager;
+import com.linuxforhealth.connect.support.LFHServiceManager;
 import org.apache.camel.component.jasypt.JasyptPropertiesParser;
 import org.apache.camel.component.properties.PropertiesComponent;
 import org.apache.camel.main.Main;
@@ -22,8 +22,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * The Linux For Health Connect application.
- * Linux For Health Connect provides data integration and processing routes for application integration.
+ * The LinuxForHealth Connect application.
+ * LinuxForHealth Connect provides data integration and processing routes for application integration.
  * Apache Camel is use to provide routing, mediation, and processing services for data integrations.
  *
  * Application settings are stored in an application.properties file, located on the classpath.
@@ -195,22 +195,23 @@ public final class App {
     }
 
     /**
-     * Starts the Linux for Health Connect application
+     * Starts the LinuxForHealth Connect application
      */
     private void start()  {
         try {
             Properties appProperties = loadProperties();
             logger.info("configuring camel context");
             configure(appProperties);
+            logger.info("starting LFH services");
+            LFHServiceManager.startServices(appProperties, camelMain);
             logger.info("starting camel context");
             camelMain.start();
-            logger.info("starting NATS subscribers");
-            NATSSubscriberManager.startSubscribers(appProperties);
-
         } catch (Exception ex) {
-            logger.error("an error occurred starting linux for health connect", ex);
+            logger.error("an error occurred starting LinuxForHealth connect", ex);
 
             if (camelMain.isStarted()) {
+                logger.error("shutting down LFH services");
+                LFHServiceManager.stopServices();
                 logger.error("shutting down camel context");
                 camelMain.shutdown();
             }
@@ -218,7 +219,7 @@ public final class App {
     }
 
     /**
-     * Entry-point for Linux For Health Connection Application.
+     * Entry-point for LinuxForHealth Connection Application.
      *
      * @param args command line arguments
      */

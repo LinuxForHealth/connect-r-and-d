@@ -22,18 +22,34 @@ import org.slf4j.LoggerFactory;
 public class NATSSubscriber {
     
     private final Logger logger = LoggerFactory.getLogger(NATSSubscriber.class);
-    private Connection nc;
+    private Connection nc = null;
+    private String topic = "lfh-remote-events";
+    private String host;
+    private String subject;
 
-    public void NATSSubscriber() { }
+    public void NATSSubscriber() {
+    }
 
-    public void start(String host, String subject, Options options) {
+    /**
+     * Start the NATS subscriber.
+     */
+    public void start(String host, String subject, Options options, LFHKafkaProducer producer) {
+        this.host = host;
+        this.subject = subject;
+
         try {
             nc = Nats.connect(options);
-            logger.info("Listening on "+host+" and subject "+subject);
+            logger.info("nats-subscriber-"+host+"-"+subject+" listening on "+host+" and subject "+subject);
 
             Dispatcher d = nc.createDispatcher((msg) -> {
-                logger.info("nats-subscriber-"+host+"-"+subject+" received message: "+
-                    new String(msg.getData(), StandardCharsets.UTF_8));
+                String message = new String(msg.getData(), StandardCharsets.UTF_8);
+                logger.debug("nats-subscriber-"+host+"-"+subject+" received message: "+message);
+
+                // Only store data received from other LFH instances
+                if(!host.contains("localhost") && !host.contains("127.0.0.1") && !host.contains("nats-server")) {
+                    producer.send(topic, null, message);
+                    logger.debug("nats-subscriber-"+host+"-"+subject+" published message to topic: "+topic);
+                }
             });
 
             d.subscribe(subject);
@@ -42,12 +58,14 @@ public class NATSSubscriber {
         }
     }
 
-    public void stop() {
-        try {
+    /**
+     * Stop the NATS subscriber.
+     */
+    public void close() throws Exception {
+        logger.info("nats-subscriber-"+host+"-"+subject+" close() called");
+        if (nc != null) {
             nc.flush(Duration.ZERO);
             nc.close();
-        } catch (Exception ex) {
-            logger.error("Exception: "+ex.getMessage());
         }
     }
 }

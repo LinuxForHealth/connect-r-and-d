@@ -5,6 +5,7 @@
  */
 package com.linuxforhealth.connect.builder;
 
+import com.linuxforhealth.connect.support.LFHKafkaConsumer;
 import com.linuxforhealth.connect.support.TestUtils;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
@@ -19,7 +20,7 @@ import java.util.Properties;
 public class LinuxForHealthErrorTest extends RouteTestSupport {
 
     private MockEndpoint mockDataStoreResult;
-    private MockEndpoint mockMessagingResult;
+    private MockEndpoint mockErrorMessagingResult;
     private MockEndpoint mockUnreachableResult;
 
     /**
@@ -36,7 +37,9 @@ public class LinuxForHealthErrorTest extends RouteTestSupport {
         props.setProperty("lfh.connect.test.messagetype", "person");
 
         props.setProperty("lfh.connect.datastore.uri", "mock:data-store");
-        props.setProperty("lfh.connect.messaging.uri", "mock:messaging");
+        props.setProperty("lfh.connect.messaging.response.uri", "mock:messaging");
+        props.setProperty("lfh.connect.messaging.error.uri", "mock:error-messaging");
+        props.setProperty("lfh.connect.datastore.remote-events.consumer.uri", "direct:remote-events");
         return props;
     }
 
@@ -73,9 +76,10 @@ public class LinuxForHealthErrorTest extends RouteTestSupport {
     @BeforeEach
     @Override
     protected void configureContext() throws Exception {
+        context.getRegistry().bind("LFHKafkaConsumer", new LFHKafkaConsumer());
         super.configureContext();
         mockDataStoreResult = MockEndpoint.resolve(context, "mock:data-store");
-        mockMessagingResult = MockEndpoint.resolve(context, "mock:messaging");
+        mockErrorMessagingResult = MockEndpoint.resolve(context, "mock:error-messaging");
         mockUnreachableResult = MockEndpoint.resolve(context, "mock:test-error");
     }
 
@@ -93,8 +97,8 @@ public class LinuxForHealthErrorTest extends RouteTestSupport {
                 .getTypeConverter()
                 .convertTo(String.class, TestUtils.getMessage("lfh", "error.json"));
 
-        mockMessagingResult.expectedBodiesReceived(expectedMsg);
-        mockMessagingResult.expectedMessageCount(1);
+        mockErrorMessagingResult.expectedBodiesReceived(expectedMsg);
+        mockErrorMessagingResult.expectedMessageCount(1);
 
         fluentTemplate.to("direct:test-error")
                 .withBody("1,Donald,Duck")
@@ -102,6 +106,6 @@ public class LinuxForHealthErrorTest extends RouteTestSupport {
 
         mockUnreachableResult.assertIsSatisfied();
         mockDataStoreResult.assertIsSatisfied();
-        mockMessagingResult.assertIsSatisfied();
+        mockErrorMessagingResult.assertIsSatisfied();
     }
 }

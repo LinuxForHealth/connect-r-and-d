@@ -197,7 +197,7 @@ public class BlueButton20RouteBuilder extends RouteBuilder {
                     result = FhirContext.forDstu3().newJsonParser().encodeResourceToString(resource);
 
                     // Set the message attributes for data format back to r3 and change the Kafka queue
-                    String resourceType = exchange.getProperty("resourceType", String.class).toUpperCase();
+                    String resourceType = exchange.getProperty("messageType", String.class).toUpperCase();
 
                     String kafkaDataStoreUri = SimpleBuilder.simple("${properties:lfh.connect.datastore.uri}")
                             .evaluate(exchange, String.class)

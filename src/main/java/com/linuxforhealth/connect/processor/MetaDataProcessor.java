@@ -16,7 +16,7 @@ import java.util.Base64;
 import java.net.URLDecoder;
 
 /**
- * Sets Linux for Health Metadata fields using Camel {@link Exchange} properties.
+ * Sets LinuxForHealth Metadata fields using Camel {@link Exchange} properties.
  * Fields set include:
  * <ul>
  *     <li>dataFormat</li>

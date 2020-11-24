@@ -5,22 +5,23 @@
  */
 package com.linuxforhealth.connect.builder;
 
-import com.linuxforhealth.connect.support.TestUtils;
+import java.io.IOException;
+import java.util.Properties;
+
+import org.apache.camel.Processor;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
-import org.apache.camel.model.DynamicRouterDefinition;
+import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.RouteDefinition;
-import org.apache.camel.model.ToDynamicDefinition;
 import org.apache.camel.model.language.ConstantExpression;
 import org.apache.camel.test.junit5.CamelTestSupport;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 
-import java.io.IOException;
-import java.util.Properties;
+import com.linuxforhealth.connect.support.TestUtils;
 
 /**
- * Provides base configuration and convenience methods for Linux for Health Route Builder tests.
+ * Provides base configuration and convenience methods for LinuxForHealth Route Builder tests.
  * Features includes:
  * <ul>
  *     <li>Loading application.properties from the classpath</li>
@@ -69,10 +70,31 @@ abstract class RouteTestSupport extends CamelTestSupport {
     }
 
     /**
-     * Mocks a producer endpoint by producer id using a {@link AdviceWithRouteBuilder}.
+     * Mocks a processor component by id using a {@link AdviceWithRouteBuilder}.
      *
      * @param routeId     The route id to update.
-     * @param producerId The producer uri to mock.
+     * @param processorId The component id to mock.
+     * @param mockProcessor The mock uri which replaces the producer uri.
+     * @throws Exception If an error occurs during processing.
+     */
+    protected void mockProcessorById(String routeId, String processorId, Processor mockProcessor) throws Exception {
+
+        RouteDefinition routeDefinition = context.getRouteDefinition(routeId);
+        AdviceWithRouteBuilder advice = new AdviceWithRouteBuilder() {
+            @Override
+            public void configure() {
+                weaveById(processorId).replace().process(mockProcessor);
+            }
+        };
+
+        context.adviceWith(routeDefinition, advice);
+    }
+
+    /**
+     * Mocks a producer component by id using a {@link AdviceWithRouteBuilder}.
+     *
+     * @param routeId     The route id to update.
+     * @param producerId The component id to mock.
      * @param mockUri     The mock uri which replaces the producer uri.
      * @throws Exception If an error occurs during processing.
      */
@@ -116,6 +138,88 @@ abstract class RouteTestSupport extends CamelTestSupport {
             }
         };
         context.adviceWith(routeDefinition, advice);
+    }
+    
+    /**
+     * Intercept an outgoing route and redirect it to a mock endpoint instead.
+     * 
+     * @param routeId the route definition id
+     * @param interceptEndpoint endpoint uri to intercept
+     * @param mockEndpoint desired endpoint uri the intercepted route should be redirected to
+     * @return MockEndpoint
+     * @throws Exception
+     */
+    protected MockEndpoint mockProducerEndpoint(String routeId, String interceptEndpoint, String mockEndpoint) throws Exception {
+    	
+    	RouteDefinition routeDef = context.getRouteDefinition(routeId);
+    	
+    	context.adviceWith(routeDef, new AdviceWithRouteBuilder() {
+			@Override
+			public void configure() throws Exception {
+				interceptSendToEndpoint(interceptEndpoint)
+				.skipSendToOriginalEndpoint()
+				.to(mockEndpoint)
+				;
+			}
+		});
+    	return MockEndpoint.resolve(context, mockEndpoint);
+    }
+
+    /**
+      * Intercepts a producer endpoint using {@link AdviceWithRouteBuilder} to return a sample, or "mock" response.
+      * The sample of mock response is loaded from the file system using {@link TestUtils#getMessage(String, String)}
+      * Producer endpoints are matched using a String expression "expr".
+      *
+      * @param routeId The route id where the producer is located.
+      * @param expr The "ToString" expression to match. Example: "recipientList*"
+      * @param messageDirectory The directory in the test source tree where the message is located.
+      * @param messageName The message file name
+      */
+    protected void setProducerResponseByToString(String routeId,
+                                                 String expr,
+                                                 String messageDirectory,
+                                                 String messageName) throws Exception {
+        String mockedResponse = context
+                .getTypeConverter()
+                .convertTo(String.class, TestUtils.getMessage(messageDirectory, messageName));
+        
+        RouteDefinition routeDefinition = context.getRouteDefinition(routeId);
+        AdviceWithRouteBuilder advice = new AdviceWithRouteBuilder() {
+            @Override
+            public void configure() {
+                weaveByToString(expr).replace().setBody(new ConstantExpression(mockedResponse));
+            }
+        };
+        context.adviceWith(routeDefinition, advice);
+    }
+
+   /**
+     * Replaces a consumer with a mock consumer for a route.
+     *
+     * @param routeId The route id where the producer is located.
+     * @param mockUri The mock uri which replaces the consumer uri.  Example: "direct:kafka-from"
+     */
+    protected void mockConsumer(String routeId, String mockUri) throws Exception {
+        // Swap the FROM component in the route with a direct component
+        AdviceWithRouteBuilder.adviceWith(context, 
+            routeId, 
+            routeBuilder -> {
+                routeBuilder.replaceFromWith(mockUri);
+        });
+    }
+
+   /**
+     * Adds a final To endpoint to a route.
+     *
+     * @param routeId The route id where the producer is located.
+     * @param mockUri The mock uri which replaces the consumer uri.  Example: "direct:kafka-from"
+     */
+    protected void addLast(String routeId, String mockUri) throws Exception {
+        AdviceWithRouteBuilder.adviceWith(context,
+            routeId,
+            routeBuilder -> {
+                routeBuilder.weaveAddLast().to(mockUri);
+        });
     }
 
     /**

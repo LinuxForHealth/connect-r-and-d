@@ -5,10 +5,8 @@
  */
 package com.linuxforhealth.connect.builder;
 
-import org.apache.camel.ProducerTemplate;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.impl.engine.DefaultProducerTemplate;
 import org.apache.camel.test.junit5.CamelTestSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +27,9 @@ public class BaseRouteTest extends CamelTestSupport {
     @Override
     protected Properties useOverridePropertiesWithPropertiesComponent() {
         Properties props = new Properties();
+        props.setProperty("lfh.connect.host", "0.0.0.0");
+        props.setProperty("lfh.connect.http.port", "8080");
+
         props.setProperty("lfh.connect.default.uri", "direct:start");
         props.setProperty("lfh.connect.default.dataformat", "csv");
         props.setProperty("lfh.connect.default.messagetype", "person");

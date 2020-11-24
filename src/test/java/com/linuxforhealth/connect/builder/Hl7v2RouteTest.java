@@ -33,7 +33,7 @@ public class Hl7v2RouteTest extends RouteTestSupport {
     }
 
     /**
-     * Overriden to register beans, apply advice, and register a mock endpoint
+     * Overridden to register beans, apply advice, and register a mock endpoint
      * @throws Exception if an error occurs applying advice
      */
     @BeforeEach
@@ -61,7 +61,7 @@ public class Hl7v2RouteTest extends RouteTestSupport {
         String testMessage = context
                 .getTypeConverter()
                 .convertTo(String.class, TestUtils.getMessage("hl7", "ADT_A01.txt"))
-                .replace("\n", "\r");
+                .replace(System.lineSeparator(), "\r");
 
         String expectedMessage = Base64.getEncoder().encodeToString(testMessage.getBytes(StandardCharsets.UTF_8));
 
@@ -75,14 +75,14 @@ public class Hl7v2RouteTest extends RouteTestSupport {
         mockResult.expectedPropertyReceived("messageType", "ADT");
         mockResult.expectedPropertyReceived("routeId", "hl7-v2");
 
-        fluentTemplate.to("{{lfh.connect.hl7-v2.uri}}")
+        fluentTemplate.to("netty:tcp://localhost:2576?sync=true&encoders=#hl7encoder&decoders=#hl7decoder")
                 .withBody(testMessage)
                 .send();
 
         mockResult.assertIsSatisfied();
 
         Exchange mockExchange = mockResult.getExchanges().get(0);
-        String expectedRouteUri = "netty://tcp://0.0.0.0:2575?sync=true&encoders=#hl7encoder&decoders=#hl7decoder";
+        String expectedRouteUri = "netty://tcp://0.0.0.0:2576?sync=true&encoders=#hl7encoder&decoders=#hl7decoder";
         String actualRouteUri = mockExchange.getProperty("routeUri", String.class);
         LinuxForHealthAssertions.assertEndpointUriSame(expectedRouteUri, actualRouteUri);
 

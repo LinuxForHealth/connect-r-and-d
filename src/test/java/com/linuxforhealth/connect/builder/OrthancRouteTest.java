@@ -1,6 +1,7 @@
 package com.linuxforhealth.connect.builder;
 
 import com.linuxforhealth.connect.support.LinuxForHealthAssertions;
+import com.linuxforhealth.connect.support.LFHKafkaConsumer;
 import com.linuxforhealth.connect.support.TestUtils;
 import org.apache.camel.Exchange;
 import org.apache.camel.RoutesBuilder;
@@ -18,7 +19,7 @@ import java.util.Properties;
 import java.util.UUID;
 
 /**
- * Tests {@link FhirR4RouteBuilder}
+ * Tests {@link OrthancRouteBuilder}
  */
 public class OrthancRouteTest extends RouteTestSupport {
 
@@ -33,7 +34,6 @@ public class OrthancRouteTest extends RouteTestSupport {
     protected Properties useOverridePropertiesWithPropertiesComponent() {
         Properties props = super.useOverridePropertiesWithPropertiesComponent();
         props.setProperty("lfh.connect.orthanc.uri", "direct:http://0.0.0.0:9090/orthanc/instances");
-        props.setProperty("lfh.connect.orthanc_server.uri", "http://localhost:8042/instances");
         return props;
     }
 
@@ -45,10 +45,17 @@ public class OrthancRouteTest extends RouteTestSupport {
     @Override
     protected void configureContext() throws Exception {
 
+        context.getRegistry().bind("LFHKafkaConsumer", new LFHKafkaConsumer());
+
         setProducerResponse(OrthancRouteBuilder.ROUTE_ID,
                 OrthancRouteBuilder.ORTHANC_PRODUCER_POST_ID,
                 "orthanc",
                 "post-response.json");
+
+        setProducerResponse(OrthancRouteBuilder.ROUTE_ID,
+                OrthancRouteBuilder.ORTHANC_PRODUCER_GET_IMAGE_ID,
+                "orthanc",
+                "mock-get-image-response.txt");
 
         setProducerResponse(OrthancRouteBuilder.ROUTE_ID,
                 OrthancRouteBuilder.ORTHANC_PRODUCER_GET_ID,
@@ -56,7 +63,7 @@ public class OrthancRouteTest extends RouteTestSupport {
                 "get-response.json");
 
         mockProducerEndpointById(OrthancRouteBuilder.ROUTE_ID,
-                OrthancRouteBuilder.ORTHANC_PRODUCER_STORE_NOTIFY_ID,
+                OrthancRouteBuilder.ORTHANC_PRODUCER_STORE_ID,
                 "mock:result");
 
         super.configureContext();
@@ -85,7 +92,7 @@ public class OrthancRouteTest extends RouteTestSupport {
 
         File inputFile = TestUtils.getMessage("orthanc", "image-00020.dcm");
         byte[] inputMessage = Files.readAllBytes(Paths.get(inputFile.toURI()));
-        fluentTemplate.to("{{lfh.connect.orthanc.uri}}")
+        fluentTemplate.to("direct:http://0.0.0.0:9090/orthanc/instances")
                 .withBody(inputMessage)
                 .request();
 

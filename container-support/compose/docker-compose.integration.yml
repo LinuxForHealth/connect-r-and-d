@@ -1,0 +1,30 @@
+version: "3.7"
+services:
+  ibm-fhir:
+    image: ${IBM_FHIR_IMAGE}
+    ports:
+      - ${IBM_FHIR_HTTPS_PORT}:${IBM_FHIR_HTTPS_PORT}
+  msft-fhir:
+    restart: on-failure
+    image: ${MSFT_FHIR_IMAGE}
+    environment:
+      FHIRServer__Security__Enabled: ${MSFT_FHIR_SECURITY_ENABLED}
+      SqlServer__ConnectionString: ${MSFT_FHIR_SQL_CONNECTION_STRING}
+      SqlServer__AllowDatabaseCreation: ${MSFT_FHIR_SQL_ALLOW_DB_CREATE}
+      SqlServer__Initialize: ${MSFT_FHIR_SQL_INITIALIZE}
+      SqlServer__SchemaOptions__AutomaticUpdatesEnabled: ${MSFT_FHIR_SQL_AUTO_UPDATE}
+      DataStore: ${MSFT_FHIR_DATASTORE}
+    ports:
+      - ${MSFT_FHIR_HOST_PORT}:${MSFT_FHIR_PORT}
+    depends_on:
+      - msft-fhir-sql
+  msft-fhir-sql:
+    image: ${MSFT_FHIR_SQL_IMAGE}
+    environment:
+      SA_PASSWORD: ${MSFT_FHIR_SQL_SA_PASSWORD}
+      ACCEPT_EULA: "Y"
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd","-U sa -P ${MSFT_FHIR_SQL_SA_PASSWORD} -Q 'SELECT * FROM INFORMATION_SCHEMA.TABLES'"]
+      interval: 10s
+      timeout: 10s
+      retries: 6
