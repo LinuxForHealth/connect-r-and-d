@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 public class PostgresRouteBuilder extends RouteBuilder {
 	
 	public final static String POSTGRES_ROUTE_ID = "postgres";
+	public final static String POSTGRES_ROUTE_URI = "direct:postgres";
 	
 	// Data source object
 	@BeanInject() BasicDataSource ds;
@@ -24,6 +25,7 @@ public class PostgresRouteBuilder extends RouteBuilder {
 	// Data source properties
 	@PropertyInject("lfh.connect.pgds.url") private String pg_url;
 	@PropertyInject("lfh.connect.pgds.user") private String pg_user;
+	@PropertyInject("lfh.connect.pgds.pwd") private String pg_pwd;
 	@PropertyInject("lfh.connect.pgds.driver") private String pg_driver;
 	
 	private final Logger logger = LoggerFactory.getLogger(PostgresRouteBuilder.class);
@@ -41,12 +43,13 @@ public class PostgresRouteBuilder extends RouteBuilder {
 		if (ds != null) {
 			ds.setUrl(pg_url);
 			ds.setUsername(pg_user);
+			ds.setPassword(pg_pwd);
 			ds.setDriverClassName(pg_driver);
 			logger.debug("Data source url: {} user: {} driver: {}", pg_url, pg_user, pg_driver);
 			
 		} else { logger.warn("Data source bean not found in registry"); }
 		
-		from("direct:postgres")
+		from(POSTGRES_ROUTE_URI)
 		.routeId(POSTGRES_ROUTE_ID)
 		.log(LoggingLevel.DEBUG, logger, "Received message body: ${body}")
 		.to("jdbc:pgds")
