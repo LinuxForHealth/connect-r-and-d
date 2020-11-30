@@ -45,14 +45,16 @@ public class LFHServiceManager {
         String[] hosts = properties.getProperty("lfh.connect.messaging.subscribe.hosts").split(",");
         String subject = properties.getProperty("lfh.connect.messaging.subscribe.subject");
         String brokers = properties.getProperty("lfh.connect.datastore.brokers");
-        boolean useSSL = Boolean.parseBoolean(properties.getProperty("lfh.connect.ssl.usessl"));
-        String truststore = properties.getProperty("lfh.connect.ssl.truststore.location");
+        String truststore = properties.getProperty("lfh.connect.ssl.truststore.filename");
         String truststorePwd = properties.getProperty("lfh.connect.ssl.truststore.password");
-        String keystore = properties.getProperty("lfh.connect.ssl.keystore.location");
+        String keystore = properties.getProperty("lfh.connect.ssl.keystore.filename");
         String keystorePwd = properties.getProperty("lfh.connect.ssl.keystore.password");
+        boolean useSSL = Boolean.parseBoolean(properties.getProperty("lfh.connect.ssl.usessl"));
         producer = new LFHKafkaProducer();
         consumer = new LFHKafkaConsumer();
         camelMain.bind("LFHKafkaConsumer", consumer);
+
+       logger.info("usessl: " + useSSL);
 
         try {
             if (useSSL) {
@@ -61,7 +63,8 @@ public class LFHServiceManager {
                     throw new IllegalStateException("SSL property missing from the configuration.");
                 }
 
-                sslContext = SSLUtils.createSSLContext(properties);
+                logger.info("creating sslContext");
+                sslContext = SSLUtils.createSSLContext(properties, camelMain);
             }
 
             consumer.start(brokers);
@@ -106,6 +109,8 @@ public class LFHServiceManager {
         boolean useSSL, SSLContext sslContext) throws Exception {
 
         if (useSSL) server = "tls://"+server;
+
+        logger.info("server="+server);
 
         Options.Builder builder = new Options.Builder()
             .server(server)

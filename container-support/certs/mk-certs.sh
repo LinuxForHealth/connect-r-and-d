@@ -24,7 +24,7 @@ echo "Creating the Linux for Health rootCA certificate"
 openssl req -nodes -x509 -newkey rsa:4096 -sha256 -days 3650 -keyout rootCA.key \
     -out rootCA.crt -passout pass:$PASSWORD -config ./ca.cnf
 
-echo "Creating a signing request for the LinuxforHealth server certificate"
+echo "Creating a signing request for the LinuxForHealth server certificate"
 openssl req -nodes -newkey rsa:2048 -sha256 -out servercert.csr \
     -keyout server.key -subj "/C=US/ST=Texas/L=Austin/O=LinuxForHealth/CN=linuxforhealth.org" \
     -config ./server.cnf
@@ -33,7 +33,7 @@ echo "Signing the Linux for Health server certificate"
 openssl ca -batch -config ca.cnf -policy signing_policy -extensions signing_req -out server.crt \
     -infiles servercert.csr
 
-echo "Creating a signing request for the LinuxforHealth NATS server certificate"
+echo "Creating a signing request for the LinuxForHealth NATS server certificate"
 openssl req -nodes -newkey rsa:2048 -sha256 -out natsservercert.csr \
     -keyout nats-server.key -subj "/C=US/ST=Texas/L=Austin/O=LinuxForHealth/CN=linuxforhealth.org" \
     -config ./nats-server.cnf
@@ -42,9 +42,23 @@ echo "Signing the Linux for Health NATS server certificate"
 openssl ca -batch -config ca.cnf -policy signing_policy -extensions signing_req -out nats-server.crt \
     -infiles natsservercert.csr
 
+echo "Creating a signing request for the LinuxForHealth Orthanc server certificate"
+openssl req -nodes -newkey rsa:2048 -sha256 -out orthancservercert.csr \
+    -keyout orthanc-server.key -subj "/C=US/ST=Texas/L=Austin/O=LinuxForHealth/CN=linuxforhealth.org" \
+    -config ./server.cnf
+
+echo "Signing the Linux for Health Orthanc server certificate"
+openssl ca -batch -config ca.cnf -policy signing_policy -extensions signing_req -out orthanc-server.crt \
+    -infiles orthancservercert.csr
+cat orthanc-server.key orthanc-server.crt > orthanc-server.pem
+
 echo "Creating the java trust store"
 keytool -keystore lfhtruststore.jks -alias CARoot -import -file ./rootCA.crt -noprompt \
     -storetype pkcs12 -storepass $PASSWORD
+
+echo "Importing the Blue Button sandbox cert into the truststore"
+keytool -keystore lfhtruststore.jks -alias BlueButtonSandbox -import -file ./test.cms.gov.cer \
+    -noprompt -storetype pkcs12 -storepass $PASSWORD
 
 echo "Creating a pkcs12 keystore for the server cert"
 openssl pkcs12 -export -in server.crt -inkey server.key -out server.p12 -CAfile rootCA.crt \

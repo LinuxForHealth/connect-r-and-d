@@ -102,7 +102,7 @@ kongmllp=${LFH_KONG_MLLP_PORT}
 echo "Adding a kong service for all LinuxForHealth http routes"
 curl $CURL_FLAGS https://localhost:8444/services \
   -H 'Content-Type: application/json' \
-  -d '{"name": "lfh-http-service", "url": "http://'"${host}"':'"${lfhhttp}"'"}'
+  -d '{"name": "lfh-http-service", "url": "https://'"${host}"':'"${lfhhttp}"'"}'
 
 echo "Adding kong http routes that match incoming requests and send them to the lfh-http-service url"
 add_http_route "hello-world-route" "GET" "/hello-world" "lfh-http-service"
@@ -125,7 +125,7 @@ curl $CURL_FLAGS https://localhost:8444/services/lfh-hl7v2-service/routes \
 echo "Adding a kong service for the LinuxForHealth Blue Button 2.0 routes"
 curl $CURL_FLAGS https://localhost:8444/services \
   -H 'Content-Type: application/json' \
-  -d '{"name": "lfh-bluebutton-service", "url": "http://'"${host}"':'"${lfhhttp}"'"}'
+  -d '{"name": "lfh-bluebutton-service", "url": "https://'"${host}"':'"${lfhhttp}"'"}'
 
 echo "Adding Kong http routes that match incoming requests and send them to the lfh-bluebutton-service url"
 add_http_route "bb-authorize-route" "GET" "/bluebutton/authorize" "lfh-bluebutton-service"

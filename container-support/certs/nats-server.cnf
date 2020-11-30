@@ -12,7 +12,6 @@ prompt             = no
 
 ####################################################################
 [ server_distinguished_name ]
-
 countryName            = US
 stateOrProvinceName    = Texas
 localityName           = Austin

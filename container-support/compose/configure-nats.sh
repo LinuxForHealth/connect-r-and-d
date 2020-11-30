@@ -55,7 +55,7 @@ wait_for_cmd docker exec -it compose_"${LFH_NATS_SERVICE_NAME}"_1 \
               --retention limits \
               --max-msg-size=-1 \
               --discard old \
-              --dupe-window=10s
+              --dupe-window=10s > /dev/null
 
 # create JetStream consumer
 docker exec -it compose_"${LFH_NATS_SERVICE_NAME}"_1 \
