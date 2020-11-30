@@ -126,11 +126,17 @@ function start() {
                 --name "${LFH_NATS_SERVICE_NAME}" \
                 -p "${LFH_NATS_CLIENT_PORT}":"${LFH_NATS_CLIENT_PORT}" \
                 "${LFH_NATS_IMAGE}" \
-                server
+                server --tls \
+                --tlscert=/certs/nats-server.crt \
+                --tlskey=/certs/nats-server.key \
+                --tlscacert=/certs/rootCA.crt
   is_ready localhost "${LFH_NATS_CLIENT_PORT}"
   echo "create NATS JetStream stream"
   wait_for_cmd docker exec -it "${LFH_NATS_SERVICE_NAME}" \
                 nats --server="${LFH_NATS_SERVICE_NAME}":"${LFH_NATS_CLIENT_PORT}" \
+                --tlscert=../certs/server.crt \
+                --tlskey=../certs/server.key \
+                --tlsca=../certs/rootCA.crt \
                 str add EVENTS \
                 --subjects EVENTS.* \
                 --ack \
@@ -145,6 +151,9 @@ function start() {
   echo "create NATS JetStream consumer"
   docker exec -it "${LFH_NATS_SERVICE_NAME}" \
                 nats --server="${LFH_NATS_SERVICE_NAME}":"${LFH_NATS_CLIENT_PORT}" \
+                --tlscert=../certs/server.crt \
+                --tlskey=../certs/server.key \
+                --tlsca=../certs/rootCA.crt \
                 con add EVENTS SUBSCRIBER \
                 --ack none \
                 --target lfh-events \
