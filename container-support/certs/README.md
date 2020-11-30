@@ -14,3 +14,6 @@ cp *.jks ../../src/main/resources
 ```
 
 Note: When asked for information for input, just hit return as the defaults have already been provided.
+
+## Orthanc SSL Certificate
+The Orthanc server self-signed certificate is created via this script and merged with the private key into orthanc-server.pem.  However, this file is built into the Orthanc server image, so to change it, copy the new orthanc-server.pem file to the LinuxForHealth images repo (images/orthanc) and rebuild the Orthanc image.
