@@ -127,9 +127,9 @@ function start() {
                 -p "${LFH_NATS_CLIENT_PORT}":"${LFH_NATS_CLIENT_PORT}" \
                 "${LFH_NATS_IMAGE}" \
                 server --tls \
-                --tlscert=/certs/nats-server.crt \
-                --tlskey=/certs/nats-server.key \
-                --tlscacert=/certs/rootCA.crt
+                --tlscert=../certs/nats-server.crt \
+                --tlskey=../certs/nats-server.key \
+                --tlscacert=../certs/rootCA.crt
   is_ready localhost "${LFH_NATS_CLIENT_PORT}"
   echo "create NATS JetStream stream"
   wait_for_cmd docker exec -it "${LFH_NATS_SERVICE_NAME}" \
