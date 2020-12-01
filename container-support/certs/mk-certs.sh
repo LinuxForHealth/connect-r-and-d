@@ -20,7 +20,7 @@ if [ -z "$KEYTOOL" ]; then
     exit 1
 fi
 
-echo "Creating the Linux for Health rootCA certificate"
+echo "Creating the LinuxForHealth rootCA certificate"
 openssl req -nodes -x509 -newkey rsa:4096 -sha256 -days 3650 -keyout rootCA.key \
     -out rootCA.crt -passout pass:$PASSWORD -config ./ca.cnf
 
@@ -29,7 +29,7 @@ openssl req -nodes -newkey rsa:2048 -sha256 -out servercert.csr \
     -keyout server.key -subj "/C=US/ST=Texas/L=Austin/O=LinuxForHealth/CN=linuxforhealth.org" \
     -config ./server.cnf
 
-echo "Signing the Linux for Health server certificate"
+echo "Signing the LinuxForHealth server certificate"
 openssl ca -batch -config ca.cnf -policy signing_policy -extensions signing_req -out server.crt \
     -infiles servercert.csr
 
@@ -38,16 +38,16 @@ openssl req -nodes -newkey rsa:2048 -sha256 -out natsservercert.csr \
     -keyout nats-server.key -subj "/C=US/ST=Texas/L=Austin/O=LinuxForHealth/CN=linuxforhealth.org" \
     -config ./nats-server.cnf
 
-echo "Signing the Linux for Health NATS server certificate"
+echo "Signing the LinuxForHealth NATS server certificate"
 openssl ca -batch -config ca.cnf -policy signing_policy -extensions signing_req -out nats-server.crt \
     -infiles natsservercert.csr
 
 echo "Creating a signing request for the LinuxForHealth Orthanc server certificate"
 openssl req -nodes -newkey rsa:2048 -sha256 -out orthancservercert.csr \
     -keyout orthanc-server.key -subj "/C=US/ST=Texas/L=Austin/O=LinuxForHealth/CN=linuxforhealth.org" \
-    -config ./server.cnf
+    -config ./orthanc-server.cnf
 
-echo "Signing the Linux for Health Orthanc server certificate"
+echo "Signing the LinuxForHealth Orthanc server certificate"
 openssl ca -batch -config ca.cnf -policy signing_policy -extensions signing_req -out orthanc-server.crt \
     -infiles orthancservercert.csr
 cat orthanc-server.key orthanc-server.crt > orthanc-server.pem
@@ -60,19 +60,15 @@ echo "Importing the Blue Button sandbox cert into the truststore"
 keytool -keystore lfhtruststore.jks -alias BlueButtonSandbox -import -file ./test.cms.gov.cer \
     -noprompt -storetype pkcs12 -storepass $PASSWORD
 
-echo "Creating a pkcs12 keystore for the server cert"
+echo "Creating the java key store and importing the LFH server cert"
 openssl pkcs12 -export -in server.crt -inkey server.key -out server.p12 -CAfile rootCA.crt \
     -name server -caname CARoot -passout pass:$PASSWORD
-
-echo "Creating the java key store"
 keytool -importkeystore -srckeystore server.p12 -srcstoretype pkcs12 -deststoretype pkcs12 \
     -alias server -destkeystore lfhkeystore.jks -srcstorepass $PASSWORD -deststorepass $PASSWORD
 
-echo "Creating a pkcs12 keystore for the NATS server cert"
+echo "Importing the NATS server cert into the keystore"
 openssl pkcs12 -export -in nats-server.crt -inkey nats-server.key -out nats-server.p12 \
     -name nats-server -CAfile rootCA.crt -caname CARoot -passout pass:$PASSWORD
-
-echo "Import the NATS server p12 keystore into the existing keystore"
 keytool -importkeystore -srckeystore nats-server.p12 -srcstoretype pkcs12 -alias nats-server \
     -destkeystore lfhkeystore.jks -srcstorepass $PASSWORD -deststorepass $PASSWORD
 

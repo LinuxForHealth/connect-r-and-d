@@ -54,7 +54,7 @@ public class LFHServiceManager {
         consumer = new LFHKafkaConsumer();
         camelMain.bind("LFHKafkaConsumer", consumer);
 
-       logger.info("usessl: " + useSSL);
+        logger.info("usessl: " + useSSL);
 
         try {
             if (useSSL) {

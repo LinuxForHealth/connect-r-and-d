@@ -1,8 +1,17 @@
 version: "3.7"
+networks:
+  main:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/24
+      driver: default
 services:
   nats-server:
     image: ${LFH_NATS_IMAGE}
     restart: "always"
+    networks:
+      - main
     ports:
       - ${LFH_NATS_CLIENT_PORT}:${LFH_NATS_CLIENT_PORT}
     volumes:
@@ -13,11 +22,15 @@ services:
       --tlscacert=/certs/rootCA.crt
   zookeeper:
     image: ${LFH_ZOOKEEPER_IMAGE}
+    networks:
+      - main
     expose:
       - ${LFH_ZOOKEEPER_PORT}
   kafdrop:
     image: ${LFH_KAFDROP_IMAGE}
     restart: "always"
+    networks:
+      - main
     ports:
       - ${LFH_KAFDROP_PORT}:${LFH_KAFDROP_PORT}
     environment:
@@ -28,6 +41,8 @@ services:
   kafka:
     image: ${LFH_KAFKA_IMAGE}
     restart: "always"
+    networks:
+      - main
     expose:
       - ${LFH_KAFKA_INTERNAL_LISTENER_PORT}
       - ${LFH_KAFKA_EXTERNAL_LISTENER_PORT}
@@ -42,5 +57,7 @@ services:
   orthanc:
     image: ${LFH_ORTHANC_IMAGE}
     restart: "always"
+    networks:
+      - main
     expose:
       - ${LFH_ORTHANC_HTTP_PORT}

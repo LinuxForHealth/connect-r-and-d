@@ -17,3 +17,5 @@ Note: When asked for information for input, just hit return as the defaults have
 
 ## Orthanc SSL Certificate
 The Orthanc server self-signed certificate is created via this script and merged with the private key into orthanc-server.pem.  However, this file is built into the Orthanc server image, so to change it, copy the new orthanc-server.pem file to the LinuxForHealth images repo (images/orthanc) and rebuild the Orthanc image.
+
+Note: If the certificates are rebuilt with mk-certs.sh and the truststore and keystore are installed in LinuxForHealth, the orthanc-server.pem file must be updated in the orthanc image, otherwise you will see `java.security.cert.CertPathValidatorException: Path does not chain with any of the trust anchors`.

@@ -4,7 +4,7 @@ RANDFILE        = $ENV::HOME/.rnd
 ####################################################################
 [ req ]
 default_bits       = 2048
-default_keyfile    = nats-server.key
+default_keyfile    = server.key
 distinguished_name = server_distinguished_name
 req_extensions     = server_req_extensions
 string_mask        = utf8only
@@ -32,7 +32,8 @@ subjectAltName       = @alternate_names
 ####################################################################
 [ alternate_names ]
 IP.1  = 127.0.0.1
-IP.2  = 172.18.0.4
+IP.2  = 172.18.0.6
 DNS.1 = localhost
-DNS.2 = nats-server
-DNS.3 = compose_nats-server_1
+DNS.2 = orthanc
+DNS.3 = compose_orthanc_1
+
