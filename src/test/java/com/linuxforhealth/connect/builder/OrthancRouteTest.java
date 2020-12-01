@@ -33,7 +33,7 @@ public class OrthancRouteTest extends RouteTestSupport {
     @Override
     protected Properties useOverridePropertiesWithPropertiesComponent() {
         Properties props = super.useOverridePropertiesWithPropertiesComponent();
-        props.setProperty("lfh.connect.orthanc.uri", "direct:http://0.0.0.0:9090/orthanc/instances");
+        props.setProperty("lfh.connect.orthanc.uri", "direct:https://0.0.0.0:9090/orthanc/instances");
         return props;
     }
 
@@ -92,7 +92,7 @@ public class OrthancRouteTest extends RouteTestSupport {
 
         File inputFile = TestUtils.getMessage("orthanc", "image-00020.dcm");
         byte[] inputMessage = Files.readAllBytes(Paths.get(inputFile.toURI()));
-        fluentTemplate.to("direct:http://0.0.0.0:9090/orthanc/instances")
+        fluentTemplate.to("direct:https://0.0.0.0:9090/orthanc/instances")
                 .withBody(inputMessage)
                 .request();
 
@@ -100,7 +100,7 @@ public class OrthancRouteTest extends RouteTestSupport {
 
         Exchange mockExchange = mockResult.getExchanges().get(0);
 
-        String expectedRouteUri = "direct://http://0.0.0.0:9090/orthanc/instances";
+        String expectedRouteUri = "direct://https://0.0.0.0:9090/orthanc/instances";
         String actualRouteUri = mockExchange.getProperty("routeUri", String.class);
         LinuxForHealthAssertions.assertEndpointUriSame(expectedRouteUri, actualRouteUri);
 
