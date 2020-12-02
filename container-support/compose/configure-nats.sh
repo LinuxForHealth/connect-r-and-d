@@ -32,7 +32,7 @@ function wait_for_cmd() {
       fi
     done
 
-    return 0
+    return 1
 }
 
 # start NATS JetStream
