@@ -34,7 +34,6 @@ public class NATSSubscriber {
      * Start the NATS subscriber.
      */
     public void start(String host, String subject, Options options, LFHKafkaProducer producer) {
-
         this.host = host;
         this.subject = subject;
 
