@@ -200,8 +200,8 @@ function start() {
                 --network "${LFH_NETWORK_NAME}" \
                 --name "${LFH_CONNECT_SERVICE_NAME}" \
                 --env LFH_CONNECT_DATASTORE_URI="kafka:<topicName>?brokers=kafka:9092" \
-                --env LFH_CONNECT_MESSAGING_RESPONSE_URI="nats:EVENTS.responses?servers=nats-server:4222&secure=${LFH_CONNECT_SSL_USESSL}&sslContextParameters=#sslContextParameters" \
-                --env LFH_CONNECT_MESSAGING_ERROR_URI="nats:EVENTS.errors?servers=nats-server:4222&secure=${LFH_CONNECT_SSL_USESSL}&sslContextParameters=#sslContextParameters" \
+                --env LFH_CONNECT_MESSAGING_RESPONSE_URI="nats:EVENTS.responses?servers=nats-server:4222&secure=true&sslContextParameters=#sslContextParameters" \
+                --env LFH_CONNECT_MESSAGING_ERROR_URI="nats:EVENTS.errors?servers=nats-server:4222&secure=true&sslContextParameters=#sslContextParameters" \
                 --env LFH_CONNECT_MESSAGING_SUBSCRIBE_HOSTS="nats-server:4222" \
                 --env LFH_CONNECT_ORTHANC_SERVER_URI="http://orthanc:8042/instances" \
                 --env LFH_CONNECT_DATASTORE_BROKERS="kafka:9092" \

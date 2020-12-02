@@ -42,16 +42,6 @@ echo "Signing the LinuxForHealth NATS server certificate"
 openssl ca -batch -config ca.cnf -policy signing_policy -extensions signing_req -out nats-server.crt \
     -infiles natsservercert.csr
 
-echo "Creating a signing request for the LinuxForHealth Orthanc server certificate"
-openssl req -nodes -newkey rsa:2048 -sha256 -out orthancservercert.csr \
-    -keyout orthanc-server.key -subj "/C=US/ST=Texas/L=Austin/O=LinuxForHealth/CN=linuxforhealth.org" \
-    -config ./orthanc-server.cnf
-
-echo "Signing the LinuxForHealth Orthanc server certificate"
-openssl ca -batch -config ca.cnf -policy signing_policy -extensions signing_req -out orthanc-server.crt \
-    -infiles orthancservercert.csr
-cat orthanc-server.key orthanc-server.crt > orthanc-server.pem
-
 echo "Creating the java trust store"
 keytool -keystore lfhtruststore.jks -alias CARoot -import -file ./rootCA.crt -noprompt \
     -storetype pkcs12 -storepass $PASSWORD

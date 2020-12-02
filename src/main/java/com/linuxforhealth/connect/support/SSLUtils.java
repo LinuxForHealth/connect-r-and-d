@@ -66,10 +66,10 @@ class SSLUtils {
         return factory.getTrustManagers();
     }
 
-    static SSLContext createSSLContext(Properties tlsProps, Main camelMain) throws Exception {
+    static SSLContext createSSLContext(Properties tlsProps, Main camelMain, String contextName) throws Exception {
         SSLContext ctx = SSLContext.getInstance("TLSv1.2");
         ctx.init(createTestKeyManagers(tlsProps), createTestTrustManagers(tlsProps), new SecureRandom());
-        camelMain.bind("sslContextParameters", createSSLContextParameters(tlsProps));
+        camelMain.bind(contextName, createSSLContextParameters(tlsProps));
         return ctx;
     }
 
@@ -77,18 +77,21 @@ class SSLUtils {
         KeyStoreParameters ksp = new KeyStoreParameters();
         ksp.setResource(tlsProps.getProperty(keystore));
         ksp.setPassword(tlsProps.getProperty(keystorePwd));
+
         KeyManagersParameters kmp = new KeyManagersParameters();
         kmp.setKeyPassword(tlsProps.getProperty(keystorePwd));
         kmp.setKeyStore(ksp);
+
         KeyStoreParameters tsp = new KeyStoreParameters();
         tsp.setResource(tlsProps.getProperty(truststore));
         tsp.setPassword(tlsProps.getProperty(truststorePwd));
+
         TrustManagersParameters tmp = new TrustManagersParameters();
         tmp.setKeyStore(tsp);
+
         SSLContextParameters sslCtxParams = new SSLContextParameters();
         sslCtxParams.setKeyManagers(kmp);
         sslCtxParams.setTrustManagers(tmp);
-
         return sslCtxParams;
     }
 }

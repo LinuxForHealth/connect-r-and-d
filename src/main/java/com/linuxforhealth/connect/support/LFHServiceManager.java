@@ -39,7 +39,7 @@ public class LFHServiceManager {
     * Start the services needed for LinuxForHealth:
     *   1. NATS subscribers defined in application.properties.
     *   2. Kafka producer needed to store remote LFH messages to the local Kafka.
-    *   3. Kafka consumer needed to retrieve datat from a (topic, partition, offset)
+    *   3. Kafka consumer needed to retrieve data from a (topic, partition, offset)
     */
     public static void startServices(Properties properties, Main camelMain) {
         String[] hosts = properties.getProperty("lfh.connect.messaging.subscribe.hosts").split(",");
@@ -49,29 +49,27 @@ public class LFHServiceManager {
         String truststorePwd = properties.getProperty("lfh.connect.ssl.truststore.password");
         String keystore = properties.getProperty("lfh.connect.ssl.keystore.filename");
         String keystorePwd = properties.getProperty("lfh.connect.ssl.keystore.password");
-        boolean useSSL = Boolean.parseBoolean(properties.getProperty("lfh.connect.ssl.usessl"));
         producer = new LFHKafkaProducer();
         consumer = new LFHKafkaConsumer();
         camelMain.bind("LFHKafkaConsumer", consumer);
 
-        logger.info("usessl: " + useSSL);
-
         try {
-            if (useSSL) {
-                if (truststore == null || truststorePwd == null ||
-                    keystore == null || keystorePwd == null) {
-                    throw new IllegalStateException("SSL property missing from the configuration.");
-                }
-
-                logger.info("creating sslContext");
-                sslContext = SSLUtils.createSSLContext(properties, camelMain);
+            if (truststore == null || truststorePwd == null ||
+                keystore == null || keystorePwd == null) {
+                throw new IllegalStateException("SSL property missing from the configuration.");
             }
+
+            logger.info("creating sslContext");
+            sslContext = SSLUtils.createSSLContext(properties, camelMain, "sslContextParameters");
+
+            // To avoid turning on SSL for most Camel components, bind a second instance of SSLContextParameters
+            sslContext = SSLUtils.createSSLContext(properties, camelMain, "sslContextParametersGlobal");
 
             consumer.start(brokers);
             producer.start(brokers);
             for (String host: hosts) {
                 NATSSubscriber sub = new NATSSubscriber();
-                sub.start(host, subject, createOptions(host, true, useSSL, sslContext), producer);
+                sub.start(host, subject, createOptions(host, true, true, sslContext), producer);
                 natsSubscribers.add(sub);
             }
         } catch (Exception ex) {
