@@ -63,7 +63,7 @@ public class LFHServiceManager {
             sslContext = SSLUtils.createSSLContext(properties, camelMain, "sslContextParameters");
 
             // To avoid turning on SSL for most Camel components, bind a second instance of SSLContextParameters
-            sslContext = SSLUtils.createSSLContext(properties, camelMain, "sslContextParametersGlobal");
+            SSLUtils.createSSLContext(properties, camelMain, "sslContextParametersGlobal");
 
             consumer.start(brokers);
             producer.start(brokers);
@@ -107,7 +107,6 @@ public class LFHServiceManager {
         boolean useSSL, SSLContext sslContext) throws Exception {
 
         if (useSSL) server = "tls://"+server;
-
         logger.info("server="+server);
 
         Options.Builder builder = new Options.Builder()
