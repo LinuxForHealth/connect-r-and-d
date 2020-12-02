@@ -6,5 +6,6 @@
 # make-certs.sh
 # Creates the LinuxForHealth certificates required to enable TLS.
 #
-rm *.jks *.p12 *.crt *.csr *.key *.old *.pem index.txt* > /dev/null 2>&1
+rm *.jks *.p12 *.crt *.csr *.key *.old *.pem index.txt* serial.txt* > /dev/null 2>&1
 touch index.txt
+echo "01" > serial.txt
