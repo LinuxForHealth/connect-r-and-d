@@ -49,6 +49,7 @@ public class LFHServiceManager {
         String truststorePwd = properties.getProperty("lfh.connect.ssl.truststore.password");
         String keystore = properties.getProperty("lfh.connect.ssl.keystore.filename");
         String keystorePwd = properties.getProperty("lfh.connect.ssl.keystore.password");
+        long kafkaConsumerTimeout = Long.parseLong(properties.getProperty("lfh.connect.datastore.get.timeout.milliseconds"));
         producer = new LFHKafkaProducer();
         consumer = new LFHKafkaConsumer();
         camelMain.bind("LFHKafkaConsumer", consumer);
@@ -65,7 +66,7 @@ public class LFHServiceManager {
             // To avoid turning on SSL for most Camel components, bind a second instance of SSLContextParameters
             SSLUtils.createSSLContext(properties, camelMain, "sslContextParametersGlobal");
 
-            consumer.start(brokers);
+            consumer.start(brokers, kafkaConsumerTimeout);
             producer.start(brokers);
             for (String host: hosts) {
                 NATSSubscriber sub = new NATSSubscriber();

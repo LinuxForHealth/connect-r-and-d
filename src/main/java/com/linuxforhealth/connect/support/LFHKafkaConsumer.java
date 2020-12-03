@@ -27,13 +27,14 @@ public class LFHKafkaConsumer {
     
     private final Logger logger = LoggerFactory.getLogger(LFHKafkaConsumer.class);
     private KafkaConsumer consumer = null;
+    private long timeout = 500L;
 
     public void LFHKafkaConsumer() { }
 
     /**
      * Start the Kafka consumer
      */
-    public void start(String brokers) {
+    public void start(String brokers, long timeout) {
         final Properties props = new Properties();
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "LFHKafkaConsumerGroup");
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokers);
@@ -41,6 +42,7 @@ public class LFHKafkaConsumer {
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        this.timeout = timeout;
 
         consumer = new KafkaConsumer(props);
      }
@@ -57,7 +59,7 @@ public class LFHKafkaConsumer {
         try {
             consumer.assign(Arrays.asList(topicPartition));  // subscribe
             consumer.seek(topicPartition, offset);
-            ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+            ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(timeout));
             logger.debug("received {} records", records.count());
             for (ConsumerRecord<String, String> record : records) {
                 // should only be 1 record
