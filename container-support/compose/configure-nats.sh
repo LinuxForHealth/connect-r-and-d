@@ -42,6 +42,9 @@ docker-compose up -d --remove-orphans "${LFH_NATS_SERVICE_NAME}"
 # create JetStream stream
 wait_for_cmd docker exec -it compose_"${LFH_NATS_SERVICE_NAME}"_1 \
               nats --server=compose_"${LFH_NATS_SERVICE_NAME}"_1:"${LFH_NATS_CLIENT_PORT}" \
+              --tlscert=../certs/server.crt \
+              --tlskey=../certs/server.key \
+              --tlsca=../certs/rootCA.crt \
               str add EVENTS \
               --subjects EVENTS.* \
               --ack \
@@ -57,6 +60,9 @@ wait_for_cmd docker exec -it compose_"${LFH_NATS_SERVICE_NAME}"_1 \
 # create JetStream consumer
 docker exec -it compose_"${LFH_NATS_SERVICE_NAME}"_1 \
               nats --server=compose_"${LFH_NATS_SERVICE_NAME}"_1:"${LFH_NATS_CLIENT_PORT}" \
+              --tlscert=../certs/server.crt \
+              --tlskey=../certs/server.key \
+              --tlsca=../certs/rootCA.crt \
               con add EVENTS SUBSCRIBER \
               --ack none \
               --target lfh-events \
