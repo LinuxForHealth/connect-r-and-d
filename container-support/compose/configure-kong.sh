@@ -129,6 +129,7 @@ curl $CURL_FLAGS https://localhost:8444/services \
 
 echo "Adding Kong http routes that match incoming requests and send them to the lfh-bluebutton-service url"
 add_http_route "bb-authorize-route" "GET" "/bluebutton/authorize" "lfh-bluebutton-service"
+add_http_route "bb-handler-route" "GET" "/bluebutton/handler" "lfh-bluebutton-service"
 add_http_route "bb-patient-route" "GET" "/bluebutton/v1/Patient" "lfh-bluebutton-service"
 add_http_route "bb-eob-route" "GET" "/bluebutton/v1/ExplanationOfBenefit" "lfh-bluebutton-service"
 add_http_route "bb-coverage-route" "GET" "/bluebutton/v1/Coverage" "lfh-bluebutton-service"
