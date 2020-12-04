@@ -30,7 +30,6 @@ public class LFHServiceManager {
     private final static Logger logger = LoggerFactory.getLogger(LFHServiceManager.class);
     private static LFHKafkaProducer producer = null;
     private static LFHKafkaConsumer consumer = null;
-    private static List<NATSSubscriber> natsSubscribers = new ArrayList<NATSSubscriber>(); 
 
     public void LFHServiceManager() { }
 
@@ -38,7 +37,7 @@ public class LFHServiceManager {
     * Start the services needed for LinuxForHealth:
     *   1. NATS subscribers defined in application.properties.
     *   2. Kafka producer needed to store remote LFH messages to the local Kafka.
-    *   3. Kafka consumer needed to retrieve datat from a (topic, partition, offset)
+    *   3. Kafka consumer needed to retrieve data from a (topic, partition, offset)
     */
     public static void startServices(Properties properties, Main camelMain) {
         String[] hosts = properties.getProperty("lfh.connect.messaging.subscribe.hosts").split(",");
@@ -52,9 +51,9 @@ public class LFHServiceManager {
             consumer.start(brokers);
             producer.start(brokers);
             for (String host: hosts) {
-                NATSSubscriber sub = new NATSSubscriber();
-                sub.start(host, subject, createOptions(host, true), producer);
-                natsSubscribers.add(sub);
+                NATSSubscriber subscriber = new NATSSubscriber(host, subject,
+                    createOptions(host, true), producer, properties);
+                new Thread(subscriber).start();
             }
         } catch (Exception ex) {
             logger.error("Exception: " + ex.getMessage());
@@ -75,10 +74,6 @@ public class LFHServiceManager {
                 consumer.close();
                 consumer = null;
             }
-
-            for (NATSSubscriber subscriber: natsSubscribers) subscriber.close();
-            natsSubscribers.clear();
-
         } catch (Exception ex) {
             logger.error("Exception: " + ex.getMessage());
         }
