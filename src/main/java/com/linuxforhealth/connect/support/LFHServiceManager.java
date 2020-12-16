@@ -9,8 +9,6 @@ import org.apache.camel.main.Main;
 
 import javax.net.ssl.SSLContext;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 import io.nats.client.Connection;
@@ -30,7 +28,6 @@ public class LFHServiceManager {
     private final static Logger logger = LoggerFactory.getLogger(LFHServiceManager.class);
     private static LFHKafkaProducer producer = null;
     private static LFHKafkaConsumer consumer = null;
-    private static List<NATSSubscriber> natsSubscribers = new ArrayList<NATSSubscriber>();
     private static SSLContext sslContext = null;
 
     public void LFHServiceManager() { }
@@ -69,9 +66,9 @@ public class LFHServiceManager {
             consumer.start(brokers, kafkaConsumerTimeout);
             producer.start(brokers);
             for (String host: hosts) {
-                NATSSubscriber sub = new NATSSubscriber();
-                sub.start(host, subject, createOptions(host, true, true, sslContext), producer);
-                natsSubscribers.add(sub);
+                NATSSubscriber subscriber = new NATSSubscriber(host, subject,
+                    createOptions(host, true, true), producer, properties);
+                new Thread(subscriber).start();
             }
         } catch (Exception ex) {
             logger.error("Exception: " + ex.getMessage());
@@ -92,10 +89,6 @@ public class LFHServiceManager {
                 consumer.close();
                 consumer = null;
             }
-
-            for (NATSSubscriber subscriber: natsSubscribers) subscriber.close();
-            natsSubscribers.clear();
-
         } catch (Exception ex) {
             logger.error("Exception: " + ex.getMessage());
         }
@@ -105,7 +98,7 @@ public class LFHServiceManager {
      * Set up the NATS connection options for subscribers.
      */
     public static Options createOptions(String server, boolean allowReconnect,
-        boolean useSSL, SSLContext sslContext) throws Exception {
+        boolean useSSL) throws Exception {
 
         if (useSSL) server = "tls://"+server;
         logger.info("server="+server);
