@@ -39,6 +39,14 @@ dependencies {
     implementation group: 'org.apache.camel', name: 'camel-jdbc', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-xpath', version: project.camelVersion
 
+	// https://mvnrepository.com/artifact/org.apache.camel/camel-jdbc
+	implementation group: 'org.apache.camel', name: 'camel-jdbc', version: '3.6.0'
+
+	// https://mvnrepository.com/artifact/mysql/mysql-connector-java
+	implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.22'
+
+
+
     // Java utils (OS type)
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: project.commonsLang3Version
     implementation group: 'org.apache.commons', name: 'commons-dbcp2', version: project.commonsDbcp2Version
