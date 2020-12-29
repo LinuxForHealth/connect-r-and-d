@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -31,20 +32,15 @@ import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory;
 
 /**
- * Sets LinuxForHealth Metadata fields using Camel {@link Exchange} properties.
- * Fields set include:
- * <ul>
- * <li>dataFormat</li>
- * <li>messageType</li>
- * <li>routeId</li>
- * <li>uuid</li>
- * <li>routeUri</li>
- * <li>timestamp</li>
- * </ul>
+ * Implements NAACCR message protocol extension to HL7
+ * This processor inspects an HL7 formatted message and 
+ * detects the type of NAACCR Pathology Report format and
+ * adds additional exchange headers denoting report metadata.
  */
 public final class Hl7NaaccrProcessor implements Processor {
 
     private final String routePropertyNamespace;
+    private final Logger logger = LoggerFactory.getLogger(Hl7NaaccrProcessor.class);
 
     /**
      * Creates a new instance, associating it with the specified route property
@@ -66,44 +62,38 @@ public final class Hl7NaaccrProcessor implements Processor {
     @Override
     public void process(Exchange exchange) throws Exception {
 
-        System.out.println("HL7 NAACCR process():" + exchange.getFromRouteId() + " " + exchange.getFromEndpoint() + " "
-                + exchange.getProperty("messageType"));
+        logger.info("processing exchange "+exchange.getFromRouteId() +" from " + exchange.getFromEndpoint()+ " "+exchange.getProperty("messageType"));
+
         String exchangeBody = exchange.getIn().getBody(String.class);
-        // System.out.println(exchangeBody);
+    
+        System.out.println(exchange.getProperty("routeId"));
+        System.out.println(exchange.getProperty("uuid"));
+        System.out.println(exchange.getProperty("timestamp"));
 
         exchange.setProperty("routeId", exchange.getFromRouteId());
         exchange.setProperty("uuid", UUID.randomUUID());
         exchange.setProperty("timestamp", Instant.now().getEpochSecond());
 
         String routeUri = URLDecoder.decode(exchange.getFromEndpoint().getEndpointUri(), StandardCharsets.UTF_8.name());
-
         String topicName = exchange.getProperty("dataFormat") + "_" + exchange.getProperty("messageType");
 
-        // String result =
-        // Base64.getEncoder().encodeToString(exchangeBody.getBytes(StandardCharsets.UTF_8));
         exchange.setProperty("messageType", "NAACCR-XML");
 
         String rawHL7Msg = new String(Base64.getDecoder().decode(exchangeBody.getBytes(StandardCharsets.UTF_8)));
-        System.out.println("Nl7Naaccr - " + rawHL7Msg);
 
-        processHL7Message(rawHL7Msg);
+        processHL7Message(exchange, rawHL7Msg);
 
-
-
-
-        exchange.setProperty("dataStoreUri", "kafka:NAACCRv2-XML?brokers=localhost:9094");// parseSimpleExpression("${properties:lfh.connect.datastore.uri}",
-                                                                                          // exchange).replaceAll("<topicName>",
-                                                                                          // topicName));
+        //set target kafka topic - TODO consider changing to use property placeholder
+        exchange.setProperty("dataStoreUri", "kafka:NAACCRv2-XML?brokers=localhost:9094");
 
         // create new NAACCR XML format for patient
-
         exchange.getOut().setBody("<NaaccrData><Patient><Item naaccrId=\"patientIdNumber\">000001</Item></Patient>");
 
-        System.out.println("NAACCR XML generated");
+        logger.info("processing completed for "+exchange.getFromRouteId() +" from " + exchange.getFromEndpoint()+ " "+exchange.getProperty("messageType"));
 
     }
 
-    private void processHL7Message(String message) throws HL7Exception {
+    private void processHL7Message(Exchange exchange, String message) throws HL7Exception {
 
         HapiContext context = new DefaultHapiContext();
 			
@@ -116,10 +106,10 @@ public final class Hl7NaaccrProcessor implements Processor {
 
         String type = terser.get("/.MSH-9-1") + "_" + terser.get("/.MSH-9-2");
 
-        System.out.println("HL7NAACCRProcessor() - "+ type);
-
         if ( "ORU_R01".equals(type)) { //check MSH message type
-					
+
+            logger.info("processing message type: "+type);
+
             ORU_R01 oruMsg = (ORU_R01) parsedMsg;
             MSH msh = oruMsg.getMSH();
          
@@ -129,7 +119,7 @@ public final class Hl7NaaccrProcessor implements Processor {
             
             String version = subprotocolType.getEi1_EntityIdentifier().getValue();
 
-            System.out.println("Subprotocol: namespace:"+ namespace+ " version:"+version);
+            logger.info("detected protocol namespace:"+ namespace+ " version:"+version);
 
             if("NAACCR_CP".equals(namespace) || "VOL_V_50_ORU_R01".equals(version)) { //NAACCR report
 
@@ -137,28 +127,20 @@ public final class Hl7NaaccrProcessor implements Processor {
 
                 OBR obrMsg = obrContainer.getOBR();
 
-                System.out.println("Report Id "+obrMsg.getObr1_SetIDOBR());
-
                 String reportTypeCode = obrMsg.getObr4_UniversalServiceIdentifier().getCe1_Identifier().getValue();
                 String reportTypeName = obrMsg.getObr4_UniversalServiceIdentifier().getCe2_Text().getValue();
                 String reportTypeCodeSystem = obrMsg.getObr4_UniversalServiceIdentifier().getCe3_NameOfCodingSystem().getValue();
 
-                System.out.println(reportTypeCode+" "+reportTypeName+" "+reportTypeCodeSystem);
+                logger.info("detected report structure type: "+reportTypeCode+" "+reportTypeName+" "+reportTypeCodeSystem);
 
-                System.out.println(oruMsg.printStructure());
-
+                //check to see what reporting format is being used
                 if("LN".equals(reportTypeCodeSystem) && "60568-3".equals(reportTypeCode)) { //synoptic report format
-
-                    System.out.println("Detected Synoptic Report");
-
                     //now figure out what kind of synoptic report
-                    //first 3 OBX segments contain the synoptic report descriptor 
+                    //the first 3 OBX segments contain the synoptic report descriptor 
                     int obxCount = obrContainer.getOBSERVATIONReps();
 
                     //CAP eCC reports do not use SPM-style structure
-
                     if(obxCount >= 3) {
-                        
                         OBX obx0 = obrContainer.getOBSERVATION(0).getOBX();
                         OBX obx1 = obrContainer.getOBSERVATION(1).getOBX();
                         OBX obx2 = obrContainer.getOBSERVATION(2).getOBX();
@@ -166,22 +148,18 @@ public final class Hl7NaaccrProcessor implements Processor {
                         String reportTemplateSource = obx0.getObx5_ObservationValue()[0].encode();
                         String reportTemplateCode = obx0.getObx3_ObservationIdentifier().getCe1_Identifier().getValue();
 
-                        System.out.println(reportTemplateCode+" "+reportTemplateSource);
-
-
+                        logger.info(reportTemplateCode+" "+reportTemplateSource);
                     } else if(obrContainer.getSPECIMENReps() >= 1) { //SPM-style
 
-                        System.out.println("SPM-style report");
+                        logger.info("detected SPM-style report");
 
                             //go through the SPMs
                         for(ORU_R01_SPECIMEN specimenContainer : obrContainer.getSPECIMENAll()) {
 
                                 SPM spm = specimenContainer.getSPM();
-
                                 obxCount = specimenContainer.getOBXReps();
                                 
                                 if(obxCount >= 3) {
-
                                     OBX obx0 = specimenContainer.getOBX(0);
                                     OBX obx1 = specimenContainer.getOBX(1);
                                     OBX obx2 = specimenContainer.getOBX(2);
@@ -189,82 +167,33 @@ public final class Hl7NaaccrProcessor implements Processor {
                                     String reportTemplateSource = obx0.getObx5_ObservationValue()[0].encode();
                                     String reportTemplateCode = obx0.getObx3_ObservationIdentifier().getCe1_Identifier().getValue();
             
-                                    System.out.println(reportTemplateCode+" "+reportTemplateSource);
-             
-
+                                    logger.info(reportTemplateCode+" "+reportTemplateSource);
+ 
+                                    String reportTemplate = obx0.getObx5_ObservationValue()[0].encode();
+                                    String reportTemplateId = obx0.getObx3_ObservationIdentifier().getCe1_Identifier().getValue();
                                 }
-
                         }
 
-                        
                     } else {
-                        System.out.println("Missing OBX report descriptors ");
+                        logger.warn("Missing expected OBX report descriptors, no further processing.");
                     }
 
-
-
-
-
                 } else if("LN".equals(reportTypeCodeSystem) && "11529-5".equals(reportTypeCode)) { //narrative report format
-
-                    System.out.println("Detected Narrative Report");
-
+                    logger.info("detected narrative report format");
                     //Detect if SPM-style format <OBR><SPM><OBX>
-
-                    //need to perform NLP to extract information for cancer registry reporting
-
-
+                    //TODO need to go down NLP route to extract information for cancer registry reporting
                 } else if ("LN".equals(reportTypeCodeSystem) && "60567-5".equals(reportTypeCode)) { //comprehensive report
-                //60567-5^Comprehensive pathology report with multiple reports
-
+                    //Comprehensive pathology report with multiple reports
+                    logger.info("detected comprehensive report format");
 
                 } else { //unknown (non-standard) report format
-
-                    //TODO decide if to treat this as a validation error 
-
-
+                    logger.warn("unknown or non-standard report format, no further processing");
                 }
-                
-
-
-
-
-
-                   //PID pid = oruMessage.getPATIENT_RESULT().getPATIENT().getPID();
-
-
-            //System.out.println(oruMessage.printStructure());
-
-            //OBX obx1 = oruMsg.getPATIENT_RESULT().getORDER_OBSERVATION().getOBSERVATION().getOBX();
-
-           // SPM spm = oruMessage.getPATIENT_RESULT().getORDER_OBSERVATION().getSPECIMEN().getSPM();
-
-            //System.out.println(spm.getSetIDSPM()+" "+spm.getSpm2_SpecimenID());//spm.getSpecimenCollectionDateTime().toString());
-
-            /*
-            for(OBX obx : oruMessage.getPATIENT_RESULT().getORDER_OBSERVATION().getSPECIMEN().getOBXAll()) {
-
-                System.out.println("\t\t"+obx.getObx1_SetIDOBX()+" ");
-                System.out.println("\t\t"+obx.getObx2_ValueType()+" ");
-                System.out.println("\t\t"+obx.getObx3_ObservationIdentifier().toString());
-                
-                for(Varies v : obx.getObx5_ObservationValue()) {
-                                    
-                    System.out.println("\t\t\t"+v.toString());
-
-                }
-
-
-            }*/
 
         }
 
-        } else { // not a lab report
-
-            //TODO
-            //terminate this route from proceeding
-
-
+        } else {// not a lab report
+            logger.info("not a ORU_R01 HL7 message type, no further processing.");
         }
     }
 
