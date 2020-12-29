@@ -7,15 +7,18 @@ package com.linuxforhealth.connect.support;
 
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Properties;
 
-import org.apache.kafka.clients.consumer.KafkaConsumer;
+import com.linuxforhealth.connect.processor.LinuxForHealthMessage;
+
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,6 +75,42 @@ public class LFHKafkaConsumer {
         }
 
         return value;   
+    }
+
+    /**
+     * Get all messages from a Kafka topic and partition
+     */
+    public List<String> getAll(String topic, int partition) {
+        
+        List<String> resultList = new LinkedList<String>();
+
+        logger.debug("input: partition={} topic={}", partition, topic);
+        TopicPartition topicPartition = new TopicPartition(topic, partition);
+
+        try {
+            consumer.assign(Arrays.asList(topicPartition));  // subscribe
+  
+            consumer.seek(topicPartition, 0);
+            ConsumerRecords<String, String> records;
+
+            do {
+                records = consumer.poll(Duration.ofMillis(timeout));
+                logger.debug("received {} records", records.count());
+                for (ConsumerRecord<String, String> record : records) {
+                    // should only be 1 record
+                    
+                    resultList.add(record.value());
+
+                }
+            } while(!records.isEmpty());
+
+        } catch (Exception ex) {
+            logger.error("Exception: "+ex);
+        } finally {
+            consumer.assign(Arrays.asList());  // unsubscribe
+        }
+
+        return resultList;   
     }
 
     /**

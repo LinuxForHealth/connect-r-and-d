@@ -71,6 +71,7 @@ public final class LinuxForHealthRouteBuilder extends RouteBuilder {
                     KafkaConstants.KAFKA_RECORDMETA,
                     new ArrayList<RecordMetadata>(),
                     ArrayList.class));
+            System.out.println("LinuxForHealthRouteBuilder() - "+exchange.getIn().getBody(String.class));
             JSONObject jsonMsg = new JSONObject(exchange.getIn().getBody(String.class));
             if(jsonMsg.has("data")) msg.setData(jsonMsg.getString("data"));
             exchange.getIn().setBody(msg.toString());
@@ -86,6 +87,7 @@ public final class LinuxForHealthRouteBuilder extends RouteBuilder {
             LinuxForHealthMessage msg = new LinuxForHealthMessage(exchange);
             msg.setError(exception.getMessage());
             exchange.getIn().setBody(msg.toString());
+            exception.printStackTrace();//TODO remove
         })
         .log(LoggingLevel.ERROR, logger, exceptionMessage().toString())
         .to("{{lfh.connect.messaging.error.uri}}")
