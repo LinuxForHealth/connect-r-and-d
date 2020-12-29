@@ -106,7 +106,7 @@ public final class Hl7NaaccrProcessor implements Processor {
 
         String type = terser.get("/.MSH-9-1") + "_" + terser.get("/.MSH-9-2");
 
-        if ( "ORU_R01".equals(type)) { //check MSH message type
+        if ("ORU_R01".equals(type)) { //check MSH message type
 
             logger.info("processing message type: "+type);
 
@@ -121,7 +121,7 @@ public final class Hl7NaaccrProcessor implements Processor {
 
             logger.info("detected protocol namespace:"+ namespace+ " version:"+version);
 
-            if("NAACCR_CP".equals(namespace) || "VOL_V_50_ORU_R01".equals(version)) { //NAACCR report
+            if ("NAACCR_CP".equals(namespace) || "VOL_V_50_ORU_R01".equals(version)) { //NAACCR report
 
                 ORU_R01_ORDER_OBSERVATION obrContainer = oruMsg.getPATIENT_RESULT().getORDER_OBSERVATION();
 
@@ -134,13 +134,13 @@ public final class Hl7NaaccrProcessor implements Processor {
                 logger.info("detected report structure type: "+reportTypeCode+" "+reportTypeName+" "+reportTypeCodeSystem);
 
                 //check to see what reporting format is being used
-                if("LN".equals(reportTypeCodeSystem) && "60568-3".equals(reportTypeCode)) { //synoptic report format
+                if ("LN".equals(reportTypeCodeSystem) && "60568-3".equals(reportTypeCode)) { //synoptic report format
                     //now figure out what kind of synoptic report
                     //the first 3 OBX segments contain the synoptic report descriptor 
                     int obxCount = obrContainer.getOBSERVATIONReps();
 
                     //CAP eCC reports do not use SPM-style structure
-                    if(obxCount >= 3) {
+                    if (obxCount >= 3) {
                         OBX obx0 = obrContainer.getOBSERVATION(0).getOBX();
                         OBX obx1 = obrContainer.getOBSERVATION(1).getOBX();
                         OBX obx2 = obrContainer.getOBSERVATION(2).getOBX();
@@ -149,17 +149,17 @@ public final class Hl7NaaccrProcessor implements Processor {
                         String reportTemplateCode = obx0.getObx3_ObservationIdentifier().getCe1_Identifier().getValue();
 
                         logger.info(reportTemplateCode+" "+reportTemplateSource);
-                    } else if(obrContainer.getSPECIMENReps() >= 1) { //SPM-style
+                    } else if (obrContainer.getSPECIMENReps() >= 1) { //SPM-style
 
                         logger.info("detected SPM-style report");
 
                             //go through the SPMs
-                        for(ORU_R01_SPECIMEN specimenContainer : obrContainer.getSPECIMENAll()) {
+                        for (ORU_R01_SPECIMEN specimenContainer : obrContainer.getSPECIMENAll()) {
 
                                 SPM spm = specimenContainer.getSPM();
                                 obxCount = specimenContainer.getOBXReps();
                                 
-                                if(obxCount >= 3) {
+                                if (obxCount >= 3) {
                                     OBX obx0 = specimenContainer.getOBX(0);
                                     OBX obx1 = specimenContainer.getOBX(1);
                                     OBX obx2 = specimenContainer.getOBX(2);
@@ -178,14 +178,12 @@ public final class Hl7NaaccrProcessor implements Processor {
                         logger.warn("Missing expected OBX report descriptors, no further processing.");
                     }
 
-                } else if("LN".equals(reportTypeCodeSystem) && "11529-5".equals(reportTypeCode)) { //narrative report format
+                } else if ("LN".equals(reportTypeCodeSystem) && "11529-5".equals(reportTypeCode)) { //narrative report format
                     logger.info("detected narrative report format");
                     //Detect if SPM-style format <OBR><SPM><OBX>
-                    //TODO need to go down NLP route to extract information for cancer registry reporting
                 } else if ("LN".equals(reportTypeCodeSystem) && "60567-5".equals(reportTypeCode)) { //comprehensive report
                     //Comprehensive pathology report with multiple reports
                     logger.info("detected comprehensive report format");
-
                 } else { //unknown (non-standard) report format
                     logger.warn("unknown or non-standard report format, no further processing");
                 }

@@ -9,7 +9,6 @@ import com.linuxforhealth.connect.processor.Hl7NaaccrProcessor;
 import com.linuxforhealth.connect.processor.MetaDataProcessor;
 
 
-
 /**
  * Defines a HL7 V2 MLLP processing route
  */
@@ -44,17 +43,15 @@ public class Hl7v2RouteBuilder extends BaseRouteBuilder {
                 .unmarshal().hl7()
                 .process(new MetaDataProcessor(routePropertyNamespace))
                 .multicast()
-                .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI, "direct:"+NAACCR_ROUTE_ID);
-                //.id(HTTP_ROUTE_ID);
+                .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI, "direct:"+NAACCR_ROUTE_ID)
+                .id(HTTP_ROUTE_ID);
 
-    
         //Route for NAACCR HL7 Subprotocol for Electronic Pathology Reports
         from("direct:"+NAACCR_ROUTE_ID)
             .routeId(NAACCR_ROUTE_ID)
-            //.process(new MetaDataProcessor(routePropertyNamespace) )
             .process(new Hl7NaaccrProcessor(routePropertyNamespace))
-            .to(LinuxForHealthRouteBuilder.STORE_CONSUMER_URI);
-            //.id(NAACCR_ROUTE_ID);        
+            .to(LinuxForHealthRouteBuilder.STORE_CONSUMER_URI)
+            .id(NAACCR_ROUTE_ID);        
        
     }
 }
