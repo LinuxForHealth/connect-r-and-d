@@ -7,13 +7,12 @@ package com.linuxforhealth.connect.processor;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.util.Base64;
-import java.util.UUID;
-import java.util.logging.Logger;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ca.uhn.hl7v2.DefaultHapiContext;
 import ca.uhn.hl7v2.HL7Exception;
@@ -66,18 +65,8 @@ public final class Hl7NaaccrProcessor implements Processor {
 
         String exchangeBody = exchange.getIn().getBody(String.class);
     
-        System.out.println(exchange.getProperty("routeId"));
-        System.out.println(exchange.getProperty("uuid"));
-        System.out.println(exchange.getProperty("timestamp"));
-
-        exchange.setProperty("routeId", exchange.getFromRouteId());
-        exchange.setProperty("uuid", UUID.randomUUID());
-        exchange.setProperty("timestamp", Instant.now().getEpochSecond());
-
         String routeUri = URLDecoder.decode(exchange.getFromEndpoint().getEndpointUri(), StandardCharsets.UTF_8.name());
         String topicName = exchange.getProperty("dataFormat") + "_" + exchange.getProperty("messageType");
-
-        exchange.setProperty("messageType", "NAACCR-XML");
 
         String rawHL7Msg = new String(Base64.getDecoder().decode(exchangeBody.getBytes(StandardCharsets.UTF_8)));
 
@@ -86,8 +75,21 @@ public final class Hl7NaaccrProcessor implements Processor {
         //set target kafka topic - TODO consider changing to use property placeholder
         exchange.setProperty("dataStoreUri", "kafka:NAACCRv2-XML?brokers=localhost:9094");
 
+        for(String key : exchange.getProperties().keySet()) {
+            System.out.println(">"+key+":"+exchange.getProperty(key));
+        }
+
+        /*
+        PatientXmlWriter writer = new PatientXmlWriter();
+        Patient patient = new Patient();
+        Tumor tumor = new Tumor();
+        tumor.addItem(new Item());
+        patient.addTumor(tumor);
+        writer.writePatient(patient);
+        writer.writePatient(patient);
+        */
         // create new NAACCR XML format for patient
-        exchange.getOut().setBody("<NaaccrData><Patient><Item naaccrId=\"patientIdNumber\">000001</Item></Patient>");
+        //exchange.getOut().setBody("<NaaccrData><Patient><Item naaccrId=\"patientIdNumber\">000001</Item></Patient>");
 
         logger.info("processing completed for "+exchange.getFromRouteId() +" from " + exchange.getFromEndpoint()+ " "+exchange.getProperty("messageType"));
 
@@ -123,6 +125,9 @@ public final class Hl7NaaccrProcessor implements Processor {
 
             if ("NAACCR_CP".equals(namespace) || "VOL_V_50_ORU_R01".equals(version)) { //NAACCR report
 
+                exchange.setProperty("messageType", "NAACCR_CP");
+                exchange.setProperty("naaccrVersion", version);
+
                 ORU_R01_ORDER_OBSERVATION obrContainer = oruMsg.getPATIENT_RESULT().getORDER_OBSERVATION();
 
                 OBR obrMsg = obrContainer.getOBR();
@@ -135,6 +140,9 @@ public final class Hl7NaaccrProcessor implements Processor {
 
                 //check to see what reporting format is being used
                 if ("LN".equals(reportTypeCodeSystem) && "60568-3".equals(reportTypeCode)) { //synoptic report format
+                    
+                    exchange.setProperty("naaccrReportType",reportTypeCode);
+                    
                     //now figure out what kind of synoptic report
                     //the first 3 OBX segments contain the synoptic report descriptor 
                     int obxCount = obrContainer.getOBSERVATIONReps();
@@ -148,10 +156,14 @@ public final class Hl7NaaccrProcessor implements Processor {
                         String reportTemplateSource = obx0.getObx5_ObservationValue()[0].encode();
                         String reportTemplateCode = obx0.getObx3_ObservationIdentifier().getCe1_Identifier().getValue();
 
+                        
+
                         logger.info(reportTemplateCode+" "+reportTemplateSource);
                     } else if (obrContainer.getSPECIMENReps() >= 1) { //SPM-style
 
                         logger.info("detected SPM-style report");
+
+                        exchange.setProperty("naaccrReportStyle","SPM-format");
 
                             //go through the SPMs
                         for (ORU_R01_SPECIMEN specimenContainer : obrContainer.getSPECIMENAll()) {
@@ -179,10 +191,12 @@ public final class Hl7NaaccrProcessor implements Processor {
                     }
 
                 } else if ("LN".equals(reportTypeCodeSystem) && "11529-5".equals(reportTypeCode)) { //narrative report format
+                    exchange.setProperty("naaccrReportType",reportTypeCode);
                     logger.info("detected narrative report format");
                     //Detect if SPM-style format <OBR><SPM><OBX>
                 } else if ("LN".equals(reportTypeCodeSystem) && "60567-5".equals(reportTypeCode)) { //comprehensive report
                     //Comprehensive pathology report with multiple reports
+                    exchange.setProperty("naaccrReportType",reportTypeCode);
                     logger.info("detected comprehensive report format");
                 } else { //unknown (non-standard) report format
                     logger.warn("unknown or non-standard report format, no further processing");

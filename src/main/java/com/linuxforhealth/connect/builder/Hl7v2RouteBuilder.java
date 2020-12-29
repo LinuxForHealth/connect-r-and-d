@@ -8,6 +8,11 @@ package com.linuxforhealth.connect.builder;
 import com.linuxforhealth.connect.processor.Hl7NaaccrProcessor;
 import com.linuxforhealth.connect.processor.MetaDataProcessor;
 
+import org.apache.camel.LoggingLevel;
+import org.apache.camel.Predicate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * Defines a HL7 V2 MLLP processing route
@@ -19,6 +24,8 @@ public class Hl7v2RouteBuilder extends BaseRouteBuilder {
     private final static String ROUTE_PROPERTY_NAMESPACE = "lfh.connect.hl7-v2";
     public final static String HTTP_ROUTE_ID = "hl7-v2-http";
     public final static String NAACCR_ROUTE_ID = "hl7-v2-naaccr";
+
+    private final Logger logger = LoggerFactory.getLogger(Hl7NaaccrProcessor.class);
 
     @Override
     protected String getRoutePropertyNamespace() {
@@ -48,10 +55,28 @@ public class Hl7v2RouteBuilder extends BaseRouteBuilder {
 
         //Route for NAACCR HL7 Subprotocol for Electronic Pathology Reports
         from("direct:"+NAACCR_ROUTE_ID)
-            .routeId(NAACCR_ROUTE_ID)
-            .process(new Hl7NaaccrProcessor(routePropertyNamespace))
-            .to(LinuxForHealthRouteBuilder.STORE_CONSUMER_URI)
-            .id(NAACCR_ROUTE_ID);        
-       
+                .routeId(NAACCR_ROUTE_ID)
+                .process(new Hl7NaaccrProcessor(routePropertyNamespace))
+                .choice()
+                .when(isHeaderSet)
+                    .log(LoggingLevel.INFO, logger, "found path report")
+                    .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
+                .otherwise()
+                .log(LoggingLevel.INFO, logger, "non-NAACCR conformant report")
+                    .stop()
+                .end()
+                .id(NAACCR_ROUTE_ID);        
+    
     }
+
+    //Predicate isHeaderPropertySet(String propertyName) { return simple("${properties:" + propertyName + "} == ''"); }
+    Predicate isHeaderPropertySet(String propertyName) { return simple("${properties:" + propertyName + "} == ''"); }
+
+    private final Predicate isHeaderSet = header("naaccrReportType").isNotNull();
+    /*
+    PredicateBuilder.not(
+        PredicateBuilder.or(
+                header("naaccrReportType").isNotNull(),
+                header("naaccrReportType").));
+                */
 }
