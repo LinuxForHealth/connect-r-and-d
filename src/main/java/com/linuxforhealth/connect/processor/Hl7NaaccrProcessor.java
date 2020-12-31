@@ -98,14 +98,10 @@ public final class Hl7NaaccrProcessor implements Processor {
     private void processHL7Message(Exchange exchange, String message) throws HL7Exception {
 
         HapiContext context = new DefaultHapiContext();
-			
         context.setValidationContext(ValidationContextFactory.defaultValidation());	
-        
         PipeParser parser = context.getPipeParser();
-        
         Message parsedMsg = parser.parse(message);
         Terser terser = new Terser(parsedMsg);
-
         String type = terser.get("/.MSH-9-1") + "_" + terser.get("/.MSH-9-2");
 
         if ("ORU_R01".equals(type)) { //check MSH message type
@@ -114,11 +110,8 @@ public final class Hl7NaaccrProcessor implements Processor {
 
             ORU_R01 oruMsg = (ORU_R01) parsedMsg;
             MSH msh = oruMsg.getMSH();
-         
             EI subprotocolType = msh.getMsh21_MessageProfileIdentifier(0);
-            
             String namespace = subprotocolType.getEi2_NamespaceID().getValue();
-            
             String version = subprotocolType.getEi1_EntityIdentifier().getValue();
 
             logger.info("detected protocol namespace:"+ namespace+ " version:"+version);
@@ -128,88 +121,141 @@ public final class Hl7NaaccrProcessor implements Processor {
                 exchange.setProperty("messageType", "NAACCR_CP");
                 exchange.setProperty("naaccrVersion", version);
 
-                ORU_R01_ORDER_OBSERVATION obrContainer = oruMsg.getPATIENT_RESULT().getORDER_OBSERVATION();
-
-                OBR obrMsg = obrContainer.getOBR();
-
-                String reportTypeCode = obrMsg.getObr4_UniversalServiceIdentifier().getCe1_Identifier().getValue();
-                String reportTypeName = obrMsg.getObr4_UniversalServiceIdentifier().getCe2_Text().getValue();
-                String reportTypeCodeSystem = obrMsg.getObr4_UniversalServiceIdentifier().getCe3_NameOfCodingSystem().getValue();
-
-                logger.info("detected report structure type: "+reportTypeCode+" "+reportTypeName+" "+reportTypeCodeSystem);
-
-                //check to see what reporting format is being used
-                if ("LN".equals(reportTypeCodeSystem) && "60568-3".equals(reportTypeCode)) { //synoptic report format
-                    
-                    exchange.setProperty("naaccrReportType",reportTypeCode);
-                    
-                    //now figure out what kind of synoptic report
-                    //the first 3 OBX segments contain the synoptic report descriptor 
-                    int obxCount = obrContainer.getOBSERVATIONReps();
-
-                    //CAP eCC reports do not use SPM-style structure
-                    if (obxCount >= 3) {
-                        OBX obx0 = obrContainer.getOBSERVATION(0).getOBX();
-                        OBX obx1 = obrContainer.getOBSERVATION(1).getOBX();
-                        OBX obx2 = obrContainer.getOBSERVATION(2).getOBX();
-
-                        String reportTemplateSource = obx0.getObx5_ObservationValue()[0].encode();
-                        String reportTemplateCode = obx0.getObx3_ObservationIdentifier().getCe1_Identifier().getValue();
-
-                        
-
-                        logger.info(reportTemplateCode+" "+reportTemplateSource);
-                    } else if (obrContainer.getSPECIMENReps() >= 1) { //SPM-style
-
-                        logger.info("detected SPM-style report");
-
-                        exchange.setProperty("naaccrReportStyle","SPM-format");
-
-                            //go through the SPMs
-                        for (ORU_R01_SPECIMEN specimenContainer : obrContainer.getSPECIMENAll()) {
-
-                                SPM spm = specimenContainer.getSPM();
-                                obxCount = specimenContainer.getOBXReps();
-                                
-                                if (obxCount >= 3) {
-                                    OBX obx0 = specimenContainer.getOBX(0);
-                                    OBX obx1 = specimenContainer.getOBX(1);
-                                    OBX obx2 = specimenContainer.getOBX(2);
-            
-                                    String reportTemplateSource = obx0.getObx5_ObservationValue()[0].encode();
-                                    String reportTemplateCode = obx0.getObx3_ObservationIdentifier().getCe1_Identifier().getValue();
-            
-                                    logger.info(reportTemplateCode+" "+reportTemplateSource);
- 
-                                    String reportTemplate = obx0.getObx5_ObservationValue()[0].encode();
-                                    String reportTemplateId = obx0.getObx3_ObservationIdentifier().getCe1_Identifier().getValue();
-                                }
-                        }
-
-                    } else {
-                        logger.warn("Missing expected OBX report descriptors, no further processing.");
-                    }
-
-                } else if ("LN".equals(reportTypeCodeSystem) && "11529-5".equals(reportTypeCode)) { //narrative report format
-                    exchange.setProperty("naaccrReportType",reportTypeCode);
-                    logger.info("detected narrative report format");
-                    //Detect if SPM-style format <OBR><SPM><OBX>
-                } else if ("LN".equals(reportTypeCodeSystem) && "60567-5".equals(reportTypeCode)) { //comprehensive report
-                    //Comprehensive pathology report with multiple reports
-                    exchange.setProperty("naaccrReportType",reportTypeCode);
-                    logger.info("detected comprehensive report format");
-                } else { //unknown (non-standard) report format
-                    logger.warn("unknown or non-standard report format, no further processing");
-                }
-
-        }
+            } else {
+                //not an NAACCR ORU_R01 formattd message
+                logger.info("not an NAACCR ORU_R01 HL7 message type, no further processing.");
+            }
 
         } else {// not a lab report
             logger.info("not a ORU_R01 HL7 message type, no further processing.");
         }
     }
 
+    private void processNaaccrReport(Exchange exchange,  ORU_R01 oruMsg) throws HL7Exception {
 
+        ORU_R01_ORDER_OBSERVATION obrContainer = oruMsg.getPATIENT_RESULT().getORDER_OBSERVATION();
+        OBR obrMsg = obrContainer.getOBR();
+
+        String reportTypeCode = obrMsg.getObr4_UniversalServiceIdentifier().getCe1_Identifier().getValue();
+        String reportTypeName = obrMsg.getObr4_UniversalServiceIdentifier().getCe2_Text().getValue();
+        String reportTypeCodeSystem = obrMsg.getObr4_UniversalServiceIdentifier().getCe3_NameOfCodingSystem().getValue();
+
+        exchange.setProperty("naaccrReportTypeCode",reportTypeCode);
+        exchange.setProperty("naaccrReportType", reportTypeName);
+
+        logger.info("detected report structure type: "+reportTypeCode+" "+reportTypeName+" "+reportTypeCodeSystem);
+
+        if ("LN".equals(reportTypeCodeSystem) && "60567-5".equals(reportTypeCode)) { //comprehensive report
+            //Comprehensive pathology report with multiple reports
+
+            logger.info("detected comprehensive report format");
+
+            //TODO Future: this represents a small fraction of
+            //real world report structures
+            //this report structure includes multiple OBR
+            //loop through each one to gather report metadata
+        }
+
+        //check to see what reporting format is being used
+        if ("LN".equals(reportTypeCodeSystem) && "60568-3".equals(reportTypeCode)) { //synoptic report format
+
+            processSynopticReport(exchange, obrContainer);
+ 
+        } else if ("LN".equals(reportTypeCodeSystem) && "11529-5".equals(reportTypeCode)) { //narrative report format
+           
+            processNarrativeReport(exchange, obrContainer);
+
+        } else { //unknown (non-standard) report format
+            logger.warn("unknown or non-standard report format, no further processing");
+        }
+
+    }
+
+    private void processNarrativeReport(Exchange exchange, ORU_R01_ORDER_OBSERVATION obrContainer) {
+
+        logger.info("detected narrative report format");
+        //Detect if SPM-style format <OBR><SPM><OBX>
+        //use LOINC for path report sections if found
+
+    }
+
+    private void processSynopticReport(Exchange exchange, ORU_R01_ORDER_OBSERVATION obrContainer) throws HL7Exception {
+            
+        //now figure out what kind of synoptic report
+        //some reports can follow synoptic structure
+        //others can implement CAP eCC itemized observations
+        
+        //the first 3 OBX segments contain the synoptic report descriptor 
+        int obxCount = obrContainer.getOBSERVATIONReps();
+
+        //CAP eCC reports do not use SPM-style structure
+        if (obxCount >= 3) {
+
+            OBX obx0 = obrContainer.getOBSERVATION(0).getOBX();
+            OBX obx1 = obrContainer.getOBSERVATION(1).getOBX();
+            OBX obx2 = obrContainer.getOBSERVATION(2).getOBX();
+
+            processReportDescriptors(exchange, obx0, obx1, obx2);
+
+        } else if (obrContainer.getSPECIMENReps() >= 1) { //SPM-style
+
+            logger.info("detected SPM-style report");
+            exchange.setProperty("naaccrReportStyle","SPM-format");
+
+                //go through the SPMs
+            for (ORU_R01_SPECIMEN specimenContainer : obrContainer.getSPECIMENAll()) {
+
+                    SPM spm = specimenContainer.getSPM();
+                    obxCount = specimenContainer.getOBXReps();
+                    
+                    if (obxCount >= 3) {
+                        OBX obx0 = specimenContainer.getOBX(0);
+                        OBX obx1 = specimenContainer.getOBX(1);
+                        OBX obx2 = specimenContainer.getOBX(2);
+
+                        String reportTemplateSource = obx0.getObx5_ObservationValue()[0].encode();
+                        String reportTemplateCode = obx0.getObx3_ObservationIdentifier().getCe1_Identifier().getValue();
+
+                        logger.info(reportTemplateCode+" "+reportTemplateSource);
+
+                        String reportTemplate = obx0.getObx5_ObservationValue()[0].encode();
+                        String reportTemplateId = obx0.getObx3_ObservationIdentifier().getCe1_Identifier().getValue();
+                    }
+            }
+
+        } else {
+            logger.warn("Missing expected OBX report descriptors, no further processing.");
+        }
+
+        
+
+
+    }
+
+    private void processReportDescriptors(Exchange exchange, OBX obx0, OBX obx1, OBX obx2) throws HL7Exception {
+
+        String reportTemplateSource = obx0.getObx5_ObservationValue()[0].encode();
+        String reportFieldDescriptor= obx0.getObx3_ObservationIdentifier().getCe1_Identifier().getValue();
+
+        if ("60573-3".equals(reportFieldDescriptor)) { 
+            exchange.setProperty("naaccrReportTemplateSource", reportTemplateSource);
+        }
+
+        String reportTemplateId= obx1.getObx5_ObservationValue()[0].encode();
+        reportFieldDescriptor = obx1.getObx3_ObservationIdentifier().getCe1_Identifier().getValue();
+
+        if ("60572-5".equals(reportFieldDescriptor)) {
+            exchange.setProperty("naaccrReportTemplateId", reportTemplateId);
+        }
+
+        String reportTemplate = obx2.getObx5_ObservationValue()[0].encode();
+        reportFieldDescriptor = obx2.getObx3_ObservationIdentifier().getCe1_Identifier().getValue();
+        
+        if ("60574-1".equals(reportFieldDescriptor)) {
+            exchange.setProperty("naaccrReportVersion", reportTemplateId);
+        }
+
+    }
     
 
 }
