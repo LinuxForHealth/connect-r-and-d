@@ -7,7 +7,11 @@ package com.linuxforhealth.connect.processor;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -121,6 +125,8 @@ public final class Hl7NaaccrProcessor implements Processor {
                 exchange.setProperty("messageType", "NAACCR_CP");
                 exchange.setProperty("naaccrVersion", version);
 
+                processNaaccrReport(exchange, oruMsg);
+
             } else {
                 //not an NAACCR ORU_R01 formattd message
                 logger.info("not an NAACCR ORU_R01 HL7 message type, no further processing.");
@@ -145,19 +151,12 @@ public final class Hl7NaaccrProcessor implements Processor {
 
         logger.info("detected report structure type: "+reportTypeCode+" "+reportTypeName+" "+reportTypeCodeSystem);
 
-        if ("LN".equals(reportTypeCodeSystem) && "60567-5".equals(reportTypeCode)) { //comprehensive report
-            //Comprehensive pathology report with multiple reports
+        //comprehensive report
+        if ("LN".equals(reportTypeCodeSystem) && "60567-5".equals(reportTypeCode)) { 
 
-            logger.info("detected comprehensive report format");
+            processComprehensiveReport(exchange, obrContainer);
 
-            //TODO Future: this represents a small fraction of
-            //real world report structures
-            //this report structure includes multiple OBR
-            //loop through each one to gather report metadata
-        }
-
-        //check to see what reporting format is being used
-        if ("LN".equals(reportTypeCodeSystem) && "60568-3".equals(reportTypeCode)) { //synoptic report format
+        } else if ("LN".equals(reportTypeCodeSystem) && "60568-3".equals(reportTypeCode)) { //synoptic report format
 
             processSynopticReport(exchange, obrContainer);
  
@@ -166,25 +165,134 @@ public final class Hl7NaaccrProcessor implements Processor {
             processNarrativeReport(exchange, obrContainer);
 
         } else { //unknown (non-standard) report format
+            //TODO consider adding support for other report types
+            //such as Autopsy, Cytogenetics, and Cytology
             logger.warn("unknown or non-standard report format, no further processing");
         }
 
     }
 
-    private void processNarrativeReport(Exchange exchange, ORU_R01_ORDER_OBSERVATION obrContainer) {
+    private void processComprehensiveReport(Exchange exchange, ORU_R01_ORDER_OBSERVATION obrContainer) {
+        //Comprehensive pathology report with multiple reports
+        logger.info("detected comprehensive report format");
+    }
 
+    /**
+     * Process a Narrative Report Adds metadata to the exchange based on the
+     * attributes discovered from the report
+     * 
+     * @param exchange
+     * @param obrContainer
+     * @throws HL7Exception
+     */
+    private void processNarrativeReport(Exchange exchange, ORU_R01_ORDER_OBSERVATION obrContainer) throws HL7Exception {
         logger.info("detected narrative report format");
-        //Detect if SPM-style format <OBR><SPM><OBX>
-        //use LOINC for path report sections if found
+
+        //NAACCR defines two types of Narrative report formats:
+        // (1)"fully unstructured" narrative report
+        //    which is discouraged and should no longer be used
+        //    this report uses OBX segment for text blob and does
+        //    not use LOINC coded sections
+        // (2)"Structured" Narrative report
+        //    uses LOINC coded sections for each NAACCR 
+        //    pathology report section and each section
+        //    is represented as in an OBX observation
+
+        if(hasSPMSegment(obrContainer)) { //should have a Specimen defined
+
+            //used to collect all specimen observations
+            Map<String, Map<String, Object>> allObxMap = new HashMap<>();
+
+            //for each Specimen defined in the report
+            for (ORU_R01_SPECIMEN spmContainer : obrContainer.getSPECIMENAll()) {
+                
+                for (OBX obx : spmContainer.getOBXAll()) {
+                    //looks like this: 22637-3^Path report.final diagnosis^LN
+                    String obxCode = obx.getObx3_ObservationIdentifier().getCe1_Identifier().getValue();
+                    String valueType = obx.getObx2_ValueType().getValue();
+                    String groupId = obx.getObx4_ObservationSubID().getValue();
+                    
+                    if (groupId == null) {
+                        groupId = ""; //default group is the empty string
+                    }
+
+                    //this is implemented inconsistently by lab systems
+                    //and therefore needs to be flexible in looking for 
+                    //the group id on each Obx entry and not rely on Specimen Id
+                    Map<String, Object> obxGroupMap;
+                    if (!allObxMap.containsKey(groupId)) {
+                        obxGroupMap = new HashMap<>();
+                        allObxMap.put(groupId, obxGroupMap);
+                    } else {
+                        obxGroupMap = allObxMap.get(groupId);
+                    }
+
+                    if ("TX".equalsIgnoreCase(valueType)) {
+                        //narrative entires should be only Text by definition
+                        String val = obx.getObx5_ObservationValue(0).encode();
+                        obxGroupMap.put(obxCode, val);
+                    } else {
+                        //Attempt to represent value as text
+                        String val = obx.getObx5_ObservationValue(0).encode();
+                        logger.warn("unexpected data type encountered for Narrative report: "
+                            +obxCode+" "+valueType+" "+val
+                            +"; treating value as text data type");
+                        obxGroupMap.put(obxCode, val);
+                    }
+                }
+
+                logger.info("found "+allObxMap.size()+" number of specimen groups");
+
+                for (String key : allObxMap.keySet()) {
+                    Map<String, Object> map = allObxMap.get(key);
+
+                    for (String innerKey : map.keySet()) {
+                        String val = map.get(innerKey).toString();
+                        logger.info(key+"."+innerKey+" : "+val);
+
+                        if ("22637-3".equals(innerKey)) { //final diagnosis
+                            exchange.setProperty("naaccrDiagonsis."+key, val);
+                        } else if ("22633-2".equals(innerKey)) { //site / origin
+                            exchange.setProperty("naaccrSite."+key, val);
+                        }
+                    }
+                }
+
+
+            }
+            
+
+        } else { 
+            //this report departs from NAACCR protocol
+            //make an attempt to look for findings under OBR directly"
+            logger.warn("expected an SPM (specimen) definition, none found");
+
+
+        }
+
 
     }
 
-    private void processSynopticReport(Exchange exchange, ORU_R01_ORDER_OBSERVATION obrContainer) throws HL7Exception {
-            
+    /**
+     * Process a Synoptic Report format
+     * Adds metadata to the exchange object properties
+     * based on the discovered pathology report attributes
+     * @param exchange
+     * @param obrContainer
+     * @throws HL7Exception
+     */
+    private void processSynopticReport(Exchange exchange, ORU_R01_ORDER_OBSERVATION obrContainer) throws HL7Exception { 
         //now figure out what kind of synoptic report
-        //some reports can follow synoptic structure
-        //others can implement CAP eCC itemized observations
-        
+        //some reports can follow synoptic structure based
+        //on institutional templates others using CAP
+        //others can fully implement CAP eCC itemized observations
+
+        //fully itemized reports do no use SPM segments
+        //since the segments are implied in each coded item
+        if (hasSPMSegment(obrContainer)) {
+
+        }
+
         //the first 3 OBX segments contain the synoptic report descriptor 
         int obxCount = obrContainer.getOBSERVATIONReps();
 
@@ -255,6 +363,14 @@ public final class Hl7NaaccrProcessor implements Processor {
             exchange.setProperty("naaccrReportVersion", reportTemplateId);
         }
 
+    }
+
+    /**
+     * @param obrContainer
+     * @return true - report has SPM segements; false - otherwise
+     */
+    private boolean hasSPMSegment(ORU_R01_ORDER_OBSERVATION obrContainer) {
+        return obrContainer.getSPECIMENReps() >= 1;
     }
     
 
