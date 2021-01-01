@@ -35,11 +35,11 @@ import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory;
 
 /**
- * Implements NAACCR message protocol extension to HL7
+ * Implements NAACCR message protocol, an extension of HL7,
  * This processor inspects an HL7 formatted message and 
  * detects the type of NAACCR Pathology Report format and
  * inserts additional exchange properties denoting report metadata.
- * Inserted exchange properties start with "naaccr" prefix.
+ * Each property begins with "naaccr" prefix.
  */
 public final class Hl7NaaccrProcessor implements Processor {
 
@@ -82,6 +82,15 @@ public final class Hl7NaaccrProcessor implements Processor {
         logger.info("processing completed for "+exchange.getFromRouteId() +" from " + exchange.getFromEndpoint()+ " "+exchange.getProperty("messageType"));
     }
 
+    /**
+     * Process an incoming HL7 message
+     * If the message is formatted as an NAACCR pathology report
+     * the message is interpreted and metadata inserted into
+     * the exchange.
+     * @param exchange
+     * @param message
+     * @throws HL7Exception
+     */
     private void processHL7Message(Exchange exchange, String message) throws HL7Exception {
 
         HapiContext context = new DefaultHapiContext();
@@ -120,6 +129,13 @@ public final class Hl7NaaccrProcessor implements Processor {
         }
     }
 
+    /**
+     * Process an NAACCR formatted message
+     * Inserts attributes as metadata into the exchange
+     * @param exchange
+     * @param oruMsg
+     * @throws HL7Exception
+     */
     private void processNaaccrReport(Exchange exchange,  ORU_R01 oruMsg) throws HL7Exception {
 
         ORU_R01_ORDER_OBSERVATION obrContainer = oruMsg.getPATIENT_RESULT().getORDER_OBSERVATION();
@@ -155,6 +171,15 @@ public final class Hl7NaaccrProcessor implements Processor {
 
     }
 
+    /**
+     * Processes a comprehensive report
+     * By definition, these reports have mutiple subreports
+     * each subreport is processed and metadata inserted into 
+     * the exchange.
+     * @param exchange
+     * @param results
+     * @throws HL7Exception
+     */
     private void processComprehensiveReport(Exchange exchange, ORU_R01_PATIENT_RESULT results) throws HL7Exception {
         //Comprehensive pathology report with multiple reports
         logger.info("detected comprehensive report format");
@@ -180,7 +205,6 @@ public final class Hl7NaaccrProcessor implements Processor {
                 logger.warn("unknown or non-standard report format, no further processing");
             }
         }
-
     }
 
     /**
@@ -264,8 +288,6 @@ public final class Hl7NaaccrProcessor implements Processor {
                         }
                     }
                 }
-
-
             }
         } else { 
             //this report departs from NAACCR protocol
@@ -292,6 +314,7 @@ public final class Hl7NaaccrProcessor implements Processor {
         //fully itemized reports do no use SPM segments
         //since the segments are implied in each coded item
         if (hasSPMSegment(obrContainer)) {
+
             logger.info("detected synoptic segmented report");
             exchange.setProperty("naaccrReportStyle","synopticSegmented");
 
@@ -305,8 +328,7 @@ public final class Hl7NaaccrProcessor implements Processor {
                 OBX obx1 = spmContainer.getOBX(1);
                 OBX obx2 = spmContainer.getOBX(2);
                 processReportDescriptors(exchange, obx0, obx1, obx2);
-            } else {
-                //expected 3 OBX
+            } else {//unexpected format
                 logger.warn("Missing expected OBX report descriptors, no further processing.");
             }
 
@@ -354,19 +376,28 @@ public final class Hl7NaaccrProcessor implements Processor {
                     } else {
                         values = items.get(itemId);
                     }
-
-                    processCAPItem(exchange, itemId, valueType, itemType, itemValue);
+                    try {
+                        processCAPItem(exchange, itemId, valueType, itemType, itemValue);
+                    } catch (Exception e) {
+                        logger.error(e.getMessage());
+                    }
                 }
-
             } else {
                 //expected 3 OBX
                 logger.warn("Missing expected OBX report descriptors, no further processing.");
             }
-
         }
-
     }
 
+    /**
+     * Interprets the CAP eCC Items based on their CAP cKey fields
+     * Attributes are inserted into the exchange as metadata
+     * @param exchange
+     * @param itemId
+     * @param valueType
+     * @param itemType
+     * @param itemValue
+     */
     private void processCAPItem(Exchange exchange, String itemId, String valueType, String itemType, String itemValue) {
 
         //consider whether some of these mappings can be moved to configuration file
@@ -374,33 +405,38 @@ public final class Hl7NaaccrProcessor implements Processor {
             //Example: 15907.100004300^Ampullectomy^CAPECC
             exchange.setProperty("naaccrProcedure", itemValue);
         } else if ("33456".equals(itemId)) { //Histological Type
-            //Example: 2245.100004300^Adenocarcinoma^CAPECC^81403^Adenocarcinoma
-            String histoType = itemValue.split("^")[1];
-            exchange.setProperty("naaccrHistologyType", histoType);
+            //Example: 33457.100004300^Arising from intra-ampullary papillary-tubular neoplasm (IAPN)^CAPECC
+            String histoType = itemValue.split("\\^")[1];
+            exchange.setProperty("naaccrPrimarySiteDescription", histoType);
+        } else if ("52515".equals(itemId)) { //Histological Type
+            //Example: 2245.100004300^Adenocarcinoma^CAPECC^81403^Adenocarcinoma, NOS^ICDO3
+            String[] tokens = itemValue.split("\\^");
+            if(tokens.length >= 5) {
+                String histoType = tokens[1];
+                String icdCode = tokens[3];
+                exchange.setProperty("naaccrHistologicalType", histoType);
+                exchange.setProperty("naaccrHistologicalIcdO3", icdCode);
+            } else { //unexpected format
+                logger.warn("unexpected format for CAP eCC Tumor Site (34390");
+            }
         } else if ("34390".equals(itemId)) { //Tumor Site
-
             if ("CWE".equals(valueType)) { //multi-part
                 //Example: 2234.100004300^Intra-ampullary^CAPECC^C24.1^Ampulla of Vater^ICDO3
                 if (itemValue.contains("^")) {
-                    String[] tokens = itemValue.split("^");
+                    String[] tokens = itemValue.split("\\^");
                     if (tokens.length >= 6) {
                         String site1 = tokens[1];
                         String site2 = tokens[4];
                         String icd03 = tokens[3];//SEER ICD-o-3 coding
                         exchange.setProperty("naaccrPrimarySite.1", site1);
-                        exchange.setProperty("naaccrPrimarySite.2", site1);    
-                        exchange.setProperty("naaccrHistologicTypeIcd03", icd03);                   
-                    } else {
-                        //unexpected format
-                        logger.warn("unexpected format for CAP eCC Tumor Site (34390");
+                        exchange.setProperty("naaccrPrimarySite.2", site2);    
+                        exchange.setProperty("naaccrHistologicTypeIcdO3", icd03);                   
+                    } else { //unexpected format
+                        logger.warn("unexpected format for CAP eCC Tumor Site (34390)");
                     }
-                   
-                } else {
-                    //unexpected format
-                    //unexpected format
-                    logger.warn("unexpected format for CAP eCC Tumor Site (34390");
+                } else { //unexpected format
+                    logger.warn("unexpected format for CAP eCC Tumor Site (34390)");
                 }
-
             } else if ("TX".equals(valueType)) { //text block
                 //Example: perforated
                 String site = itemValue;
