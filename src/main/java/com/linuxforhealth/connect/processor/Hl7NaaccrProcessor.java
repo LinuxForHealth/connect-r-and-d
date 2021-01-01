@@ -6,8 +6,10 @@
 package com.linuxforhealth.connect.processor;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.camel.Exchange;
@@ -311,8 +313,9 @@ public final class Hl7NaaccrProcessor implements Processor {
         } else {
             //CAP eCC Synoptic report do not use SPM segements
             //they use itemized observations based on a template
+            //known as cKey, these are proprietary to CAP
             exchange.setProperty("naaccrReportStyle","synopticItemized");
-            logger.info("detected CAP eCC synoptic segmented report");
+            logger.info("detected CAP eCC synoptic itemized report");
 
             //the first 3 OBX segments contain the synoptic report descriptor 
             int obxCount = obrContainer.getOBSERVATIONReps();
@@ -322,9 +325,86 @@ public final class Hl7NaaccrProcessor implements Processor {
                 OBX obx1 = obrContainer.getOBSERVATION(1).getOBX();
                 OBX obx2 = obrContainer.getOBSERVATION(2).getOBX();
                 processReportDescriptors(exchange, obx0, obx1, obx2);
+
+                //process itemized report attributes
+                //Map<String, Object> items = new HashMap<>();
+                Map<String, List<String>> items = new HashMap<>();
+
+                for (int i = 3; i < obrContainer.getOBSERVATIONReps(); i++) {
+
+                    OBX obx = obrContainer.getOBSERVATION(i).getOBX();
+
+                    String itemId = obx.getObx3_ObservationIdentifier().getCe1_Identifier().getValue();
+                    if (itemId.contains(".")) {
+                        itemId = itemId.split("\\.")[0]; //chop off templateId suffix
+                    }
+                    String valueType = obx.getObx2_ValueType().getValue();
+                    String itemType = obx.getObx3_ObservationIdentifier().getCe2_Text().getValue();
+                    String itemValue = obx.getObx5_ObservationValue(0).encode();
+
+                    if ("SECTION".equals(itemValue)) { //not interested in sections
+                        continue;
+                    }
+ 
+                    System.out.println(itemId+" "+itemType+" "+itemValue);
+                    List<String> values;
+                    if (!items.containsKey(itemId)) {
+                        values = new ArrayList<>();
+                        items.put(itemId, values);
+                    } else {
+                        values = items.get(itemId);
+                    }
+
+                    processCAPItem(exchange, itemId, valueType, itemType, itemValue);
+                }
+
             } else {
                 //expected 3 OBX
                 logger.warn("Missing expected OBX report descriptors, no further processing.");
+            }
+
+        }
+
+    }
+
+    private void processCAPItem(Exchange exchange, String itemId, String valueType, String itemType, String itemValue) {
+
+        //consider whether some of these mappings can be moved to configuration file
+        if ("15906".equals(itemId)) { //Procedure Type
+            //Example: 15907.100004300^Ampullectomy^CAPECC
+            exchange.setProperty("naaccrProcedure", itemValue);
+        } else if ("33456".equals(itemId)) { //Histological Type
+            //Example: 2245.100004300^Adenocarcinoma^CAPECC^81403^Adenocarcinoma
+            String histoType = itemValue.split("^")[1];
+            exchange.setProperty("naaccrHistologyType", histoType);
+        } else if ("34390".equals(itemId)) { //Tumor Site
+
+            if ("CWE".equals(valueType)) { //multi-part
+                //Example: 2234.100004300^Intra-ampullary^CAPECC^C24.1^Ampulla of Vater^ICDO3
+                if (itemValue.contains("^")) {
+                    String[] tokens = itemValue.split("^");
+                    if (tokens.length >= 6) {
+                        String site1 = tokens[1];
+                        String site2 = tokens[4];
+                        String icd03 = tokens[3];//SEER ICD-o-3 coding
+                        exchange.setProperty("naaccrPrimarySite.1", site1);
+                        exchange.setProperty("naaccrPrimarySite.2", site1);    
+                        exchange.setProperty("naaccrHistologicTypeIcd03", icd03);                   
+                    } else {
+                        //unexpected format
+                        logger.warn("unexpected format for CAP eCC Tumor Site (34390");
+                    }
+                   
+                } else {
+                    //unexpected format
+                    //unexpected format
+                    logger.warn("unexpected format for CAP eCC Tumor Site (34390");
+                }
+
+            } else if ("TX".equals(valueType)) { //text block
+                //Example: perforated
+                String site = itemValue;
+                exchange.setProperty("naaccrPrimarySite.1", site);
             }
 
         }
