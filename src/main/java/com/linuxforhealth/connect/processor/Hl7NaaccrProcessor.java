@@ -7,10 +7,8 @@ package com.linuxforhealth.connect.processor;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.camel.Exchange;
@@ -29,7 +27,6 @@ import ca.uhn.hl7v2.model.v251.message.ORU_R01;
 import ca.uhn.hl7v2.model.v251.segment.MSH;
 import ca.uhn.hl7v2.model.v251.segment.OBR;
 import ca.uhn.hl7v2.model.v251.segment.OBX;
-import ca.uhn.hl7v2.model.v251.segment.SPM;
 import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory;
@@ -38,7 +35,8 @@ import ca.uhn.hl7v2.validation.impl.ValidationContextFactory;
  * Implements NAACCR message protocol extension to HL7
  * This processor inspects an HL7 formatted message and 
  * detects the type of NAACCR Pathology Report format and
- * adds additional exchange headers denoting report metadata.
+ * inserts additional exchange properties denoting report metadata.
+ * Inserted exchange properties start with "naaccr" prefix.
  */
 public final class Hl7NaaccrProcessor implements Processor {
 
@@ -66,37 +64,15 @@ public final class Hl7NaaccrProcessor implements Processor {
     public void process(Exchange exchange) throws Exception {
 
         logger.info("processing exchange "+exchange.getFromRouteId() +" from " + exchange.getFromEndpoint()+ " "+exchange.getProperty("messageType"));
-
+        
         String exchangeBody = exchange.getIn().getBody(String.class);
-    
-        String routeUri = URLDecoder.decode(exchange.getFromEndpoint().getEndpointUri(), StandardCharsets.UTF_8.name());
-        String topicName = exchange.getProperty("dataFormat") + "_" + exchange.getProperty("messageType");
-
         String rawHL7Msg = new String(Base64.getDecoder().decode(exchangeBody.getBytes(StandardCharsets.UTF_8)));
 
         processHL7Message(exchange, rawHL7Msg);
 
-        //set target kafka topic - TODO consider changing to use property placeholder
-        exchange.setProperty("dataStoreUri", "kafka:NAACCRv2-XML?brokers=localhost:9094");
-
-        for(String key : exchange.getProperties().keySet()) {
-            System.out.println(">"+key+":"+exchange.getProperty(key));
-        }
-
-        /*
-        PatientXmlWriter writer = new PatientXmlWriter();
-        Patient patient = new Patient();
-        Tumor tumor = new Tumor();
-        tumor.addItem(new Item());
-        patient.addTumor(tumor);
-        writer.writePatient(patient);
-        writer.writePatient(patient);
-        */
-        // create new NAACCR XML format for patient
-        //exchange.getOut().setBody("<NaaccrData><Patient><Item naaccrId=\"patientIdNumber\">000001</Item></Patient>");
-
+        //set target kafka topic
+        exchange.setProperty("dataStoreUri", "kafka:NAACCR?brokers=localhost:9094");
         logger.info("processing completed for "+exchange.getFromRouteId() +" from " + exchange.getFromEndpoint()+ " "+exchange.getProperty("messageType"));
-
     }
 
     private void processHL7Message(Exchange exchange, String message) throws HL7Exception {
@@ -187,6 +163,7 @@ public final class Hl7NaaccrProcessor implements Processor {
      */
     private void processNarrativeReport(Exchange exchange, ORU_R01_ORDER_OBSERVATION obrContainer) throws HL7Exception {
         logger.info("detected narrative report format");
+        exchange.setProperty("naaccrReportStyle","narrative");
 
         //NAACCR defines two types of Narrative report formats:
         // (1)"fully unstructured" narrative report
@@ -248,7 +225,7 @@ public final class Hl7NaaccrProcessor implements Processor {
 
                     for (String innerKey : map.keySet()) {
                         String val = map.get(innerKey).toString();
-                        logger.info(key+"."+innerKey+" : "+val);
+                        //logger.info(key+"."+innerKey+" : "+val);
 
                         if ("22637-3".equals(innerKey)) { //final diagnosis
                             exchange.setProperty("naaccrDiagonsis."+key, val);
@@ -260,16 +237,11 @@ public final class Hl7NaaccrProcessor implements Processor {
 
 
             }
-            
-
         } else { 
             //this report departs from NAACCR protocol
             //make an attempt to look for findings under OBR directly"
             logger.warn("expected an SPM (specimen) definition, none found");
-
-
         }
-
 
     }
 
@@ -290,56 +262,57 @@ public final class Hl7NaaccrProcessor implements Processor {
         //fully itemized reports do no use SPM segments
         //since the segments are implied in each coded item
         if (hasSPMSegment(obrContainer)) {
+            logger.info("detected synoptic segmented report");
+            exchange.setProperty("naaccrReportStyle","synopticSegmented");
 
-        }
+            //the first 3 OBX segments contain the synoptic report descriptor 
+            ORU_R01_SPECIMEN spmContainer =  obrContainer.getSPECIMEN(0);
+            
+            int obxCount = spmContainer.getOBXReps();
 
-        //the first 3 OBX segments contain the synoptic report descriptor 
-        int obxCount = obrContainer.getOBSERVATIONReps();
-
-        //CAP eCC reports do not use SPM-style structure
-        if (obxCount >= 3) {
-
-            OBX obx0 = obrContainer.getOBSERVATION(0).getOBX();
-            OBX obx1 = obrContainer.getOBSERVATION(1).getOBX();
-            OBX obx2 = obrContainer.getOBSERVATION(2).getOBX();
-
-            processReportDescriptors(exchange, obx0, obx1, obx2);
-
-        } else if (obrContainer.getSPECIMENReps() >= 1) { //SPM-style
-
-            logger.info("detected SPM-style report");
-            exchange.setProperty("naaccrReportStyle","SPM-format");
-
-                //go through the SPMs
-            for (ORU_R01_SPECIMEN specimenContainer : obrContainer.getSPECIMENAll()) {
-
-                    SPM spm = specimenContainer.getSPM();
-                    obxCount = specimenContainer.getOBXReps();
-                    
-                    if (obxCount >= 3) {
-                        OBX obx0 = specimenContainer.getOBX(0);
-                        OBX obx1 = specimenContainer.getOBX(1);
-                        OBX obx2 = specimenContainer.getOBX(2);
-
-                        String reportTemplateSource = obx0.getObx5_ObservationValue()[0].encode();
-                        String reportTemplateCode = obx0.getObx3_ObservationIdentifier().getCe1_Identifier().getValue();
-
-                        logger.info(reportTemplateCode+" "+reportTemplateSource);
-
-                        String reportTemplate = obx0.getObx5_ObservationValue()[0].encode();
-                        String reportTemplateId = obx0.getObx3_ObservationIdentifier().getCe1_Identifier().getValue();
-                    }
+            if (obxCount >= 3) { //should have 3
+                OBX obx0 = spmContainer.getOBX(0);
+                OBX obx1 = spmContainer.getOBX(1);
+                OBX obx2 = spmContainer.getOBX(2);
+                processReportDescriptors(exchange, obx0, obx1, obx2);
+            } else {
+                //expected 3 OBX
+                logger.warn("Missing expected OBX report descriptors, no further processing.");
             }
 
         } else {
-            logger.warn("Missing expected OBX report descriptors, no further processing.");
+            //CAP eCC Synoptic report do not use SPM segements
+            //they use itemized observations based on a template
+            exchange.setProperty("naaccrReportStyle","synopticItemized");
+            logger.info("detected CAP eCC synoptic segmented report");
+
+            //the first 3 OBX segments contain the synoptic report descriptor 
+            int obxCount = obrContainer.getOBSERVATIONReps();
+
+            if (obxCount >= 3) { //should have 3
+                OBX obx0 = obrContainer.getOBSERVATION(0).getOBX();
+                OBX obx1 = obrContainer.getOBSERVATION(1).getOBX();
+                OBX obx2 = obrContainer.getOBSERVATION(2).getOBX();
+                processReportDescriptors(exchange, obx0, obx1, obx2);
+            } else {
+                //expected 3 OBX
+                logger.warn("Missing expected OBX report descriptors, no further processing.");
+            }
+
         }
-
-        
-
 
     }
 
+    /**
+     * Process the synoptic report descriptors
+     * Each report should contain the Template Source,
+     * Template Id, and Template version
+     * @param exchange
+     * @param obx0
+     * @param obx1
+     * @param obx2
+     * @throws HL7Exception
+     */
     private void processReportDescriptors(Exchange exchange, OBX obx0, OBX obx1, OBX obx2) throws HL7Exception {
 
         String reportTemplateSource = obx0.getObx5_ObservationValue()[0].encode();
@@ -356,11 +329,11 @@ public final class Hl7NaaccrProcessor implements Processor {
             exchange.setProperty("naaccrReportTemplateId", reportTemplateId);
         }
 
-        String reportTemplate = obx2.getObx5_ObservationValue()[0].encode();
+        String reportTemplateVersion = obx2.getObx5_ObservationValue()[0].encode();
         reportFieldDescriptor = obx2.getObx3_ObservationIdentifier().getCe1_Identifier().getValue();
         
         if ("60574-1".equals(reportFieldDescriptor)) {
-            exchange.setProperty("naaccrReportVersion", reportTemplateId);
+            exchange.setProperty("naaccrReportVersion", reportTemplateVersion);
         }
 
     }

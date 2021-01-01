@@ -5,8 +5,12 @@
  */
 package com.linuxforhealth.connect.builder;
 
-import com.linuxforhealth.connect.support.LinuxForHealthAssertions;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.UUID;
+
 import com.linuxforhealth.connect.support.TestUtils;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.component.hl7.HL7MLLPNettyDecoderFactory;
@@ -15,10 +19,6 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.UUID;
 
 /**
  * Tests {@link Hl7v2NaaccrRouteTest}
@@ -60,22 +60,14 @@ public class Hl7v2NaaccrRouteTest extends RouteTestSupport {
     void testReportNarrativeShort() throws Exception {
         String testMessage = context
                 .getTypeConverter()
-                .convertTo(String.class, TestUtils.getMessage("hl7/naaccr", "ORU_R01_NAACCRv5_Narrative_short.txt"))
+                .convertTo(String.class, TestUtils.getMessage("hl7", "ORU_R01_NAACCRv5_Narrative_sections.txt"))
                 .replace(System.lineSeparator(), "\r");
 
         String expectedMessage = Base64.getEncoder().encodeToString(testMessage.getBytes(StandardCharsets.UTF_8));
-
         mockResult.expectedMessageCount(1);
-        // the camel hl7 data format removes trailing delimiters from segments and fields
-        // test files do not include trailing delimiters to simplify test assertions
-        // the data format will include a terminating carriage return, \r, which is translated above from a new line \n
-        //mockResult.expectedBodiesReceived(expectedMessage);
-       
-        // mockResult.expectedPropertyReceived("dataStoreUri", "kafka:HL7-V2_ADT?brokers=localhost:9094");
         mockResult.expectedPropertyReceived("dataFormat", "HL7-V2");
         mockResult.expectedPropertyReceived("messageType", "NAACCR_CP");
         mockResult.expectedPropertyReceived("naaccrVersion", "VOL_V_50_ORU_R01");
-        //mockResult.expectedPropertyReceived("routeId", "hl7-v2");
 
         fluentTemplate.to("netty:tcp://localhost:2576?sync=true&encoders=#hl7encoder&decoders=#hl7decoder")
                 .withBody(testMessage)
@@ -83,13 +75,8 @@ public class Hl7v2NaaccrRouteTest extends RouteTestSupport {
 
         mockResult.assertIsSatisfied();
 
-        
         Exchange mockExchange = mockResult.getExchanges().get(0);
-        String expectedRouteUri = "netty://tcp://0.0.0.0:2576?sync=true&encoders=#hl7encoder&decoders=#hl7decoder";
-/*        
-        String actualRouteUri = mockExchange.getProperty("routeUri", String.class);
-        LinuxForHealthAssertions.assertEndpointUriSame(expectedRouteUri, actualRouteUri);
-*/
+
         Long actualTimestamp = mockExchange.getProperty("timestamp", Long.class);
         Assertions.assertNotNull(actualTimestamp);
         Assertions.assertTrue(actualTimestamp > 0);

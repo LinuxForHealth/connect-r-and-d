@@ -10,6 +10,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Defines a NAACCR Cancer Registry processing route
@@ -19,7 +21,8 @@ public class NaaccrCancerRegistryRouteBuilder extends BaseRouteBuilder {
     public final static String ROUTE_ID = "Naaccr-get-registry-xml";
     public final static String ROUTE_PRODUCER_ID="Naaccr-xml";
     private final static String ROUTE_PROPERTY_NAMESPACE = "lfh.connect.naaccr.registry";
-
+    
+    private final Logger logger = LoggerFactory.getLogger(NaaccrCancerRegistryRouteBuilder.class);
 
     @Override
     protected String getRoutePropertyNamespace() {
@@ -36,25 +39,12 @@ public class NaaccrCancerRegistryRouteBuilder extends BaseRouteBuilder {
          .setHeader("partition", constant(0))
          .bean("bean:LFHKafkaConsumer", "getAll(${header.topic}, ${header.partition})")
          .process(exchange -> {
-
             List<String> list = exchange.getIn().getBody(List.class);
 
             //aggregate patient cohort for cancer registry using NAACCR XML standard
             String result = aggregate(list);
 
-            //String body = exchange.getIn().getBody(String.class);
-
-             //JSONObject msg = new JSONObject(exchange.getIn().getBody(String.class));
-             System.out.println("NaaccrCancerRegistryRouteBuilder - "+list.size());
-            // String data = new String(Base64.getDecoder().decode(msg.getString("data")));
-             //System.out.println("NaaccrCancerRegistryRouteBuilder - "+data);
-             
-             //String image = new JSONObject(data).getString("image");
-             //if (image != null) exchange.getIn().setBody(Base64.getDecoder().decode(image));
-
-             //exchange.getMessage().setBody("<NaaccrData><Patient><Item naaccrId=\"patientIdNumber\">000001</Item></Patient><Patient><Item naaccrId=\"patientIdNumber\">000001</Item></Patient></NaaccrData>");
             exchange.getMessage().setBody(result);
-
          });
        
     }
@@ -66,22 +56,20 @@ public class NaaccrCancerRegistryRouteBuilder extends BaseRouteBuilder {
         buf.append(NAACCR_XML_ENCODING_TAG+"\n");
 
         try {
-        ZonedDateTime date = ZonedDateTime.now();
-        String timeGenerated = date.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+            ZonedDateTime date = ZonedDateTime.now();
+            String timeGenerated = date.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
 
-        buf.append(NAACCR_XML_PARENT_START_TAG.replace(NAACCR_XML_TIMEGEN_PLACEHOLDER, timeGenerated)+"\n");
+            buf.append(NAACCR_XML_PARENT_START_TAG.replace(NAACCR_XML_TIMEGEN_PLACEHOLDER, timeGenerated)+"\n");
 
-        for(String report : reports) {
-            String data = new JSONObject(report).getString("data");
-            buf.append(data+ "\n");
-        }
+            for(String report : reports) {
+                String data = new JSONObject(report).getString("data");
+                buf.append(data+ "\n");
+            }
         }catch(Exception e) {
-            e.printStackTrace();
+           logger.error(e.getMessage());
         }
 
         buf.append(NAACCR_XML_PARENT_END_TAG+"\n");
-
-        // 2020-07-31T12:17:58.9115847-04:00
 
         return buf.toString();
 
