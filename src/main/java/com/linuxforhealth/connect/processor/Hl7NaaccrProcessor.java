@@ -22,6 +22,7 @@ import ca.uhn.hl7v2.HapiContext;
 import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.model.v251.datatype.EI;
 import ca.uhn.hl7v2.model.v251.group.ORU_R01_ORDER_OBSERVATION;
+import ca.uhn.hl7v2.model.v251.group.ORU_R01_PATIENT_RESULT;
 import ca.uhn.hl7v2.model.v251.group.ORU_R01_SPECIMEN;
 import ca.uhn.hl7v2.model.v251.message.ORU_R01;
 import ca.uhn.hl7v2.model.v251.segment.MSH;
@@ -134,7 +135,7 @@ public final class Hl7NaaccrProcessor implements Processor {
         //comprehensive report
         if ("LN".equals(reportTypeCodeSystem) && "60567-5".equals(reportTypeCode)) { 
 
-            processComprehensiveReport(exchange, obrContainer);
+            processComprehensiveReport(exchange, oruMsg.getPATIENT_RESULT());
 
         } else if ("LN".equals(reportTypeCodeSystem) && "60568-3".equals(reportTypeCode)) { //synoptic report format
 
@@ -152,9 +153,32 @@ public final class Hl7NaaccrProcessor implements Processor {
 
     }
 
-    private void processComprehensiveReport(Exchange exchange, ORU_R01_ORDER_OBSERVATION obrContainer) {
+    private void processComprehensiveReport(Exchange exchange, ORU_R01_PATIENT_RESULT results) throws HL7Exception {
         //Comprehensive pathology report with multiple reports
         logger.info("detected comprehensive report format");
+
+        //skip the first because that is the comprehensive marker
+        for (int i = 1; i < results.getORDER_OBSERVATIONReps(); i++) {
+
+            ORU_R01_ORDER_OBSERVATION obrContainer = results.getORDER_OBSERVATION(i);
+            OBR obrMsg = obrContainer.getOBR();
+
+            String reportTypeCode = obrMsg.getObr4_UniversalServiceIdentifier().getCe1_Identifier().getValue();
+            String reportTypeCodeSystem = obrMsg.getObr4_UniversalServiceIdentifier().getCe3_NameOfCodingSystem().getValue();
+
+            if ("LN".equals(reportTypeCodeSystem) && "60568-3".equals(reportTypeCode)) { //synoptic report format
+
+                processSynopticReport(exchange, obrContainer);
+    
+            } else if ("LN".equals(reportTypeCodeSystem) && "11529-5".equals(reportTypeCode)) { //narrative report format
+            
+                processNarrativeReport(exchange, obrContainer);
+
+            } else { //unknown (non-standard) report format
+                logger.warn("unknown or non-standard report format, no further processing");
+            }
+        }
+
     }
 
     /**

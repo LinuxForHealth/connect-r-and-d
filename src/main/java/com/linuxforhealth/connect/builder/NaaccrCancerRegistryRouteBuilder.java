@@ -18,10 +18,11 @@ import org.slf4j.LoggerFactory;
  */
 public class NaaccrCancerRegistryRouteBuilder extends BaseRouteBuilder {
 
-    public final static String ROUTE_ID = "Naaccr-get-registry-xml";
-    public final static String ROUTE_PRODUCER_ID="Naaccr-xml";
+    private final static String ROUTE_ID = "Naaccr-get-registry-xml";
+    private final static String ROUTE_PRODUCER_ID="Naaccr-xml";
     private final static String ROUTE_PROPERTY_NAMESPACE = "lfh.connect.naaccr.registry";
-    
+    private final static String TOPIC_ID = "NAACCR";
+
     private final Logger logger = LoggerFactory.getLogger(NaaccrCancerRegistryRouteBuilder.class);
 
     @Override
@@ -35,7 +36,7 @@ public class NaaccrCancerRegistryRouteBuilder extends BaseRouteBuilder {
          // Get patients from NAACCR-XML kafka topic, partition and offset
          from("{{"+ROUTE_PROPERTY_NAMESPACE+".uri}}")
          .routeId(ROUTE_ID)
-         .setHeader("topic", constant("NAACCR"))
+         .setHeader("topic", constant(TOPIC_ID))
          .setHeader("partition", constant(0))
          .bean("bean:LFHKafkaConsumer", "getAll(${header.topic}, ${header.partition})")
          .process(exchange -> {
