@@ -368,14 +368,6 @@ public final class Hl7NaaccrProcessor implements Processor {
                         continue;
                     }
  
-                    System.out.println(itemId+" "+itemType+" "+itemValue);
-                    List<String> values;
-                    if (!items.containsKey(itemId)) {
-                        values = new ArrayList<>();
-                        items.put(itemId, values);
-                    } else {
-                        values = items.get(itemId);
-                    }
                     try {
                         processCAPItem(exchange, itemId, valueType, itemType, itemValue);
                     } catch (Exception e) {
