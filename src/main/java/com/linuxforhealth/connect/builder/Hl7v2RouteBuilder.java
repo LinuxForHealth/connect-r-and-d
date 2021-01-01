@@ -59,24 +59,15 @@ public class Hl7v2RouteBuilder extends BaseRouteBuilder {
                 .process(new Hl7NaaccrProcessor(routePropertyNamespace))
                 .choice()
                 .when(isHeaderSet)
-                    .log(LoggingLevel.INFO, logger, "found path report")
                     .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
                 .otherwise()
-                .log(LoggingLevel.INFO, logger, "non-NAACCR conformant report")
+                .log(LoggingLevel.INFO, logger, "non-NAACCR report")
                     .stop()
                 .end()
                 .id(NAACCR_ROUTE_ID);        
     
     }
 
-    //Predicate isHeaderPropertySet(String propertyName) { return simple("${properties:" + propertyName + "} == ''"); }
-    Predicate isHeaderPropertySet(String propertyName) { return simple("${properties:" + propertyName + "} == ''"); }
-
     private final Predicate isHeaderSet = header("naaccrReportType").isNotNull();
-    /*
-    PredicateBuilder.not(
-        PredicateBuilder.or(
-                header("naaccrReportType").isNotNull(),
-                header("naaccrReportType").));
-                */
+
 }

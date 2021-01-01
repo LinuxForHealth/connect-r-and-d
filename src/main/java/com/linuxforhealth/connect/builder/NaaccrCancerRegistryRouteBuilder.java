@@ -35,7 +35,7 @@ public class NaaccrCancerRegistryRouteBuilder extends BaseRouteBuilder {
          // Get patients from NAACCR-XML kafka topic, partition and offset
          from("{{"+ROUTE_PROPERTY_NAMESPACE+".uri}}")
          .routeId(ROUTE_ID)
-         .setHeader("topic", constant("NAACCRv2-XML"))
+         .setHeader("topic", constant("NAACCR"))
          .setHeader("partition", constant(0))
          .bean("bean:LFHKafkaConsumer", "getAll(${header.topic}, ${header.partition})")
          .process(exchange -> {

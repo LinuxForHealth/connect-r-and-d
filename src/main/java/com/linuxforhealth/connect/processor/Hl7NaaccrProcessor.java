@@ -5,7 +5,6 @@
  */
 package com.linuxforhealth.connect.processor;
 
-import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
@@ -13,6 +12,7 @@ import java.util.Map;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.camel.builder.SimpleBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +71,11 @@ public final class Hl7NaaccrProcessor implements Processor {
         processHL7Message(exchange, rawHL7Msg);
 
         //set target kafka topic
-        exchange.setProperty("dataStoreUri", "kafka:NAACCR?brokers=localhost:9094");
+        exchange.setProperty("dataStoreUri", 
+                parseSimpleExpression("${properties:lfh.connect.datastore.uri}", exchange)
+                .replaceAll("<topicName>", "NAACCR"));
+        
+        
         logger.info("processing completed for "+exchange.getFromRouteId() +" from " + exchange.getFromEndpoint()+ " "+exchange.getProperty("messageType"));
     }
 
@@ -344,6 +348,27 @@ public final class Hl7NaaccrProcessor implements Processor {
      */
     private boolean hasSPMSegment(ORU_R01_ORDER_OBSERVATION obrContainer) {
         return obrContainer.getSPECIMENReps() >= 1;
+    }
+
+    /**
+     * Supports recursive parsing of Camel simple/{@link SimpleBuilder} expressions.
+     * Recursive parsing is useful when a property is used to specify a simple expression.
+     * Note: Consider refactoring placing this utility method in a common utility class
+     * lfh.connect.myprop=\${header.foo}
+     *
+     * @param simpleExpression The simple expression to parse.
+     * @param exchange The current message {@link Exchange}
+     * @return the parsed expression as a string.
+     */
+    private String parseSimpleExpression(String simpleExpression, Exchange exchange) {
+        String parsedValue = SimpleBuilder
+                .simple(simpleExpression)
+                .evaluate(exchange, String.class);
+
+        if (parsedValue != null && parsedValue.startsWith("${") && parsedValue.endsWith("}")) {
+            return parseSimpleExpression(parsedValue, exchange);
+        }
+        return parsedValue;
     }
     
 
