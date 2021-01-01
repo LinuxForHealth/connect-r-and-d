@@ -6,7 +6,6 @@
 package com.linuxforhealth.connect.processor;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -417,11 +416,11 @@ public final class Hl7NaaccrProcessor implements Processor {
                 if (itemValue.contains("^")) {
                     String[] tokens = itemValue.split("\\^");
                     if (tokens.length >= 6) {
-                        String site1 = tokens[1];
-                        String site2 = tokens[4];
+                        String description = tokens[1];
+                        String site = tokens[4];
                         String icd03 = tokens[3];//SEER ICD-o-3 coding
-                        exchange.setProperty("naaccrPrimarySite.1", site1);
-                        exchange.setProperty("naaccrPrimarySite.2", site2);    
+                        exchange.setProperty("naaccrPrimarySiteFinding", description);
+                        exchange.setProperty("naaccrPrimarySite", site);    
                         exchange.setProperty("naaccrHistologicTypeIcdO3", icd03);                   
                     } else { //unexpected format
                         logger.warn("unexpected format for CAP eCC Tumor Site (34390)");
@@ -431,8 +430,8 @@ public final class Hl7NaaccrProcessor implements Processor {
                 }
             } else if ("TX".equals(valueType)) { //text block
                 //Example: perforated
-                String site = itemValue;
-                exchange.setProperty("naaccrPrimarySite.1", site);
+                String observation = itemValue;
+                exchange.setProperty("naaccrPrimarySiteFinding", observation);
             }
 
         }
