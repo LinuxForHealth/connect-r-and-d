@@ -5,10 +5,10 @@
  */
 package com.linuxforhealth.connect.processor;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.camel.Exchange;
@@ -34,11 +34,10 @@ import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.ValidationContextFactory;
 
 /**
- * Implements NAACCR message protocol, an extension of HL7,
- * This processor inspects an HL7 formatted message and 
- * detects the type of NAACCR Pathology Report format and
- * inserts additional exchange properties denoting report metadata.
- * Each property begins with "naaccr" prefix.
+ * Implements NAACCR message protocol, an extension of HL7, This processor
+ * inspects an HL7 formatted message and detects the type of NAACCR Pathology
+ * Report format and inserts additional exchange properties denoting report
+ * metadata. Each property begins with "naaccr" prefix.
  */
 public final class Hl7NaaccrProcessor implements Processor {
 
@@ -65,32 +64,34 @@ public final class Hl7NaaccrProcessor implements Processor {
     @Override
     public void process(Exchange exchange) throws Exception {
 
-        logger.info("processing exchange "+exchange.getFromRouteId() +" from " + exchange.getFromEndpoint()+ " "+exchange.getProperty("messageType"));
-        
+        logger.info("processing exchange " + exchange.getFromRouteId() + " from " + exchange.getFromEndpoint() + " "
+                + exchange.getProperty("messageType"));
+
         String exchangeBody = exchange.getIn().getBody(String.class);
         String rawHL7Msg = new String(Base64.getDecoder().decode(exchangeBody.getBytes(StandardCharsets.UTF_8)));
-
+      
         processHL7Message(exchange, rawHL7Msg);
 
-        //set target kafka topic
-        exchange.setProperty("dataStoreUri", 
-                parseSimpleExpression("${properties:lfh.connect.datastore.uri}", exchange)
+        // set target kafka topic
+        exchange.setProperty("dataStoreUri", parseSimpleExpression("${properties:lfh.connect.datastore.uri}", exchange)
                 .replaceAll("<topicName>", "NAACCR"));
-        
-        
-        logger.info("processing completed for "+exchange.getFromRouteId() +" from " + exchange.getFromEndpoint()+ " "+exchange.getProperty("messageType"));
+
+        logger.info("processing completed for " + exchange.getFromRouteId() + " from " + exchange.getFromEndpoint()
+                + " " + exchange.getProperty("messageType"));
+
     }
 
     /**
-     * Process an incoming HL7 message
-     * If the message is formatted as an NAACCR pathology report
-     * the message is interpreted and metadata inserted into
-     * the exchange.
+     * Process an incoming HL7 message If the message is formatted as an NAACCR
+     * pathology report the message is interpreted and metadata inserted into the
+     * exchange.
+     * 
      * @param exchange
      * @param message
      * @throws HL7Exception
+     * @throws IOException
      */
-    private void processHL7Message(Exchange exchange, String message) throws HL7Exception {
+    private void processHL7Message(Exchange exchange, String message) throws HL7Exception, IOException {
 
         HapiContext context = new DefaultHapiContext();
         context.setValidationContext(ValidationContextFactory.defaultValidation());	
@@ -117,6 +118,20 @@ public final class Hl7NaaccrProcessor implements Processor {
                 exchange.setProperty("naaccrVersion", version);
 
                 processNaaccrReport(exchange, oruMsg);
+
+                //Process the NAACCR volume 5 attributes and convert to volume 2 NAACCR XML
+                NaaccrXmlConverter converter = new NaaccrXmlConverter(exchange);
+                String naaccrXmlIncident = converter.toXml();
+                String encodedBody = Base64.getEncoder().encodeToString(naaccrXmlIncident.getBytes(StandardCharsets.UTF_8));
+                exchange.getIn().setBody(encodedBody);
+
+                //TODO mjlorenzo - should be sending HL7 ACK response, but want to persist to Kafka topic the XML format
+                //Respond with HL7 ACK
+                /*
+                String hl7AckReponse = oruMsg.generateACK().encode();
+                String encodedResonse = Base64.getEncoder().encodeToString(hl7AckReponse.getBytes(StandardCharsets.UTF_8));
+                exchange.getMessage().setBody(encodedResonse);
+                */
 
             } else {
                 //not an NAACCR ORU_R01 formattd message
@@ -348,9 +363,6 @@ public final class Hl7NaaccrProcessor implements Processor {
                 processReportDescriptors(exchange, obx0, obx1, obx2);
 
                 //process itemized report attributes
-                //Map<String, Object> items = new HashMap<>();
-                Map<String, List<String>> items = new HashMap<>();
-
                 for (int i = 3; i < obrContainer.getOBSERVATIONReps(); i++) {
 
                     OBX obx = obrContainer.getOBSERVATION(i).getOBX();
@@ -500,6 +512,80 @@ public final class Hl7NaaccrProcessor implements Processor {
             return parseSimpleExpression(parsedValue, exchange);
         }
         return parsedValue;
+    }
+
+    /**
+     * Utility class for converting NAACCR volume 5 
+     * to NAACCR volume 2 XML format.
+     * This implementation converts from NAACCRv5 to
+     * NAACCR XML v21. 
+     * Future work can be done to use a factory to 
+     * resolve the right converter to support multiple
+     * versions.
+     */
+    static class NaaccrXmlConverter {
+
+        private Exchange exchange;
+
+        /**
+         * Provide the exchange for an NAACCR formatted message
+         * @param exchange
+         */
+        public NaaccrXmlConverter(Exchange exchange) {
+            this.exchange = exchange;
+        }  
+
+        /**
+         * Converts the NAACCR HL7 to NAACCR XML
+         * @return NAACCR XML
+         */
+        public String toXml() {
+
+            //Note: NAACCR provides an XmlWriter and Xml Reader
+            //      that can be used, but for now emitting the
+            //      Xml to string manually. 
+            
+            StringBuilder buf = new StringBuilder();
+
+            buf.append(PATIENT_TAG_START+"\n");
+            buf.append(TUMOR_TAG_START+"\n");
+
+            //TODO should extract these as constants
+            appendIfExists(buf, "naaccrHistologicalIcdO3", "histologicTypeIcdO3");
+            appendIfExists(buf, "naaccrHistologicTypeIcdO3", "primarySite");
+            appendIfExists(buf, "naaccrHistologicTypeIcdO3", "behaviorCodeIcdO3");
+
+            buf.append(TUMOR_TAG_END+"\n");
+            buf.append(PATIENT_TAG_END+"\n");
+
+            return buf.toString();
+        }
+
+        /**
+         * Helper method that inserts item element if the property is
+         * present within the exchange.
+         * @param buf
+         * @param property
+         * @param itemId
+         */
+        private void appendIfExists(StringBuilder buf, String property, String itemId) {
+            String val = exchange.getProperty(property, String.class);
+            if(val != null && !val.isEmpty()) {
+                String item = ITEM_TAG_ELE.replace(PLACEHOLDER_ID, itemId);
+                item = item.replace(PLACEHOLDER_VALUE, val);
+                buf.append(item+"\n");
+            }
+        }
+
+        private static final String PATIENT_TAG_START = "<Patient>";
+        private static final String PATIENT_TAG_END = "</Patient>";
+        private static final String TUMOR_TAG_START = "<Tumor>";
+        private static final String TUMOR_TAG_END = "</Tumor>";
+        private static final String ITEM_TAG_ELE = "<Item naaccrId=\"[PLACEHOLDER_ID]\">[PLACEHOLDER_VALUE]</Item>";
+        private static final String PLACEHOLDER_ID = "[PLACEHOLDER_ID]";
+        private static final String PLACEHOLDER_VALUE = "[PLACEHOLDER_VALUE]";
+        
+
     }
     
 

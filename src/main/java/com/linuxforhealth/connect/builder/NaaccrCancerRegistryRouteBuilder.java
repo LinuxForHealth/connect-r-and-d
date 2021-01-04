@@ -44,12 +44,16 @@ public class NaaccrCancerRegistryRouteBuilder extends BaseRouteBuilder {
 
             //aggregate patient cohort for cancer registry using NAACCR XML standard
             String result = aggregate(list);
-
             exchange.getMessage().setBody(result);
          });
        
     }
 
+    /**
+     * Aggregates the NAACCR reports into a
+     * compliant NAACCR XML format used for
+     * cancer registry exchange.
+     */
     private String aggregate(List<String> reports) {
 
         StringBuilder buf = new StringBuilder();
@@ -77,11 +81,8 @@ public class NaaccrCancerRegistryRouteBuilder extends BaseRouteBuilder {
     }
 
     private static final String NAACCR_XML_TIMEGEN_PLACEHOLDER = "[DATETIME_PLACEHOLDER]";
-
     private static final String NAACCR_XML_ENCODING_TAG = "<?xml version=\"1.0\"?>";
-
     private static final String NAACCR_XML_PARENT_START_TAG = "<NAACCRData baseDictionaryUri=\"http://naaccr.org/naaccrxml/naaccr-dictionary-210.xml\" recordType=\"I\" timeGenerated=\""+NAACCR_XML_TIMEGEN_PLACEHOLDER+"\" specificationVersion=\"1.4\" xmlns=\"http://naaccr.org/naaccrxml\">";
-   
     private static final String NAACCR_XML_PARENT_END_TAG = "</NAACCRData>";
 
 }

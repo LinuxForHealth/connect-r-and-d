@@ -11,8 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
-import com.linuxforhealth.connect.processor.LinuxForHealthMessage;
-
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -97,10 +95,7 @@ public class LFHKafkaConsumer {
                 records = consumer.poll(Duration.ofMillis(timeout));
                 logger.debug("received {} records", records.count());
                 for (ConsumerRecord<String, String> record : records) {
-                    // should only be 1 record
-                    
                     resultList.add(record.value());
-
                 }
             } while(!records.isEmpty());
 

@@ -68,6 +68,7 @@ public class Hl7v2RouteBuilder extends BaseRouteBuilder {
     
     }
 
+    //used as predicate to detect whether to process as an NAACCR message
     private final Predicate isHeaderSet = header("naaccrReportType").isNotNull();
 
 }
