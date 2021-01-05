@@ -148,6 +148,8 @@ public final class Hl7NaaccrProcessor implements Processor {
         } else {// not a lab report
             logger.info("not a ORU_R01 HL7 message type, no further processing.");
         }
+
+        context.close();
     }
 
     /**
@@ -241,7 +243,7 @@ public final class Hl7NaaccrProcessor implements Processor {
      */
     private void processNarrativeReport(Exchange exchange, ORU_R01_ORDER_OBSERVATION obrContainer) throws HL7Exception {
         logger.info("detected narrative report format");
-        exchange.setProperty("naaccrReportStyle","narrative");
+        exchange.setProperty(NAACCR_EXCHANGE_PROPERTY.REPORT_STYLE, NAACCR_EXCHANGE_PROPERTY.REPORT_STYLE_NARRATIVE);
 
         //NAACCR defines two types of Narrative report formats:
         // (1)"fully unstructured" narrative report
@@ -667,7 +669,7 @@ public final class Hl7NaaccrProcessor implements Processor {
     /**
      * Defines the Camel Exchange Property metadata keys
      */
-    static interface NAACCR_EXCHANGE_PROPERTY {
+    public static interface NAACCR_EXCHANGE_PROPERTY {
 
         //Patient Identifiers
         public static final String PATIENT_ID = "naaccrPatientId";
@@ -687,6 +689,7 @@ public final class Hl7NaaccrProcessor implements Processor {
         public static final String REPORT_STYLE = "naaccrReportStyle";
         public static final String REPORT_STYLE_SYNOPTIC_ITEMIZED = "synopticItemized";
         public static final String REPORT_STYLE_SYNOPTIC_SEGMENTED = "synopticSegmented";
+        public static final String REPORT_STYLE_NARRATIVE = "narrative";
 
         //DISEASE Identifiers
         public static final String PROCEDURE = "naaccrProcedure";
@@ -704,7 +707,7 @@ public final class Hl7NaaccrProcessor implements Processor {
      * Defines the NAACCR volume 5 Constants and
      * LOINC codes used by the protocol
      */
-    static interface NAACCR_VOL5_REPORT_CODES {
+    public static interface NAACCR_VOL5_REPORT_CODES {
 
         public static final String TEMPLACE_SOURCE = "60573-3";
         public static final String TEMPLATE_ID = "60572-5";
@@ -721,7 +724,7 @@ public final class Hl7NaaccrProcessor implements Processor {
     /**
      * Defines CAP ECC Synoptic Codes
      */
-    static interface CAP_ECC_CODES {
+    public static interface CAP_ECC_CODES {
 
         public static final String PROCEDURE_TYPE = "15906";
         public static final String HISTOLOGICAL_TYPE = "33456";
@@ -733,7 +736,7 @@ public final class Hl7NaaccrProcessor implements Processor {
     /**
      * Defines the NAACCR volume 2 XML element Ids
      */
-    static interface NAACCR_VOL2_CONSTANTS {
+    public static interface NAACCR_VOL2_CONSTANTS {
 
         //Patient Identifiers
         public static final String PATIENT_ID = "patientIdNumber";

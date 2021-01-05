@@ -5,18 +5,18 @@
  */
 package com.linuxforhealth.connect.builder;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.UUID;
 
+import com.linuxforhealth.connect.processor.Hl7NaaccrProcessor;
 import com.linuxforhealth.connect.support.TestUtils;
 
-import org.apache.camel.Exchange;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.component.hl7.HL7MLLPNettyDecoderFactory;
 import org.apache.camel.component.hl7.HL7MLLPNettyEncoderFactory;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -45,43 +45,108 @@ public class Hl7v2NaaccrRouteTest extends RouteTestSupport {
         context.getRegistry().bind("hl7encoder", hl7encoder);
         context.getRegistry().bind("hl7decoder", hl7decoder);
 
+
         mockProducerEndpointById(
-                Hl7v2RouteBuilder.ROUTE_ID,
-                Hl7v2RouteBuilder.ROUTE_PRODUCER_ID,
+                Hl7v2RouteBuilder.NAACCR_ROUTE_ID,
+                Hl7v2RouteBuilder.NAACCR_PRODUCER_ID,
                 "mock:result"
         );
-
+  
+        
         super.configureContext();
 
         mockResult = MockEndpoint.resolve(context, "mock:result");
     }
 
     @Test
-    void testReportNarrativeShort() throws Exception {
+    void testReportSynopticItemized() throws Exception {
         String testMessage = context
                 .getTypeConverter()
-                .convertTo(String.class, TestUtils.getMessage("hl7",  "ORU_R01_NAACCRv5_Synoptic_CAPeCC_itemized_short.txt"))//"ORU_R01_NAACCRv5_Narrative_sections.txt"))
+                .convertTo(String.class, TestUtils.getMessage("hl7",  "ORU_R01_NAACCRv5_Synoptic_CAPeCC_itemized_short.txt"))
                 .replace(System.lineSeparator(), "\r");
 
         mockResult.expectedMessageCount(1);
-        mockResult.expectedPropertyReceived("dataFormat", "HL7-V2");
-        mockResult.expectedPropertyReceived("messageType", "NAACCR_CP");
-        mockResult.expectedPropertyReceived("naaccrVersion", "VOL_V_50_ORU_R01");
 
-        fluentTemplate.to("netty:tcp://localhost:2576?sync=true&encoders=#hl7encoder&decoders=#hl7decoder")
-                .withBody(testMessage)
+        String encodedTestMsg = Base64.getEncoder().encodeToString(testMessage.getBytes(StandardCharsets.UTF_8));
+
+        mockResult.expectedPropertyReceived(Hl7NaaccrProcessor.NAACCR_EXCHANGE_PROPERTY.MESSAGE_TYPE, 
+            Hl7NaaccrProcessor.NAACCR_EXCHANGE_PROPERTY.NAACCR_MESSAGE_TYPE);
+        
+        mockResult.expectedPropertyReceived(Hl7NaaccrProcessor.NAACCR_EXCHANGE_PROPERTY.REPORT_STYLE, 
+            Hl7NaaccrProcessor.NAACCR_EXCHANGE_PROPERTY.REPORT_STYLE_SYNOPTIC_ITEMIZED);
+
+        mockResult.expectedPropertyReceived(Hl7NaaccrProcessor.NAACCR_EXCHANGE_PROPERTY.HISTOLOGY_TYPE_ICDO3, "C24.1");
+         
+        fluentTemplate.to("direct:"+Hl7v2RouteBuilder.NAACCR_ROUTE_ID)
+                .withBody(encodedTestMsg)
                 .send();
 
         mockResult.assertIsSatisfied();
 
-        Exchange mockExchange = mockResult.getExchanges().get(0);
-
-        Long actualTimestamp = mockExchange.getProperty("timestamp", Long.class);
-        Assertions.assertNotNull(actualTimestamp);
-        Assertions.assertTrue(actualTimestamp > 0);
-
-        UUID actualUuid = UUID.fromString(mockExchange.getProperty("uuid", String.class));
-        Assertions.assertEquals(36, actualUuid.toString().length());
-
+        String expectedMessage = new String(Base64.getDecoder().decode(mockResult.getExchanges().get(0).getIn().getBody(String.class)));
+        assertNotNull(expectedMessage, "response body null");
+       
     }
+
+    @Test
+    void testReportNarrative() throws Exception {
+        String testMessage = context
+                .getTypeConverter()
+                .convertTo(String.class, TestUtils.getMessage("hl7",  "ORU_R01_NAACCRv5_Narrative_sections.txt"))
+                .replace(System.lineSeparator(), "\r");
+
+        mockResult.expectedMessageCount(1);
+
+        String encodedTestMsg = Base64.getEncoder().encodeToString(testMessage.getBytes(StandardCharsets.UTF_8));
+
+        mockResult.expectedPropertyReceived(Hl7NaaccrProcessor.NAACCR_EXCHANGE_PROPERTY.MESSAGE_TYPE, 
+            Hl7NaaccrProcessor.NAACCR_EXCHANGE_PROPERTY.NAACCR_MESSAGE_TYPE);
+        
+        mockResult.expectedPropertyReceived(Hl7NaaccrProcessor.NAACCR_EXCHANGE_PROPERTY.REPORT_STYLE, 
+            Hl7NaaccrProcessor.NAACCR_EXCHANGE_PROPERTY.REPORT_STYLE_NARRATIVE);
+        
+        //TODO could/should do more validation here of other metadata
+         
+        fluentTemplate.to("direct:"+Hl7v2RouteBuilder.NAACCR_ROUTE_ID)
+                .withBody(encodedTestMsg)
+                .send();
+
+        mockResult.assertIsSatisfied();
+
+        String expectedMessage = new String(Base64.getDecoder().decode(mockResult.getExchanges().get(0).getIn().getBody(String.class)));
+        assertNotNull(expectedMessage, "response body null");
+       
+    }
+
+
+    @Test
+    void testReportSynopticSections() throws Exception {
+        String testMessage = context
+                .getTypeConverter()
+                .convertTo(String.class, TestUtils.getMessage("hl7",  "ORU_R01_NAACCRv5_Synoptic_CAPeCC_sections_long.txt"))
+                .replace(System.lineSeparator(), "\r");
+
+        mockResult.expectedMessageCount(1);
+
+        String encodedTestMsg = Base64.getEncoder().encodeToString(testMessage.getBytes(StandardCharsets.UTF_8));
+
+        mockResult.expectedPropertyReceived(Hl7NaaccrProcessor.NAACCR_EXCHANGE_PROPERTY.MESSAGE_TYPE, 
+            Hl7NaaccrProcessor.NAACCR_EXCHANGE_PROPERTY.NAACCR_MESSAGE_TYPE);
+        
+        mockResult.expectedPropertyReceived(Hl7NaaccrProcessor.NAACCR_EXCHANGE_PROPERTY.REPORT_STYLE, 
+            Hl7NaaccrProcessor.NAACCR_EXCHANGE_PROPERTY.REPORT_STYLE_SYNOPTIC_SEGMENTED);
+        
+        //TODO could/should do more validation here of other metadata
+         
+        fluentTemplate.to("direct:"+Hl7v2RouteBuilder.NAACCR_ROUTE_ID)
+                .withBody(encodedTestMsg)
+                .send();
+
+        mockResult.assertIsSatisfied();
+
+        String expectedMessage = new String(Base64.getDecoder().decode(mockResult.getExchanges().get(0).getIn().getBody(String.class)));
+        assertNotNull(expectedMessage, "response body null");
+       
+    }
+
 }

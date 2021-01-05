@@ -21,9 +21,10 @@ public class Hl7v2RouteBuilder extends BaseRouteBuilder {
 
     public final static String ROUTE_ID = "hl7-v2";
     public final static String ROUTE_PRODUCER_ID="hl7-v2";
-    private final static String ROUTE_PROPERTY_NAMESPACE = "lfh.connect.hl7-v2";
+    public final static String ROUTE_PROPERTY_NAMESPACE = "lfh.connect.hl7-v2";
     public final static String HTTP_ROUTE_ID = "hl7-v2-http";
     public final static String NAACCR_ROUTE_ID = "hl7-v2-naaccr";
+    public final static String NAACCR_PRODUCER_ID = "hl7-v2-naaccr-producer";
 
     private final Logger logger = LoggerFactory.getLogger(Hl7NaaccrProcessor.class);
 
@@ -60,11 +61,12 @@ public class Hl7v2RouteBuilder extends BaseRouteBuilder {
                 .choice()
                 .when(isHeaderSet)
                     .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
+                    .id(NAACCR_PRODUCER_ID)  
                 .otherwise()
                 .log(LoggingLevel.INFO, logger, "non-NAACCR report")
                     .stop()
-                .end()
-                .id(NAACCR_ROUTE_ID);        
+                .end();
+       
     
     }
 
