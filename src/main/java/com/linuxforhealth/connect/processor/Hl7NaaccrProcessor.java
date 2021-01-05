@@ -543,7 +543,7 @@ public final class Hl7NaaccrProcessor implements Processor {
      * @param exchange - Exchange object
      */
     private void putIfNotEmpty(String key, String value, Exchange exchange) {
-        if(value != null && !value.isBlank()) {
+        if(value != null && !value.trim().isEmpty()) {
             exchange.setProperty(key, value);
         }
     }
