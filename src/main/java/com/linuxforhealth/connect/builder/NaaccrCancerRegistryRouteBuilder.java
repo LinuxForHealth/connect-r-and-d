@@ -5,8 +5,10 @@
  */
 package com.linuxforhealth.connect.builder;
 
+import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.List;
 
 import org.json.JSONObject;
@@ -66,9 +68,10 @@ public class NaaccrCancerRegistryRouteBuilder extends BaseRouteBuilder {
 
             buf.append(NAACCR_XML_PARENT_START_TAG.replace(NAACCR_XML_TIMEGEN_PLACEHOLDER, timeGenerated)+"\n");
 
-            for(String report : reports) {
+            for(String report : reports) {   
                 String data = new JSONObject(report).getString("data");
-                buf.append(data+ "\n");
+                String decodedData = new String(Base64.getDecoder().decode(data));
+                buf.append(decodedData+ "\n");
             }
         }catch(Exception e) {
            logger.error(e.getMessage());

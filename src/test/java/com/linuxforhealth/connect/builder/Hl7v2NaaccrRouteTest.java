@@ -60,10 +60,9 @@ public class Hl7v2NaaccrRouteTest extends RouteTestSupport {
     void testReportNarrativeShort() throws Exception {
         String testMessage = context
                 .getTypeConverter()
-                .convertTo(String.class, TestUtils.getMessage("hl7", "ORU_R01_NAACCRv5_Narrative_sections.txt"))
+                .convertTo(String.class, TestUtils.getMessage("hl7",  "ORU_R01_NAACCRv5_Synoptic_CAPeCC_itemized_short.txt"))//"ORU_R01_NAACCRv5_Narrative_sections.txt"))
                 .replace(System.lineSeparator(), "\r");
 
-        String expectedMessage = Base64.getEncoder().encodeToString(testMessage.getBytes(StandardCharsets.UTF_8));
         mockResult.expectedMessageCount(1);
         mockResult.expectedPropertyReceived("dataFormat", "HL7-V2");
         mockResult.expectedPropertyReceived("messageType", "NAACCR_CP");
@@ -83,5 +82,6 @@ public class Hl7v2NaaccrRouteTest extends RouteTestSupport {
 
         UUID actualUuid = UUID.fromString(mockExchange.getProperty("uuid", String.class));
         Assertions.assertEquals(36, actualUuid.toString().length());
+
     }
 }
