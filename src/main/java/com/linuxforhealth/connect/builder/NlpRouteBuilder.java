@@ -17,10 +17,11 @@ import javax.ws.rs.HttpMethod;
 public class NlpRouteBuilder extends BaseRouteBuilder {
 
     public final static String NLP_ROUTE_URI = "direct:nlp";
-
     @PropertyInject("lfh.connect.nlp.request-json") private static String requestJson;
-
+    @PropertyInject("lfh.connect.nlp.enable") private static boolean enableRoute;
     private final Logger logger = LoggerFactory.getLogger(NlpRouteBuilder.class);
+
+    public final static String NLP_ROUTE_ID = "nlp";
 
     @Override
     protected String getRoutePropertyNamespace() {return "lfh.connect.nlp";}
@@ -34,7 +35,14 @@ public class NlpRouteBuilder extends BaseRouteBuilder {
             .log(LoggingLevel.DEBUG, logger, "${body}")
         ;
 
+        //
+        // Route unstructured data to configured NLP service for analysis
+        // INPUT:  Unstructured data
+        // OUTPUT: NLP service response wrapped in LFH message
+        //
         from(NLP_ROUTE_URI)
+            .routeId(NLP_ROUTE_ID)
+            .autoStartup(enableRoute)
             .log(LoggingLevel.DEBUG, logger, "Received: ${body}")
             .setHeader(Exchange.HTTP_METHOD, constant(HttpMethod.POST))
             .setHeader(Exchange.CONTENT_TYPE, constant(ContentType.TEXT_PLAIN))
