@@ -101,7 +101,6 @@ public final class MetaDataProcessor implements Processor {
                 .replaceAll("<topicName>", topicName));
 
         String exchangeBody = exchange.getIn().getBody(String.class);
-
         String result = Base64.getEncoder().encodeToString(exchangeBody.getBytes(StandardCharsets.UTF_8));
         exchange.getIn().setBody(result);
     }
