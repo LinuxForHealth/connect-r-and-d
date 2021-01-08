@@ -86,7 +86,6 @@ public final class LinuxForHealthRouteBuilder extends RouteBuilder {
             LinuxForHealthMessage msg = new LinuxForHealthMessage(exchange);
             msg.setError(exception.getMessage());
             exchange.getIn().setBody(msg.toString());
-            exception.printStackTrace();//TODO remove
         })
         .log(LoggingLevel.ERROR, logger, exceptionMessage().toString())
         .to("{{lfh.connect.messaging.error.uri}}")
