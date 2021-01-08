@@ -8,10 +8,6 @@ package com.linuxforhealth.connect.builder;
 import com.linuxforhealth.connect.processor.MetaDataProcessor;
 import com.linuxforhealth.connect.support.CamelContextSupport;
 import com.linuxforhealth.connect.support.ExternalServerAggregationStrategy;
-
-import java.net.URI;
-import java.util.*;
-
 import org.apache.camel.Exchange;
 import org.apache.camel.PropertyInject;
 import org.apache.camel.component.kafka.KafkaConstants;
@@ -19,6 +15,12 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 
 /**
  * Defines a FHIR R4 REST Processing route
