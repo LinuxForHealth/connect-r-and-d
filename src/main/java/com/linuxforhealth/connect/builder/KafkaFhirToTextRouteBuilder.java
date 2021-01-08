@@ -95,22 +95,16 @@ public class KafkaFhirToTextRouteBuilder extends RouteBuilder {
         from(ROUTE_URI_FHIR_RESOURCE)
             .routeId(ROUTE_ID_GET_FHIR)
             .convertBodyTo(String.class)
-            .log(LoggingLevel.DEBUG, logger, "[fhir-resource] INPUT:\n${body.substring(0,200)}")
+            .log(LoggingLevel.DEBUG, logger, "[fhir-resource] INPUT:\n${body}")
 
             .setProperty(PROP_RESOURCE_TYPE).jsonpath("resourceType", true)
 
             .choice()
 
-                .when(exchangeProperty(PROP_RESOURCE_TYPE).isEqualTo("DocumentReference"))
-                    .multicast()
+                .when(exchangeProperty(PROP_RESOURCE_TYPE).regex("DocumentReference|DiagnosticReport"))
+                    .recipientList(
+                            simple("direct:text-div, direct:${exchangeProperty.resourceType.toLowerCase()}-attachment"), ",")
                     .parallelProcessing()
-                    .to("direct:text-div", "direct:documentreference-attachment")
-                .endChoice()
-
-                .when(exchangeProperty(PROP_RESOURCE_TYPE).isEqualTo("DiagnosticReport"))
-                    .multicast()
-                    .parallelProcessing()
-                    .to("direct:text-div", "direct:diagnosticreport-attachment")
                 .endChoice()
 
                 .otherwise()
@@ -128,7 +122,7 @@ public class KafkaFhirToTextRouteBuilder extends RouteBuilder {
         //
         from(ROUTE_URI_FHIR_TEXT_DIV)
             .routeId(ROUTE_ID_FHIR_TEXT_DIV)
-            .log(LoggingLevel.DEBUG, logger, "[text-div] INPUT:\n${body.substring(0,200)}")
+            .log(LoggingLevel.DEBUG, logger, "[text-div] INPUT:\n${body}")
             .setProperty("resourceTypeElement", constant("narrative"))
 
             .choice()
