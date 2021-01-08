@@ -55,11 +55,13 @@ public class FhirR4RouteBuilder extends BaseRouteBuilder {
             .marshal().fhirJson("R4")
             .process(new MetaDataProcessor(routePropertyNamespace))
             .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
+            .id(ROUTE_PRODUCER_ID)
             .process(exchange -> {
                 List<RecordMetadata> recordMetaList = exchange.getIn().getHeader(
                         KafkaConstants.KAFKA_RECORDMETA,
                         new ArrayList<RecordMetadata>(),
                         ArrayList.class);
+
                 if (recordMetaList.size() <= 1) { // single RecordMetadata
                     exchange.getIn().setHeader("location",
                             String.format(locationTemplate, recordMetaList.get(0).topic(),
@@ -72,7 +74,6 @@ public class FhirR4RouteBuilder extends BaseRouteBuilder {
                     exchange.getIn().setHeader("location", String.join(",", recordMetaSet));
                 }
             })
-            .id(ROUTE_PRODUCER_ID)
             .to(EXTERNAL_FHIR_ROUTE_URI);
 
         /*
