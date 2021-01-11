@@ -3,6 +3,8 @@ services:
   kafka:
     environment:
       KAFKA_HEAP_OPTS: "-Xmx256M -Xms128M"
+  kafdrop:
+    image: docker.io/linuxforhealth/kafdrop-alpine:latest
   nats-server:
     ports:
       - ${LFH_NATS_CLIENT_PORT}:${LFH_NATS_CLIENT_PORT}
