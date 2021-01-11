@@ -17,8 +17,10 @@ import javax.ws.rs.HttpMethod;
 public class NlpRouteBuilder extends BaseRouteBuilder {
 
     public final static String NLP_ROUTE_URI = "direct:nlp";
-    @PropertyInject("lfh.connect.nlp.request-json") private static String requestJson;
-    @PropertyInject("lfh.connect.nlp.enable") private static boolean enableRoute;
+    @PropertyInject("lfh.connect.nlp.request-json")
+    private static String requestJson;
+    @PropertyInject("lfh.connect.nlp.enable")
+    private static boolean enableRoute;
     private final Logger logger = LoggerFactory.getLogger(NlpRouteBuilder.class);
 
     public final static String NLP_ROUTE_ID = "nlp";

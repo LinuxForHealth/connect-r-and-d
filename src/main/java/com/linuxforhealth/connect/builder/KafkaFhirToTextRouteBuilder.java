@@ -10,9 +10,8 @@ import org.slf4j.LoggerFactory;
 public class KafkaFhirToTextRouteBuilder extends RouteBuilder {
 
     private final Logger logger = LoggerFactory.getLogger(KafkaFhirToTextRouteBuilder.class);
-    @PropertyInject("lfh.connect.nlp.enable") private static boolean enableRoute;
-    //final static String PROP_PATIENT_ID = "patientId";
-    //final static String PROP_ID = "id";
+    @PropertyInject("lfh.connect.nlp.enable")
+    private static boolean enableRoute;
     final static String PROP_RESOURCE_TYPE = "resourceType";
 
     // Route URIs
@@ -74,12 +73,12 @@ public class KafkaFhirToTextRouteBuilder extends RouteBuilder {
                         .when(exchangeProperty(PROP_RESOURCE_TYPE).isEqualTo("Bundle"))
                         .split().jsonpath("entry[*].resource")
                         .marshal().json()
-                        .to("direct:fhir-resource")
+                        .to(ROUTE_URI_FHIR_RESOURCE)
                         .endChoice()
 
                     .end()
 
-                    .to("direct:fhir-resource")
+                    .to(ROUTE_URI_FHIR_RESOURCE)
 
                 .endChoice()
 
@@ -103,12 +102,12 @@ public class KafkaFhirToTextRouteBuilder extends RouteBuilder {
 
                 .when(exchangeProperty(PROP_RESOURCE_TYPE).regex("DocumentReference|DiagnosticReport"))
                     .recipientList(
-                            simple("direct:text-div, direct:${exchangeProperty.resourceType.toLowerCase()}-attachment"), ",")
+                            simple(ROUTE_URI_FHIR_TEXT_DIV + ", direct:${exchangeProperty.resourceType.toLowerCase()}-attachment"), ",")
                     .parallelProcessing()
                 .endChoice()
 
                 .otherwise()
-                    .to("direct:text-div")
+                    .to(ROUTE_URI_FHIR_TEXT_DIV)
                 .endChoice()
 
             .end()
@@ -153,7 +152,7 @@ public class KafkaFhirToTextRouteBuilder extends RouteBuilder {
             .choice()
                 .when().jsonpath("presentedForm", true)
                     .split().jsonpath("presentedForm", true)
-                    .to("direct:attachment")
+                    .to(ROUTE_URI_FHIR_ATTACH)
                 .endChoice()
             .end()
         ;
@@ -169,7 +168,7 @@ public class KafkaFhirToTextRouteBuilder extends RouteBuilder {
             .choice()
                 .when().jsonpath("content[*].attachment", true)
                     .split().jsonpath("content[*].attachment", true)
-                    .to("direct:attachment")
+                    .to(ROUTE_URI_FHIR_ATTACH)
                 .endChoice()
             .end()
         ;
