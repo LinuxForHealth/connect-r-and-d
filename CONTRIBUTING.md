@@ -49,7 +49,7 @@ See the [MAINTAINERS.md](MAINTAINERS.md) page.
 ## Setup
 LinuxForHealth is requires Java 1.8 or higher and Gradle 6.x.  
 
-LinuxForHealth is built on:
+LinuxForHealth is currently built on:
 
     Apache Camel for integration, supported by one of the most active development communities.
 

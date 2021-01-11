@@ -22,7 +22,17 @@ public class LinuxForHealthMessage extends JSONObject {
 
     // Set up JSON structure and common fields
     public LinuxForHealthMessage(Exchange exchange) {
+
         meta = new JSONObject();
+
+        /*
+        //TODO mjlorenz - why not store all exchange properties?
+        //add all metadata in exchange to message metadata
+        for (String propertyName : exchange.getProperties().keySet()) {
+            meta.put(propertyName, exchange.getProperty(propertyName, String.class));
+        }
+        */
+        
         meta.put("routeId", exchange.getFromRouteId());
         meta.put("uuid", exchange.getProperty("uuid", String.class));
         meta.put("routeUri", exchange.getProperty("routeUri", String.class));
@@ -30,6 +40,7 @@ public class LinuxForHealthMessage extends JSONObject {
         meta.put("messageType", exchange.getProperty("messageType", String.class));
         meta.put("timestamp", exchange.getProperty("timestamp", String.class));
         meta.put("dataStoreUri", exchange.getProperty("dataStoreUri", String.class));
+
         this.put("meta", meta);
     }
 

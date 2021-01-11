@@ -1,0 +1,34 @@
+MSH|^~\&||INDEPENDENT LAB SERVICES^33D1234567^CLIA|||201907281339||ORU^R01^ORU_R01|2019072813390045|P|2.5.1|||||||||VOL_V_50_ORU_R01^NAACCR_CP PID|1||00466144^^^^MR~123456789^^^^SS||Cane^Candy||19570706|F||2106-3^White^HL70005|495 East Overshoot Drive^^Delmar^NY^12054^^H|||||M
+PID|1||123456789^^^^SS|000039^^^^LR|CANE^Candy^^^Ms.||19570706|F||2106-3|495 East Overshoot Drive^^Delmar^NY^12054^^H||^^^^^518^5559999|||M|||4442331235
+PV1||||||Dr.A|Dr.C
+ORC|RE||||||||||||||||||||Albany Medical Center|43 New ScotlandAve.^^Albany^NY^12208||43 New Scotland Ave.^^Albany^NY^12208
+OBR|1||123456789|60568-3^Synoptic report ^LN|||201907261530||||||||TISS|164341^SURGEON^HANNAH^^^DR|||||||||F|60567-5&Comprehensive pathology report panel&LN|||^97810430|||55555555&Welby&Marcus&&&Dr.&MD&&NPI
+SPM|1|^3567829||TISS^Tissue^HL70487|K||||||||||||200407200930|200407211500||||||||||||97810430^^^33D1234567&INDEPENDENT LAB SERVICES
+OBX|1|ST|60573-3^Report template source^LN||CAPeCC||||||F|||201907261530
+OBX|2|ST|60572-5^Report template ID^LN||128.1000043^PROSTATE GLAND: Radical Prostatectomy^CAPECC ||||||F|||201907261530
+OBX|3|ST|60574-1^Report template version ID^LN||4.0.4.0||||||F|||201907261530
+OBX|4|TX|Procedure:|1|Radical prostatectomy||||||F
+OBX|5|TX|Header|2|Prostate Size||||||F
+OBX|6|TX|Prostate weight|2.1|47.2g||||||F
+OBX|7|TX|Size|2.2|4.5 x 4.0 x 4.0 cm||||||F
+OBX|8|TX|Lymph Node Sampling|2.3|No lymph nodes present||||||F
+OBX|9|TX|Histologic type|2.4|Adenocarcinoma (acinar, not otherwisespecified)||||||F
+OBX|10|TX|Header|3|Histologic grade||||||F
+OBX|11|TX|Header|3.1|Gleason Pattern||||||F
+OBX|12|TX|Primary Pattern|3.1.1|3||||||F
+OBX|13|TX|Secondary Pattern|3.1.2|4||||||F
+OBX|14|TX|Total Gleason score|3.1.3|7||||||F
+OBX|15|TX|Header|3.2|Tumor Quantitation||||||F
+OBX|16|TX|Proportion (percent) of prostate involved bytumor|3.3|15%||||||F
+OBX|17|TX|Tumor size:|3.4|Not applicable||||||F
+OBX|18|TX|Extraprostatic extension|3.5|Not identified||||||F
+OBX|19|TX|Urinary Bladder Neck Invasion|3.6|Not identified||||||F
+OBX|20|TX|Seminal vesicle invasion|3.7|Not identified||||||F
+OBX|21|TX|Margins|3.8|Margins uninvolved by invasive carcinoma||||||F
+OBX|22|TX|Lymph-Vascular invasion|3.9|Not identified||||||F
+OBX|23|TX|Treatment Effect on Carcinoma|3.10|Not identified||||||F
+OBX|24|TX|Header||Pathologic staging (pTNM)||||||F
+OBX|25|TX|TNM Descriptors|.1|Not applicable||||||F
+OBX|26|TX|Primary Tumor (pT)|.2|pT2||||||F
+OBX|27|TX|Regional Lymph Nodes (pN)|.3|No nodes submitted orfound||||||F
+OBX|28|TX|Distant Metastasis (pM)|.4|Not applicable||||||F
