@@ -10,40 +10,34 @@ import java.util.Arrays;
 import com.linuxforhealth.connect.processor.MetaDataProcessor;
 import com.linuxforhealth.connect.support.CamelContextSupport;
 
+import org.apache.camel.CamelContext;
+import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
+import org.apache.camel.language.simple.Simple;
+import org.apache.camel.model.dataformat.BindyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
  * Defines the ETL processing route.
- * The ETL route is a data processing route which supports custom source and target data formats via custom components.
- * 
- * Example property configuration:
- *  lfh.connect.bean.practitionercsvformat=com.linuxforhealth.connect.support.etl.PractitionerCsvFormat
- *  lfh.connect.bean.practitionercsvtransform=com.linuxforhealth.connect.support.etl.PractitionerCsvTransform
- *  lfh.connect.etl.uri=jetty:http://{{lfh.connect.host}}:{{lfh.connect.http.port}}/etl?httpMethodRestrict=POST&enableMultipartFilter=true
- *  lfh.connect.etl.dataformat=etl
- *  lfh.connect.etl.messagetype=\${header.ETLMessageType}
- *  lfh.connect.etl.target=SomeSystem
- * 
- *  "Bean" properties specify the format and transform components used in the route.
- *  The format bean is used to store the marshalled data payload, while the transform bean converts source data to a target format.
- *  The ETLMessageType header is used to specify which components are loaded for the incoming request, and is set dynamically.
- *  The components used in route are determined using the following algorithm:
- *  - remove any "_" or "-" from the ETLMessageType and then convert to lower-case
- *  - lookup component names [converted ETLMessageType]csv and [convertedETLMessageType]format.
- * 
- *  Source data is stored in a topic named ETL_<ETlMessageType Header>
- *  Source data is processed a record at a time, and then submitted to the destination defined in lfh.connect.etl.target
- *  
  */
 public class EtlRouteBuilder extends BaseRouteBuilder {
 
     public final static String ROUTE_ID = "etl";
     public final static String TRANSFORM_ROUTE_ID = "etl-transform";
+    public final static String SAVE_SOURCE_DATA_ROUTE_ID = "etl-save-source";
+
+    private final static String BEAN_PROPERTY_NAMESPACE = "lfh.connect.bean";
     private final static String ROUTE_PROPERTY_NAMESPACE = "lfh.connect.etl";
-    private final static String MESSAGE_TYPE_HEADER = "ETLMessageType";
+
+    private final static String ETL_MESSAGE_TYPE_HEADER = "ETLMessageType";
+
+    private final static String BINDY_DATA_FORMAT_PROPERTY = "bindyDataFormat";
+    private final static String BINDY_TYPE_PROPERTY = "bindyType";
+    private final static String BINDY_BEAN_PROPERTY = "bindyBean";
+    private final static String ORIGINAL_MESSAGE_PROPERTY = "originalMessage";
+    private final static String TRANSFORM_BEAN_PROPERTY = "transformBean";
 
     private final Logger logger = LoggerFactory.getLogger(EtlRouteBuilder.class);    
 
@@ -52,64 +46,59 @@ public class EtlRouteBuilder extends BaseRouteBuilder {
         return ROUTE_PROPERTY_NAMESPACE;
     }
 
+    private void setBeanProperties(Exchange exchange) {
+        String messageTypeHeader = exchange.getIn().getHeader(ETL_MESSAGE_TYPE_HEADER, String.class);
+
+        if (messageTypeHeader == null) {
+            String message = "Required Header ETLMessageType is not set";
+            throw new RuntimeException(message);
+        }
+
+        String baseBeanName = messageTypeHeader.replaceAll("[_-]", "");
+        
+        String formatBeanPropertyName = BEAN_PROPERTY_NAMESPACE + "." + baseBeanName + "format";
+        CamelContextSupport ctxSupport = new CamelContextSupport(getContext());
+        String formatBeanClass = ctxSupport.getProperty(formatBeanPropertyName);
+        exchange.setProperty(BINDY_BEAN_PROPERTY, formatBeanClass);
+
+        String transformBean = baseBeanName + "transform";
+        exchange.setProperty(TRANSFORM_BEAN_PROPERTY, transformBean);
+    }
+
     @Override
     protected void buildRoute(String routePropertyNamespace)  {
 
         from("{{lfh.connect.etl.uri}}")
         .routeId(ROUTE_ID)
+        .convertBodyTo(String.class)
+        // set data format properties based on content type
         .choice()
-            .when(header(MESSAGE_TYPE_HEADER).isNull())
-            .setHeader(MESSAGE_TYPE_HEADER, constant("SOURCE_DATA"))
-        .otherwise()
-            .process(exchange -> {
-                String messageTypeHeader = exchange.getIn().getHeader(MESSAGE_TYPE_HEADER).toString();
-                validateEtlComponents(messageTypeHeader);
-            })
+            .when(simple("${header.Content-Type} =~ 'text/csv'"))
+                .setProperty(BINDY_DATA_FORMAT_PROPERTY, constant("bindy-csv"))
+                .setProperty(BINDY_TYPE_PROPERTY, constant(BindyType.Csv.name()))
+            .when(simple("${header.Content-Type} =~ 'text/plain'"))
+                .setProperty(BINDY_DATA_FORMAT_PROPERTY, constant("bindy-fixed"))
+                .setProperty(BINDY_TYPE_PROPERTY, constant(BindyType.Fixed.name()))
+            .otherwise()
+                .throwException(RuntimeException.class, "Unsupported content-type ${header.Content-Type}")
         .end()
-        .marshal().mimeMultipart()
-        .process(new MetaDataProcessor(routePropertyNamespace))
-        .choice()
-            .when(simple("${header:" + MESSAGE_TYPE_HEADER + "} == 'SOURCE_DATA'"))
-            .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
-        .otherwise()
-            .multicast()
-            .parallelProcessing()
-            .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI, "direct:" + TRANSFORM_ROUTE_ID)
-        .end();
-
-        from("direct:" + TRANSFORM_ROUTE_ID)
-        .id(TRANSFORM_ROUTE_ID)
+        // configure format and transform beans
         .process(exchange -> {
-            
-
-
+            setBeanProperties(exchange);
         })
-        .log(LoggingLevel.INFO, logger, "I got here");
-    }
-
-    /**
-     * Returns the base component name based on the requested message type header.
-     * Example: practitioner-csv returns practitionercsv
-     * @param messageTypeHeader The ETL Route Message Type Header (ETLMessageType)
-     * @return the base component name
-     */
-    private String getBaseComponentName(String messageTypeHeader) {
-        return messageTypeHeader.replace("_", "").replace("-", "");
-    }
-
-    /**
-     * Validates that a format and transform component have been loaded to support the ETL message type.
-     * @param messageTypeHeader The ETL message type header.
-     */
-    private void validateEtlComponents(String messageTypeHeader) {
-        CamelContextSupport ctxSupport = new CamelContextSupport(getContext());
-
-        String baseComponentName = getBaseComponentName(messageTypeHeader);
-        for (String componentName : Arrays.asList(baseComponentName + "transform", baseComponentName + "format")) {
-            if (ctxSupport.getComponent(componentName) == null) {
-                String message = "Unable to load " + componentName + " for ETL Message Header " + messageTypeHeader;
-                throw new RuntimeException(message);
-            }
-        }
+        .log(LoggingLevel.DEBUG, logger, "Bindy Data Format Component: ${exchangeProperty.bindyDataFormat}")
+        .log(LoggingLevel.DEBUG, logger, "Bindy Type: ${exchangeProperty.bindyType}")
+        .log(LoggingLevel.DEBUG, logger, "Bindy Bean: ${exchangeProperty.bindyBean}")
+        .log(LoggingLevel.DEBUG, logger, "Transform Bean: ${exchangeProperty.transformBean}")
+        // cache the original message for later use
+        .setProperty(ORIGINAL_MESSAGE_PROPERTY, simple("${body}"))
+        .toD("dataformat:${exchangeProperty.bindyDataFormat}:unmarshal?type=${exchangeProperty.bindyType}&classType=${exchangeProperty.bindyBean}")
+        .split(body())
+            .toD("bean:${exchangeProperty.transformBean}?method=map")
+            .toD("${properties:lfh.connect.etl.producerUri}")
+            .end()
+        .setBody(simple("${exchangeProperty.originalMessage}"))
+        .process(new MetaDataProcessor(routePropertyNamespace))
+        .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI);
     }
 }

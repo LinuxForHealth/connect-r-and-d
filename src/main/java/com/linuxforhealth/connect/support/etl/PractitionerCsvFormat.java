@@ -62,6 +62,10 @@ public class PractitionerCsvFormat {
      @DataField(pos = 18, columnName = "organization_npi")
      private String organizationNpi;
 
+     public String getPractitionerNpi() {
+         return practitionerNpi;
+     }
+
      public String getPractitionerFirstName() {
          return practitionerFirstName;
      }
