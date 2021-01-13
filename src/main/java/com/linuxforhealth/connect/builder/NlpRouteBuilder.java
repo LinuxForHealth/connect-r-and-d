@@ -75,11 +75,24 @@ public class NlpRouteBuilder extends BaseRouteBuilder {
             .unmarshal().json()
             .log(LoggingLevel.DEBUG, logger, "NLP response body: ${body}")
 
-            .process(new MetaDataProcessor(getRoutePropertyNamespace()))
-            .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
+            .choice()
+
+                // Only process successful nlp service responses
+                .when(header("CamelHttpResponseCode").isEqualTo("200"))
+                    .process(new MetaDataProcessor(getRoutePropertyNamespace()))
+                    .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
+                .endChoice()
+
+                .otherwise()
+                    .log(LoggingLevel.ERROR, logger, "NLP Service error response code: ${header.CamelHttpResponseCode}, response body ${body}")
+                    .stop()
+                .endChoice()
+
+            .end()
 
             .stop()
         ;
 
     }
+
 }
