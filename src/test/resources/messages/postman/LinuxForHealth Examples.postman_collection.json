@@ -1,11 +1,177 @@
 {
 	"info": {
-		"_postman_id": "82a19b0d-2c01-44ce-80f1-bcc5433e36ba",
+		"_postman_id": "e8e3631a-687b-415d-a4f2-8ae5b5eb00c3",
 		"name": "LinuxForHealth Examples",
 		"description": "Sample workflow for Creating and Updating Patient Resources\n\n- Search for an existing patient resource using either a GET or POST request.\n- Create a patient resource using POST.\n- Add an email address to the patient record using UPDATE.\n- Add an emergency contact to the patient resource using PATCH (json patch not FHIR patch)\n- Execute a search to view the current state of the patient resource.\n- View resource history using either /_history for all versions or /_history/<version number> for a specific version\n\nThe delete endpoint was used to \"cleanup\" records as this sample was being built.\n",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
+		{
+			"name": "FHIR-R4",
+			"item": [
+				{
+					"name": "FHIR-R4 - Create patient resource",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"accept-encoding": true,
+							"connection": true,
+							"user-agent": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"resourceType\": \"Patient\",\n    \"id\": \"001\",\n    \"text\": {\n        \"status\": \"generated\",\n        \"div\": \"<div xmlns=\\\"http://www.w3.org/1999/xhtml\\\">\\n      \\n      <p>Patient Donald DUCK @ Acme Healthcare, Inc. MR = 654321</p>\\n    \\n    </div>\"\n    },\n    \"identifier\": [\n        {\n            \"use\": \"usual\",\n            \"type\": {\n                \"coding\": [\n                    {\n                        \"system\": \"http://terminology.hl7.org/CodeSystem/v2-0203\",\n                        \"code\": \"MR\"\n                    }\n                ]\n            },\n            \"system\": \"urn:oid:0.1.2.3.4.5.6.7\",\n            \"value\": \"654321\"\n        }\n    ],\n    \"active\": true,\n    \"name\": [\n        {\n            \"use\": \"official\",\n            \"family\": \"Donald\",\n            \"given\": [\n                \"Duck\"\n            ]\n        }\n    ],\n    \"gender\": \"male\",\n    \"managingOrganization\": {\n        \"reference\": \"Organization/1\",\n        \"display\": \"ACME Healthcare, Inc\"\n    },\n    \"link\": [\n        {\n            \"other\": {\n                \"reference\": \"Patient/pat1\"\n            },\n            \"type\": \"seealso\"\n        }\n    ],\n    \"meta\": {\n        \"tag\": [\n            {\n                \"system\": \"http://terminology.hl7.org/CodeSystem/v3-ActReason\",\n                \"code\": \"HTEST\",\n                \"display\": \"test health data\"\n            }\n        ]\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://127.0.0.1:8443/fhir/r4/Patient",
+							"protocol": "https",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8443",
+							"path": [
+								"fhir",
+								"r4",
+								"Patient"
+							]
+						},
+						"description": "Creates a patient resource"
+					},
+					"response": [
+						{
+							"name": "Patient POST - Create Record",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/fhir+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/fhir+json"
+									},
+									{
+										"key": "Prefer",
+										"value": "return=OperationOutcome",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"resourceType\": \"Patient\",\n    \"text\": {\n        \"status\": \"generated\",\n        \"div\": \"<div xmlns=\\\"http://www.w3.org/1999/xhtml\\\">\\n      \\n      <p>Patient Donald DUCK @ Acme Healthcare, Inc. MR = 654321</p>\\n    \\n    </div>\"\n    },\n    \"identifier\": [\n        {\n            \"use\": \"usual\",\n            \"type\": {\n                \"coding\": [\n                    {\n                        \"system\": \"http://terminology.hl7.org/CodeSystem/v2-0203\",\n                        \"code\": \"MR\"\n                    }\n                ]\n            },\n            \"system\": \"urn:oid:0.1.2.3.4.5.6.7\",\n            \"value\": \"654321\"\n        }\n    ],\n    \"active\": true,\n    \"name\": [\n        {\n            \"use\": \"official\",\n            \"family\": \"Duck\",\n            \"given\": [\n                \"Donald\"\n            ]\n        }\n    ],\n    \"telecom\": [\n        {\n            \"system\": \"phone\",\n            \"value\": \"5551114444\",\n            \"use\": \"home\",\n            \"rank\": 1,\n            \"period\": {\n                \"start\": \"1980-04-15\"\n            }\n        }\n    ],\n    \"gender\": \"male\",\n    \"birthDate\": \"1934-06-09\",\n    \"address\": [\n        {\n            \"use\": \"home\",\n            \"type\": \"both\",\n            \"text\": \"1400 Anyhoo Lane Spartanburg, SC 90210\",\n            \"line\": [\n                \"1400 Anyhoo Lane\"\n            ],\n            \"city\": \"Spartanburg\",\n            \"state\": \"SC\",\n            \"postalCode\": \"90210\",\n            \"country\": \"USA\",\n            \"period\": {\n                \"start\": \"1980-04-15\"\n            }\n        }\n    ],\n    \"maritalStatus\": {\n        \"coding\": [\n            {\n                \"system\": \"http://terminology.hl7.org/CodeSystem/v3-MaritalStatus\",\n                \"code\": \"M\",\n                \"display\": \"Married\"\n            }\n        ]\n    },\n    \"photo\": [\n        {\n            \"contentType\": \"image/gif\",\n            \"data\": \"R0lGODlhEwARAPcAAAAAAAAA/+9aAO+1AP/WAP/eAP/eCP/eEP/eGP/nAP/nCP/nEP/nIf/nKf/nUv/nWv/vAP/vCP/vEP/vGP/vIf/vKf/vMf/vOf/vWv/vY//va//vjP/3c//3lP/3nP//tf//vf///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////yH5BAEAAAEALAAAAAATABEAAAi+AAMIDDCgYMGBCBMSvMCQ4QCFCQcwDBGCA4cLDyEGECDxAoAQHjxwyKhQAMeGIUOSJJjRpIAGDS5wCDly4AALFlYOgHlBwwOSNydM0AmzwYGjBi8IHWoTgQYORg8QIGDAwAKhESI8HIDgwQaRDI1WXXAhK9MBBzZ8/XDxQoUFZC9IiCBh6wEHGz6IbNuwQoSpWxEgyLCXL8O/gAnylNlW6AUEBRIL7Og3KwQIiCXb9HsZQoIEUzUjNEiaNMKAAAA7\"\n        }\n    ],\n    \"contact\": [\n        {\n            \"relationship\": [\n                {\n                    \"coding\": [\n                        {\n                            \"system\": \"http://terminology.hl7.org/CodeSystem/v2-0131\",\n                            \"code\": \"E\"\n                        }\n                    ]\n                }\n            ],\n            \"organization\": {\n                \"reference\": \"Organization/1\",\n                \"display\": \"Walt Disney Corporation\"\n            }\n        }\n    ],\n    \"managingOrganization\": {\n        \"reference\": \"Organization/1\",\n        \"display\": \"ACME Healthcare, Inc\"\n    },\n    \"link\": [\n        {\n            \"other\": {\n                \"reference\": \"Patient/pat2\"\n            },\n            \"type\": \"seealso\"\n        }\n    ],\n    \"meta\": {\n        \"tag\": [\n            {\n                \"system\": \"http://terminology.hl7.org/CodeSystem/v3-ActReason\",\n                \"code\": \"HTEST\",\n                \"display\": \"test health data\"\n            }\n        ]\n    }\n}"
+								},
+								"url": {
+									"raw": "http://localhost:9080/fhir-server/api/v4/Patient",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "9080",
+									"path": [
+										"fhir-server",
+										"api",
+										"v4",
+										"Patient"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Location",
+									"value": "http://localhost:9080/fhir-server/api/v4/Patient/5d7dc79a-faf2-453d-9425-a0efe85032ea/_history/1"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"1\""
+								},
+								{
+									"key": "Last-Modified",
+									"value": "Thu, 02 Apr 2020 16:54:24 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/fhir+json"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 02 Apr 2020 16:54:24 GMT"
+								},
+								{
+									"key": "Content-Language",
+									"value": "en-US"
+								},
+								{
+									"key": "Content-Length",
+									"value": "123"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"resourceType\": \"OperationOutcome\",\n    \"issue\": [\n        {\n            \"severity\": \"information\",\n            \"code\": \"informational\",\n            \"details\": {\n                \"text\": \"All OK\"\n            }\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "FHIR-R4 - Create DocumentReference resource",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/fhir+json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"resourceType\": \"DocumentReference\",\n  \"status\": \"current\",\n  \"type\": {\n    \"coding\": [\n      {\n        \"system\": \"http://loinc.org\",\n        \"code\": \"18842-5\",\n        \"display\": \"Discharge summary\"\n      }\n    ]\n  },\n  \"subject\": {\n    \"reference\": \"Patient/pat1\"\n  },\n  \"content\": [\n    {\n      \"attachment\": {\n        \"contentType\": \"text/plain\",\n        \"language\": \"en-US\",\n        \"data\": \"VGhlIHBhdGllbnQgcHJlc2VudHMgd2l0aCBOU0NMQw==\",\n        \"title\": \"consult.txt\",\n        \"creation\": \"2020-05-04T09:35:00+11:00\"\n      }\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": ""
+						},
+						"description": "This request contains an inline attachment for evaluating the FHIR to unstructured data routes for NLP analysis."
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
 		{
 			"name": "Hello World!",
 			"protocolProfileBehavior": {
@@ -37,125 +203,6 @@
 							"key": "name",
 							"value": "me"
 						}
-					]
-				},
-				"description": "Creates a patient resource"
-			},
-			"response": [
-				{
-					"name": "Patient POST - Create Record",
-					"originalRequest": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"type": "text",
-								"value": "application/fhir+json"
-							},
-							{
-								"key": "Accept",
-								"type": "text",
-								"value": "application/fhir+json"
-							},
-							{
-								"key": "Prefer",
-								"value": "return=OperationOutcome",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"resourceType\": \"Patient\",\n    \"text\": {\n        \"status\": \"generated\",\n        \"div\": \"<div xmlns=\\\"http://www.w3.org/1999/xhtml\\\">\\n      \\n      <p>Patient Donald DUCK @ Acme Healthcare, Inc. MR = 654321</p>\\n    \\n    </div>\"\n    },\n    \"identifier\": [\n        {\n            \"use\": \"usual\",\n            \"type\": {\n                \"coding\": [\n                    {\n                        \"system\": \"http://terminology.hl7.org/CodeSystem/v2-0203\",\n                        \"code\": \"MR\"\n                    }\n                ]\n            },\n            \"system\": \"urn:oid:0.1.2.3.4.5.6.7\",\n            \"value\": \"654321\"\n        }\n    ],\n    \"active\": true,\n    \"name\": [\n        {\n            \"use\": \"official\",\n            \"family\": \"Duck\",\n            \"given\": [\n                \"Donald\"\n            ]\n        }\n    ],\n    \"telecom\": [\n        {\n            \"system\": \"phone\",\n            \"value\": \"5551114444\",\n            \"use\": \"home\",\n            \"rank\": 1,\n            \"period\": {\n                \"start\": \"1980-04-15\"\n            }\n        }\n    ],\n    \"gender\": \"male\",\n    \"birthDate\": \"1934-06-09\",\n    \"address\": [\n        {\n            \"use\": \"home\",\n            \"type\": \"both\",\n            \"text\": \"1400 Anyhoo Lane Spartanburg, SC 90210\",\n            \"line\": [\n                \"1400 Anyhoo Lane\"\n            ],\n            \"city\": \"Spartanburg\",\n            \"state\": \"SC\",\n            \"postalCode\": \"90210\",\n            \"country\": \"USA\",\n            \"period\": {\n                \"start\": \"1980-04-15\"\n            }\n        }\n    ],\n    \"maritalStatus\": {\n        \"coding\": [\n            {\n                \"system\": \"http://terminology.hl7.org/CodeSystem/v3-MaritalStatus\",\n                \"code\": \"M\",\n                \"display\": \"Married\"\n            }\n        ]\n    },\n    \"photo\": [\n        {\n            \"contentType\": \"image/gif\",\n            \"data\": \"R0lGODlhEwARAPcAAAAAAAAA/+9aAO+1AP/WAP/eAP/eCP/eEP/eGP/nAP/nCP/nEP/nIf/nKf/nUv/nWv/vAP/vCP/vEP/vGP/vIf/vKf/vMf/vOf/vWv/vY//va//vjP/3c//3lP/3nP//tf//vf///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////yH5BAEAAAEALAAAAAATABEAAAi+AAMIDDCgYMGBCBMSvMCQ4QCFCQcwDBGCA4cLDyEGECDxAoAQHjxwyKhQAMeGIUOSJJjRpIAGDS5wCDly4AALFlYOgHlBwwOSNydM0AmzwYGjBi8IHWoTgQYORg8QIGDAwAKhESI8HIDgwQaRDI1WXXAhK9MBBzZ8/XDxQoUFZC9IiCBh6wEHGz6IbNuwQoSpWxEgyLCXL8O/gAnylNlW6AUEBRIL7Og3KwQIiCXb9HsZQoIEUzUjNEiaNMKAAAA7\"\n        }\n    ],\n    \"contact\": [\n        {\n            \"relationship\": [\n                {\n                    \"coding\": [\n                        {\n                            \"system\": \"http://terminology.hl7.org/CodeSystem/v2-0131\",\n                            \"code\": \"E\"\n                        }\n                    ]\n                }\n            ],\n            \"organization\": {\n                \"reference\": \"Organization/1\",\n                \"display\": \"Walt Disney Corporation\"\n            }\n        }\n    ],\n    \"managingOrganization\": {\n        \"reference\": \"Organization/1\",\n        \"display\": \"ACME Healthcare, Inc\"\n    },\n    \"link\": [\n        {\n            \"other\": {\n                \"reference\": \"Patient/pat2\"\n            },\n            \"type\": \"seealso\"\n        }\n    ],\n    \"meta\": {\n        \"tag\": [\n            {\n                \"system\": \"http://terminology.hl7.org/CodeSystem/v3-ActReason\",\n                \"code\": \"HTEST\",\n                \"display\": \"test health data\"\n            }\n        ]\n    }\n}"
-						},
-						"url": {
-							"raw": "http://localhost:9080/fhir-server/api/v4/Patient",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "9080",
-							"path": [
-								"fhir-server",
-								"api",
-								"v4",
-								"Patient"
-							]
-						}
-					},
-					"status": "Created",
-					"code": 201,
-					"_postman_previewlanguage": "json",
-					"header": [
-						{
-							"key": "Location",
-							"value": "http://localhost:9080/fhir-server/api/v4/Patient/5d7dc79a-faf2-453d-9425-a0efe85032ea/_history/1"
-						},
-						{
-							"key": "ETag",
-							"value": "W/\"1\""
-						},
-						{
-							"key": "Last-Modified",
-							"value": "Thu, 02 Apr 2020 16:54:24 GMT"
-						},
-						{
-							"key": "Content-Type",
-							"value": "application/fhir+json"
-						},
-						{
-							"key": "Date",
-							"value": "Thu, 02 Apr 2020 16:54:24 GMT"
-						},
-						{
-							"key": "Content-Language",
-							"value": "en-US"
-						},
-						{
-							"key": "Content-Length",
-							"value": "123"
-						}
-					],
-					"cookie": [],
-					"body": "{\n    \"resourceType\": \"OperationOutcome\",\n    \"issue\": [\n        {\n            \"severity\": \"information\",\n            \"code\": \"informational\",\n            \"details\": {\n                \"text\": \"All OK\"\n            }\n        }\n    ]\n}"
-				}
-			]
-		},
-		{
-			"name": "FHIR-R4 - Create patient resource",
-			"protocolProfileBehavior": {
-				"disabledSystemHeaders": {
-					"accept": true,
-					"accept-encoding": true,
-					"connection": true,
-					"user-agent": true
-				}
-			},
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"resourceType\": \"Patient\",\n    \"id\": \"001\",\n    \"text\": {\n        \"status\": \"generated\",\n        \"div\": \"<div xmlns=\\\"http://www.w3.org/1999/xhtml\\\">\\n      \\n      <p>Patient Donald DUCK @ Acme Healthcare, Inc. MR = 654321</p>\\n    \\n    </div>\"\n    },\n    \"identifier\": [\n        {\n            \"use\": \"usual\",\n            \"type\": {\n                \"coding\": [\n                    {\n                        \"system\": \"http://terminology.hl7.org/CodeSystem/v2-0203\",\n                        \"code\": \"MR\"\n                    }\n                ]\n            },\n            \"system\": \"urn:oid:0.1.2.3.4.5.6.7\",\n            \"value\": \"654321\"\n        }\n    ],\n    \"active\": true,\n    \"name\": [\n        {\n            \"use\": \"official\",\n            \"family\": \"Donald\",\n            \"given\": [\n                \"Duck\"\n            ]\n        }\n    ],\n    \"gender\": \"male\",\n    \"managingOrganization\": {\n        \"reference\": \"Organization/1\",\n        \"display\": \"ACME Healthcare, Inc\"\n    },\n    \"link\": [\n        {\n            \"other\": {\n                \"reference\": \"Patient/pat1\"\n            },\n            \"type\": \"seealso\"\n        }\n    ],\n    \"meta\": {\n        \"tag\": [\n            {\n                \"system\": \"http://terminology.hl7.org/CodeSystem/v3-ActReason\",\n                \"code\": \"HTEST\",\n                \"display\": \"test health data\"\n            }\n        ]\n    }\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "https://127.0.0.1:8443/fhir/r4/Patient",
-					"protocol": "https",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "8443",
-					"path": [
-						"fhir",
-						"r4",
-						"Patient"
 					]
 				},
 				"description": "Creates a patient resource"
@@ -1020,7 +1067,6 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "0e61785b-fb75-4350-8e40-1c5ebf2ecd9a",
 						"exec": [
 							""
 						],
@@ -1030,7 +1076,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "4b9bc6b8-dc29-45c4-9c4e-e7a999aa7d8f",
 						"exec": [
 							"var template = `",
 							"    <div>",
@@ -1407,7 +1452,6 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "647a05db-f64e-43b4-a22d-331506bccfca",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -1417,13 +1461,11 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "7a1132f8-cb5c-41a9-92a0-15d43e0d5642",
 				"type": "text/javascript",
 				"exec": [
 					""
 				]
 			}
 		}
-	],
-	"protocolProfileBehavior": {}
+	]
 }
