@@ -8,6 +8,7 @@ package com.linuxforhealth.connect.support.etl;
 
 import java.text.SimpleDateFormat;
 
+import java.util.Optional;
 import org.hl7.fhir.r4.model.Address;
 import org.hl7.fhir.r4.model.ContactPoint;
 import org.hl7.fhir.r4.model.HumanName;
@@ -81,14 +82,14 @@ public class PractitionerCsvTransformTest {
    *
    */
   private BundleEntryComponent findFirstBundleEntry(Bundle fhirBundle, String resourceType) {
-    return fhirBundle.getEntry()
-        .stream()
-        .filter(b -> b.getRequest()
-            .getUrl()
-            .equalsIgnoreCase(resourceType))
-        .findFirst()
-        .orElseThrow();
-  }
+    Optional<BundleEntryComponent> firstComponent = fhirBundle.getEntry()
+                                                  .stream()
+                                                  .filter(b -> b.getRequest()
+                                                      .getUrl()
+                                                      .equalsIgnoreCase(resourceType))
+                                                  .findFirst();
+    return firstComponent.get();
+    }
 
   /**
    * Validates that the metadata components of the target/generated FHIR resources.
