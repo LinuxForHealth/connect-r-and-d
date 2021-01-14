@@ -142,7 +142,7 @@ public class EtlRouteTest extends RouteTestSupport{
         fluentTemplate.to("http://0.0.0.0:8080/etl")
                       .withBody(testMessage)
                       .withHeader("ETLMessageType", "practitioner_csv")
-                      .withHeader("Content-Type", "text/csv")
+                      .withHeader("Content-Type", "text/csv;charset=UTF-8")
                       .send();
 
         mockError.assertIsSatisfied();

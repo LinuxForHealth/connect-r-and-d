@@ -46,7 +46,6 @@ public class EtlRouteBuilder extends BaseRouteBuilder {
 
     // route constants
     public final static String ROUTE_ID = "etl";
-    public final static String PRODUCER_ID = "etl-producer";
     public final static String DATA_PERSIST_PRODUCER_ID = "etl-save-source";
     private final static String BEAN_PROPERTY_NAMESPACE = "lfh.connect.bean";
     private final static String ROUTE_PROPERTY_NAMESPACE = "lfh.connect.etl";
@@ -117,10 +116,10 @@ public class EtlRouteBuilder extends BaseRouteBuilder {
         // set data format properties based on content type
         .log(LoggingLevel.DEBUG, logger, "Processing Content-Type ${header.Content-Type}")
         .choice()
-            .when(simple("${header.Content-Type} =~ 'text/csv'"))
+            .when(simple("${header.Content-Type} contains 'text/csv'"))
                 .setProperty(BINDY_DATA_FORMAT_PROPERTY, constant("bindy-csv"))
                 .setProperty(BINDY_TYPE_PROPERTY, constant(BindyType.Csv.name()))
-            .when(simple("${header.Content-Type} =~ 'text/plain'"))
+            .when(simple("${header.Content-Type} contains 'text/plain'"))
                 .setProperty(BINDY_DATA_FORMAT_PROPERTY, constant("bindy-fixed"))
                 .setProperty(BINDY_TYPE_PROPERTY, constant(BindyType.Fixed.name()))
             .otherwise()
