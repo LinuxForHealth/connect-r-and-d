@@ -144,7 +144,20 @@
 							"raw": "{\n  \"resourceType\": \"DocumentReference\",\n  \"status\": \"current\",\n  \"type\": {\n    \"coding\": [\n      {\n        \"system\": \"http://loinc.org\",\n        \"code\": \"18842-5\",\n        \"display\": \"Discharge summary\"\n      }\n    ]\n  },\n  \"subject\": {\n    \"reference\": \"Patient/pat1\"\n  },\n  \"content\": [\n    {\n      \"attachment\": {\n        \"contentType\": \"text/plain\",\n        \"language\": \"en-US\",\n        \"data\": \"VGhlIHBhdGllbnQgcHJlc2VudHMgd2l0aCBOU0NMQw==\",\n        \"title\": \"consult.txt\",\n        \"creation\": \"2020-05-04T09:35:00+11:00\"\n      }\n    }\n  ]\n}"
 						},
 						"url": {
-							"raw": ""
+							"raw": "https://127.0.0.1:8443/fhir/r4/DocumentReference",
+							"protocol": "https",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8443",
+							"path": [
+								"fhir",
+								"r4",
+								"DocumentReference"
+							]
 						},
 						"description": "This request contains an inline attachment for evaluating the FHIR to unstructured data routes for NLP analysis."
 					},
