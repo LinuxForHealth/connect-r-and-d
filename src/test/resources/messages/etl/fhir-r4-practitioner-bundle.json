@@ -1,0 +1,152 @@
+{
+    "resourceType": "Bundle",
+    "type": "transaction",
+    "entry": [
+        {
+            "request": {
+                "method": "POST",
+                "url": "Organization"
+            },
+            "fullUrl": "urn:uuid:f95aac3b-b5aa-4348-8170-8a344be5ac07",
+            "resource": {
+                "resourceType": "Organization",
+                "meta": {
+                    "profile": [
+                        "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization"
+                    ]
+                },
+                "active": true,
+                "name": "Allgood Practice Group",
+                "identifier": [
+                    {
+                        "system": "http://hl7.org.fhir/sid/us-npi",
+                        "value": "1144221847"
+                    }
+                ]
+            }
+        },
+        {
+            "request": {
+                "method": "POST",
+                "url": "Location"
+            },
+            "fullUrl": "urn:uuid:a1d65993-3bda-4bc3-a915-172a68dd7014",
+            "resource": {
+                "resourceType": "Location",
+                "meta": {
+                    "profile": [
+                        "http://hl7.org/fhir/us/core/StructureDefinition/us-core-location"
+                    ]
+                },
+                "text": {
+                    "status": "generated",
+                    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Physical Address: 1400 Anyhoo Lane Suite 100 Spartanburg, SC 90210</div>"
+                },
+                "status": "active",
+                "name": "Dr Allgood's Practitioner Office",
+                "mode": "instance",
+                "address": {
+                    "use": "work",
+                    "type": "both",
+                    "text": "1400 Anyhoo Lane Suite 100 Spartanburg, SC 90210",
+                    "line": [
+                        "1400 Anyhoo Lane",
+                        "Suite 100"
+                    ],
+                    "city": "Spartanburg",
+                    "state": "SC",
+                    "postalCode": "90210",
+                    "country": "US"
+                }
+            }
+        },
+        {
+            "request": {
+                "method": "POST",
+                "url": "Practitioner"
+            },
+            "fullUrl": "urn:uuid:d9a9b2d9-8c57-4561-8423-149f3d1c802b",
+            "resource": {
+                "resourceType": "Practitioner",
+                "meta": {
+                    "profile": [
+                        "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner"
+                    ]
+                },
+                "text": {
+                    "status": "generated",
+                    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative with Details</b></p><p><b>NPI</b>: 1164899696 (OFFICIAL)</p><p><b>name</b>: All Good(OFFICIAL)</p><p><b>gender</b>: female</p><p><b>birthDate</b>: 07/11/1971</p></div>"
+                },
+                "identifier": [
+                    {
+                        "use": "official",
+                        "system": "http://hl7.org/fhir/sid/us-npi",
+                        "value": "1164899696"
+                    }
+                ],
+                "name": [
+                    {
+                        "use": "official",
+                        "family": "Good",
+                        "given": [
+                            "All"
+                        ],
+                        "suffix": [
+                            "MD"
+                        ]
+                    }
+                ],
+                "gender": "female",
+                "birthDate": "1971-11-07"
+            }
+        },
+        {
+            "request": {
+                "method": "POST",
+                "url": "PractitionerRole"
+            },
+            "fullUrl": "urn:uuid:f8c2c9b7-e871-422c-a772-679687543632",
+            "resource": {
+                "resourceType": "PractitionerRole",
+                "meta": {
+                    "profile": [
+                        "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitionerrole"
+                    ]
+                },
+                "active": true,
+                "text": {
+                    "status": "generated",
+                    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Dr All Good Contact Information</p><ul><li>Phone: 555-111-4444</li><li>Fax: 555-111-3333</li><li>Email: allgood@health.com</li></ul></div>"
+                },
+                "practitioner": {
+                    "reference": "urn:uuid:d9a9b2d9-8c57-4561-8423-149f3d1c802b"
+                },
+                "organization": {
+                    "reference": "urn:uuid:f95aac3b-b5aa-4348-8170-8a344be5ac07"
+                },
+                "location": [
+                    {
+                        "reference": "urn:uuid:a1d65993-3bda-4bc3-a915-172a68dd7014"
+                    }
+                ],
+                "telecom": [
+                    {
+                        "system": "phone",
+                        "value": "5551114444",
+                        "use": "work"
+                    },
+                    {
+                        "system": "email",
+                        "value": "allgood@health.com",
+                        "use": "work"
+                    },
+                    {
+                        "system": "fax",
+                        "value": "5551113333",
+                        "use": "work"
+                    }
+                ]
+            }
+        }
+    ]
+}

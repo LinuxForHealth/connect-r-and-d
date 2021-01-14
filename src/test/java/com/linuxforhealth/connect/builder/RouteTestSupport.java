@@ -96,9 +96,10 @@ abstract class RouteTestSupport extends CamelTestSupport {
      * @param routeId     The route id to update.
      * @param producerId The component id to mock.
      * @param mockUri     The mock uri which replaces the producer uri.
+     * @return           The {@link MockEndpoint} for the producer component.
      * @throws Exception If an error occurs during processing.
      */
-    protected void mockProducerEndpointById(String routeId, String producerId, String mockUri) throws Exception {
+    protected MockEndpoint mockProducerEndpointById(String routeId, String producerId, String mockUri) throws Exception {
 
         RouteDefinition routeDefinition = context.getRouteDefinition(routeId);
         AdviceWithRouteBuilder advice = new AdviceWithRouteBuilder() {
@@ -109,6 +110,7 @@ abstract class RouteTestSupport extends CamelTestSupport {
         };
 
         context.adviceWith(routeDefinition, advice);
+        return MockEndpoint.resolve(context, mockUri);
     }
 
     /**

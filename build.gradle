@@ -40,6 +40,7 @@ dependencies {
     implementation group: 'org.apache.camel', name: 'camel-xpath', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-base64', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-tika', version: project.camelVersion
+    implementation group: 'org.apache.camel', name: 'camel-bindy', version: project.camelVersion
 
     // Java utils (OS type)
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: project.commonsLang3Version
