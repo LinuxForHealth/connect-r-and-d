@@ -1,12 +1,16 @@
 {
   "meta": {
     "routeId": "fhir-r4",
-    "uuid": "91fd86fd-bf83-44c7-9c55-39743dbef91b",
+    "uuid": "d4cc31bd-64cc-4781-b79b-4618683377b1",
     "routeUri": "jetty:http://0.0.0.0:8080/fhir/r4/DocumentReference?httpMethodRestrict=POST",
     "dataFormat": "FHIR-R4",
     "messageType": "DOCUMENTREFERENCE",
-    "timestamp": 1609951562,
-    "dataStoreUri": "kafka:FHIR-R4_DOCUMENTREFERENCE?brokers=localhost:9094"
+    "timestamp": 1610678771,
+    "dataStoreUri": "kafka:FHIR-R4_DOCUMENTREFERENCE?brokers=localhost:9094",
+    "status": "success",
+    "dataRecordLocation": [
+      "FHIR-R4_DOCUMENTREFERENCE:0:0"
+    ]
   },
-  "data": "eyJyZXNvdXJjZVR5cGUiOiJEb2N1bWVudFJlZmVyZW5jZSIsInN0YXR1cyI6ImN1cnJlbnQiLCJ0eXBlIjp7ImNvZGluZyI6W3sic3lzdGVtIjoiaHR0cDovL2xvaW5jLm9yZyIsImNvZGUiOiIxODg0Mi01IiwiZGlzcGxheSI6IkRpc2NoYXJnZSBzdW1tYXJ5In1dfSwic3ViamVjdCI6eyJyZWZlcmVuY2UiOiJQYXRpZW50L3BhdDEifSwiY29udGVudCI6W3siYXR0YWNobWVudCI6eyJjb250ZW50VHlwZSI6InRleHQvcGxhaW4iLCJsYW5ndWFnZSI6ImVuLVVTIiwiZGF0YSI6IlZHaGxJSEJoZEdsbGJuUWdjSEpsYzJWdWRITWdkMmwwYUNCT1UwTk1Rdz09IiwidGl0bGUiOiJsYWJSZXN1bHQudHh0IiwiY3JlYXRpb24iOiIyMDIwLTA1LTA0VDA5OjM1OjAwKzExOjAwIn19XX0="
+  "data": "eyJyZXNvdXJjZVR5cGUiOiJEb2N1bWVudFJlZmVyZW5jZSIsInN0YXR1cyI6ImN1cnJlbnQiLCJ0eXBlIjp7ImNvZGluZyI6W3sic3lzdGVtIjoiaHR0cDovL2xvaW5jLm9yZyIsImNvZGUiOiIxODg0Mi01IiwiZGlzcGxheSI6IkRpc2NoYXJnZSBzdW1tYXJ5In1dfSwic3ViamVjdCI6eyJyZWZlcmVuY2UiOiJQYXRpZW50L3BhdDEifSwiY29udGVudCI6W3siYXR0YWNobWVudCI6eyJjb250ZW50VHlwZSI6InRleHQvcGxhaW4iLCJsYW5ndWFnZSI6ImVuLVVTIiwiZGF0YSI6IlZHaGxJSEJoZEdsbGJuUWdjSEpsYzJWdWRITWdkMmwwYUNCT1UwTk1Rdz09IiwidGl0bGUiOiJkaXNjaGFyZ2UtMC50eHQiLCJjcmVhdGlvbiI6IjIwMjAtMDUtMDRUMDk6MzU6MDArMTE6MDAifX0seyJhdHRhY2htZW50Ijp7ImNvbnRlbnRUeXBlIjoidGV4dC9wbGFpbiIsImxhbmd1YWdlIjoiZW4tVVMiLCJkYXRhIjoiVUdGMGFXVnVkQ0J3Y21WelpXNTBjeUIzYVhSb0lHNWhkWE5sWVNCaGJtUWdabUYwYVdkMVpRPT0iLCJ0aXRsZSI6ImRpc2NoYXJnZS0xLnR4dCIsImNyZWF0aW9uIjoiMjAyMC0wNS0wNFQwOTozNTowMCsxMTowMCJ9fV19"
 }
