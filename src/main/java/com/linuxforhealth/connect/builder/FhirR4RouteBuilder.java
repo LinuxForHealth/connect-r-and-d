@@ -34,8 +34,9 @@ public class FhirR4RouteBuilder extends BaseRouteBuilder {
     public final static String EXTERNAL_FHIR_ROUTE_URI = "direct:toExternalFhirServers";
     public final static String EXTERNAL_FHIR_ROUTE_ID = "external-fhir-servers";
     public final static String EXTERNAL_FHIR_PRODUCER_ID = "lfh-external-fhir-producer";
+    public final static String LFH_LOCATION_HEADER = "LFHMetadataLocation";
 
-    @PropertyInject("https://{{lfh.connect.external.host.ip}}:8443/datastore/message?topic=%s&partition=%s&offset=%s")
+    @PropertyInject("https://{{lfh.connect.external.host.ip}}:{{lfh.connect.kong.ssl.port:8443}}/datastore/message?topic=%s&partition=%s&offset=%s")
     static String locationTemplate;
 
     @Override
@@ -63,7 +64,7 @@ public class FhirR4RouteBuilder extends BaseRouteBuilder {
                         ArrayList.class);
 
                 if (recordMetaList.size() <= 1) { // single RecordMetadata
-                    exchange.getIn().setHeader("location",
+                    exchange.getIn().setHeader(LFH_LOCATION_HEADER,
                             String.format(locationTemplate, recordMetaList.get(0).topic(),
                                     recordMetaList.get(0).partition(), recordMetaList.get(0).offset()));
                 } else { // multiple RecordMetadata instances
@@ -71,7 +72,7 @@ public class FhirR4RouteBuilder extends BaseRouteBuilder {
                     recordMetaList.forEach(recordMeta -> {
                         recordMetaSet.add(String.format(locationTemplate, recordMeta.topic(), recordMeta.partition(), recordMeta.offset()));
                     });
-                    exchange.getIn().setHeader("location", String.join(",", recordMetaSet));
+                    exchange.getIn().setHeader(LFH_LOCATION_HEADER, String.join(",", recordMetaSet));
                 }
             })
             .to(EXTERNAL_FHIR_ROUTE_URI);
