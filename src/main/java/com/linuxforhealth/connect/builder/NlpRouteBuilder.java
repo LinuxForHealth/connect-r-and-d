@@ -45,7 +45,6 @@ public class NlpRouteBuilder extends BaseRouteBuilder {
         from(NLP_ROUTE_URI)
             .routeId(NLP_ROUTE_ID)
             .autoStartup(enableRoute)
-            .log(LoggingLevel.DEBUG, logger, "Received: ${body}")
             .setHeader(Exchange.HTTP_METHOD, constant(HttpMethod.POST))
             .setHeader(Exchange.CONTENT_TYPE, constant(ContentType.TEXT_PLAIN))
             .convertBodyTo(String.class)
@@ -54,7 +53,7 @@ public class NlpRouteBuilder extends BaseRouteBuilder {
             .process(new Processor() {
                 @Override
                 public void process(Exchange exchange) throws Exception {
-                    logger.debug("wrap request text in json: " + !"".equalsIgnoreCase(requestJson));
+
                     if (!"".equalsIgnoreCase(requestJson)) {
                         exchange.getIn().setHeader(Exchange.CONTENT_TYPE, ContentType.APPLICATION_JSON);
                         String json = new ObjectMapper().writeValueAsString(exchange.getIn().getBody(String.class));
@@ -73,7 +72,6 @@ public class NlpRouteBuilder extends BaseRouteBuilder {
             .to("{{lfh.connect.nlp.uri}}{{lfh.connect.nlp.auth}}")
             .log(LoggingLevel.DEBUG, logger, "NLP response code: ${header.CamelHttpResponseCode}")
             .unmarshal().json()
-            .log(LoggingLevel.DEBUG, logger, "NLP response body: ${body}")
 
             .choice()
 
@@ -84,7 +82,7 @@ public class NlpRouteBuilder extends BaseRouteBuilder {
                 .endChoice()
 
                 .otherwise()
-                    .log(LoggingLevel.ERROR, logger, "NLP Service error response code: ${header.CamelHttpResponseCode}, response body ${body}")
+                    .log(LoggingLevel.ERROR, logger, "NLP Service error response code: ${header.CamelHttpResponseCode}")
                     .stop()
                 .endChoice()
 

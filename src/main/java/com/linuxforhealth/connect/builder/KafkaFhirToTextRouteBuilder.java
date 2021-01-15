@@ -1,17 +1,13 @@
 package com.linuxforhealth.connect.builder;
 
 import com.linuxforhealth.connect.support.FhirAttachmentText;
-import org.apache.camel.LoggingLevel;
 import org.apache.camel.PropertyInject;
 import org.apache.camel.builder.RouteBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
 
 public class KafkaFhirToTextRouteBuilder extends RouteBuilder {
 
-    private final Logger logger = LoggerFactory.getLogger(KafkaFhirToTextRouteBuilder.class);
     @PropertyInject("lfh.connect.nlp.enable")
     private static boolean enableRoute;
     public final static String PROP_RESOURCE_TYPE = "resourceType";
@@ -44,7 +40,6 @@ public class KafkaFhirToTextRouteBuilder extends RouteBuilder {
         from("kafka:{{lfh.connect.nlp.fhir-topics}}?brokers={{lfh.connect.datastore.brokers}}")
             .routeId(ROUTE_ID)
             .autoStartup(enableRoute) // property-based route enablement toggle
-            .log(LoggingLevel.DEBUG, logger, "[kafka-input]:\n ${body}")
             .to(ROUTE_URI_FHIR_LFH_MSG)
             ;
 
@@ -91,7 +86,6 @@ public class KafkaFhirToTextRouteBuilder extends RouteBuilder {
         //
         from(ROUTE_URI_FHIR_RESOURCE)
             .routeId(ROUTE_ID_GET_FHIR)
-            .log(LoggingLevel.DEBUG, logger, "[fhir-resource] INPUT:\n${body}")
 
             // Send to div narrative and attachment process in parallel
             .multicast()
@@ -117,7 +111,6 @@ public class KafkaFhirToTextRouteBuilder extends RouteBuilder {
                 .to("tika:parse?tikaParseOutputFormat=text")
             .end()
 
-            .log(LoggingLevel.DEBUG, logger, "${body}")
             .to(NlpRouteBuilder.NLP_ROUTE_URI)
             ;
 
@@ -130,7 +123,6 @@ public class KafkaFhirToTextRouteBuilder extends RouteBuilder {
         from(ROUTE_URI_FHIR_TEXT_DIV)
             .routeId(ROUTE_ID_FHIR_TEXT_DIV)
             .convertBodyTo(String.class)
-            .log(LoggingLevel.DEBUG, logger, "[text-div] INPUT:\n${body}")
             .setProperty("resourceTypeElement", constant("narrative"))
 
             .choice()
