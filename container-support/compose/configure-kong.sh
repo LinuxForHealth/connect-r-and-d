@@ -111,6 +111,7 @@ add_http_route "orthanc-image-post-route" "POST" "/orthanc/instances" "lfh-http-
 add_http_route "kafka-get-message-route" "GET" "/datastore/message" "lfh-http-service"
 add_http_route "x12-post-route" "POST" "/x12" "lfh-http-service"
 add_http_route "ccd-post-route" "POST" "/ccd" "lfh-http-service"
+add_http_route "etl-route" "POST" "/etl" "lfh-http-service"
 
 echo "Adding a kong service for the LinuxForHealth hl7v2 mllp route"
 curl $CURL_FLAGS https://localhost:8444/services \
