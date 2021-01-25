@@ -7,15 +7,12 @@ package com.linuxforhealth.connect.builder;
 
 import com.linuxforhealth.connect.processor.MetaDataProcessor;
 import com.linuxforhealth.connect.support.CamelContextSupport;
-import com.linuxforhealth.connect.support.ExternalServerAggregationStrategy;
-
-import java.net.URI;
-import java.util.Base64;
-
 import org.apache.camel.Exchange;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Base64;
 
 /**
  * Defines a FHIR R4 REST Processing route
@@ -97,9 +94,7 @@ public class FhirR4RouteBuilder extends BaseRouteBuilder {
             logger.info("Sending message to recipientList {}", headerStr);
             exchange.getIn().setHeader("recipientList", headerStr);
         })
-        .recipientList(header("recipientList"))
-        .ignoreInvalidEndpoints()
-        .aggregationStrategy(new ExternalServerAggregationStrategy())
+        .toD("${header[recipientList]}")
         .id(EXTERNAL_FHIR_PRODUCER_ID);
     }
 }
