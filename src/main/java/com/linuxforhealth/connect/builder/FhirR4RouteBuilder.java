@@ -36,8 +36,8 @@ public class FhirR4RouteBuilder extends BaseRouteBuilder {
     public final static String EXTERNAL_FHIR_PRODUCER_ID = "lfh-external-fhir-producer";
     public final static String LFH_LOCATION_HEADER = "LFHMetadataLocation";
 
-    @PropertyInject("https://{{lfh.connect.external.host.ip}}:{{lfh.connect.kong.ssl.port:8443}}/datastore/message?topic=%s&partition=%s&offset=%s")
-    static String locationTemplate;
+    // LFHMetadataLocation response header string template
+    static final String locationTemplate = "/datastore/message?topic=%s&partition=%s&offset=%s";
 
     @Override
     protected String getRoutePropertyNamespace() {
