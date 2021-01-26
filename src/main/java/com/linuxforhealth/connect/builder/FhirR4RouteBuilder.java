@@ -9,17 +9,10 @@ import com.linuxforhealth.connect.processor.MetaDataProcessor;
 import com.linuxforhealth.connect.support.CamelContextSupport;
 import com.linuxforhealth.connect.support.ExternalServerAggregationStrategy;
 import org.apache.camel.Exchange;
-import org.apache.camel.PropertyInject;
-import org.apache.camel.component.kafka.KafkaConstants;
-import org.apache.kafka.clients.producer.RecordMetadata;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -34,10 +27,6 @@ public class FhirR4RouteBuilder extends BaseRouteBuilder {
     public final static String EXTERNAL_FHIR_ROUTE_URI = "direct:toExternalFhirServers";
     public final static String EXTERNAL_FHIR_ROUTE_ID = "external-fhir-servers";
     public final static String EXTERNAL_FHIR_PRODUCER_ID = "lfh-external-fhir-producer";
-    public final static String LFH_LOCATION_HEADER = "LFHMetadataLocation";
-
-    // LFHMetadataLocation response header string template
-    static final String locationTemplate = "/datastore/message?topic=%s&partition=%s&offset=%s";
 
     @Override
     protected String getRoutePropertyNamespace() {
@@ -57,24 +46,6 @@ public class FhirR4RouteBuilder extends BaseRouteBuilder {
             .process(new MetaDataProcessor(routePropertyNamespace))
             .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
             .id(ROUTE_PRODUCER_ID)
-            .process(exchange -> {
-                List<RecordMetadata> recordMetaList = exchange.getIn().getHeader(
-                        KafkaConstants.KAFKA_RECORDMETA,
-                        new ArrayList<RecordMetadata>(),
-                        ArrayList.class);
-
-                if (recordMetaList.size() <= 1) { // single RecordMetadata
-                    exchange.getIn().setHeader(LFH_LOCATION_HEADER,
-                            String.format(locationTemplate, recordMetaList.get(0).topic(),
-                                    recordMetaList.get(0).partition(), recordMetaList.get(0).offset()));
-                } else { // multiple RecordMetadata instances
-                    Set<String> recordMetaSet = new HashSet<String>();
-                    recordMetaList.forEach(recordMeta -> {
-                        recordMetaSet.add(String.format(locationTemplate, recordMeta.topic(), recordMeta.partition(), recordMeta.offset()));
-                    });
-                    exchange.getIn().setHeader(LFH_LOCATION_HEADER, String.join(",", recordMetaSet));
-                }
-            })
             .to(EXTERNAL_FHIR_ROUTE_URI);
 
         /*
