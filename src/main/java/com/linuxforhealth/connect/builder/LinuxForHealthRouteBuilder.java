@@ -87,19 +87,12 @@ public final class LinuxForHealthRouteBuilder extends RouteBuilder {
                     return;
                 }
 
-                if (recordMetadataList.size() <= 1) { // single RecordMetadata
-                    exchange.getIn().setHeader(LFH_LOCATION_HEADER,
-                            String.format(lfhLocationHeaderTemplate, recordMetadataList.get(0).topic(),
-                                    recordMetadataList.get(0).partition(), recordMetadataList.get(0).offset()));
-                } else { // multiple RecordMetadata instances
-                    Set<String> recordMetaSet = new HashSet<String>();
-                    recordMetadataList.forEach(recordMeta -> {
-                        recordMetaSet.add(String.format(lfhLocationHeaderTemplate,
-                                recordMeta.topic(), recordMeta.partition(), recordMeta.offset()));
-                    });
-                    exchange.getIn().setHeader(LFH_LOCATION_HEADER,
-                            String.join(",", recordMetaSet));
-                }
+                Set<String> lfhLocationHeaderSet = new HashSet<String>();
+                recordMetadataList.forEach(rm -> {
+                    lfhLocationHeaderSet.add(String.format(lfhLocationHeaderTemplate,
+                            rm.topic(), rm.partition(), rm.offset()));
+                });
+                exchange.getIn().setHeader(LFH_LOCATION_HEADER, String.join(",", lfhLocationHeaderSet));
             })
             .log(LoggingLevel.DEBUG, logger, "LFH location header: ${header[LFHMetadataLocation]}")
             .id(LOCATION_HEADER_PRODUCER_ID)
