@@ -114,7 +114,7 @@ public class LinuxForHealthStoreAndNotifyTest extends RouteTestSupport {
         recordMetadataList.add(recordMetadata);
 
         // Validate correctness of generated LFH location header
-        mockLocationHeaderResult.expectedHeaderReceived(FhirR4RouteBuilder.LFH_LOCATION_HEADER,
+        mockLocationHeaderResult.expectedHeaderReceived(LinuxForHealthRouteBuilder.LFH_LOCATION_HEADER,
                 "/datastore/message?topic=FHIR-R4_PATIENT&partition=0&offset=0");
         mockLocationHeaderResult.expectedMessageCount(1);
 
@@ -129,7 +129,7 @@ public class LinuxForHealthStoreAndNotifyTest extends RouteTestSupport {
     void testLocationResponseHeaderMissingRecordMetadata() throws Exception {
 
         // Make sure we do not get a valid LFH header in this instance, but the route call proceeds w/out error
-        mockLocationHeaderResult.expectedHeaderReceived(FhirR4RouteBuilder.LFH_LOCATION_HEADER, null);
+        mockLocationHeaderResult.expectedHeaderReceived(LinuxForHealthRouteBuilder.LFH_LOCATION_HEADER, null);
         mockLocationHeaderResult.expectedMessageCount(1);
 
         fluentTemplate.to("direct:location-header")
