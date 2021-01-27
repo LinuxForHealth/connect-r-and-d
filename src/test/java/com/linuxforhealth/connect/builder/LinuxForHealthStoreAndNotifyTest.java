@@ -8,10 +8,17 @@ package com.linuxforhealth.connect.builder;
 import com.linuxforhealth.connect.support.LFHKafkaConsumer;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.SimpleBuilder;
+import org.apache.camel.component.kafka.KafkaConstants;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.apache.kafka.clients.producer.RecordMetadata;
+import org.apache.kafka.common.TopicPartition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -19,8 +26,11 @@ import java.util.Properties;
  */
 public class LinuxForHealthStoreAndNotifyTest extends RouteTestSupport {
 
+    private final Logger logger = LoggerFactory.getLogger(LinuxForHealthStoreAndNotifyTest.class);
+
     private MockEndpoint mockDataStoreResult;
     private MockEndpoint mockMessagingResult;
+    private MockEndpoint mockLocationHeaderResult;
 
     /**
      * Provides properties to support mocking data and messaging components.
@@ -80,12 +90,55 @@ public class LinuxForHealthStoreAndNotifyTest extends RouteTestSupport {
     @Override
     protected void configureContext() throws Exception {
         context.getRegistry().bind("LFHKafkaConsumer", new LFHKafkaConsumer());
+
+        mockProducerEndpointById(
+                LinuxForHealthRouteBuilder.LOCATION_HEADER_ID,
+                LinuxForHealthRouteBuilder.LOCATION_HEADER_PRODUCER_ID,
+                "mock:result"
+        );
+
         super.configureContext();
         mockDataStoreResult = MockEndpoint.resolve(context, "mock:data-store");
         mockMessagingResult = MockEndpoint.resolve(context, "mock:messaging");
+        mockLocationHeaderResult = MockEndpoint.resolve(context, "mock:result");
     }
 
     @Test
+    void testLocationResponseHeader() throws Exception {
+
+        // List<RecordMetadata> exchange header
+        RecordMetadata recordMetadata =  new RecordMetadata(
+                new TopicPartition("FHIR-R4_PATIENT", 0), 0, 0,
+                    1591732928186L, 0L, 0, 0);
+        List<RecordMetadata> recordMetadataList = new ArrayList<>();
+        recordMetadataList.add(recordMetadata);
+
+        // Validate correctness of generated LFH location header
+        mockLocationHeaderResult.expectedHeaderReceived(LinuxForHealthRouteBuilder.LFH_LOCATION_HEADER,
+                "/datastore/message?topic=FHIR-R4_PATIENT&partition=0&offset=0");
+        mockLocationHeaderResult.expectedMessageCount(1);
+
+        fluentTemplate.to("direct:location-header")
+                .withHeader(KafkaConstants.KAFKA_RECORDMETA, recordMetadataList)
+                .send();
+
+        mockLocationHeaderResult.assertIsSatisfied();
+    }
+
+    @Test
+    void testLocationResponseHeaderMissingRecordMetadata() throws Exception {
+
+        // Make sure we do not get a valid LFH header in this instance, but the route call proceeds w/out error
+        mockLocationHeaderResult.expectedHeaderReceived(LinuxForHealthRouteBuilder.LFH_LOCATION_HEADER, null);
+        mockLocationHeaderResult.expectedMessageCount(1);
+
+        fluentTemplate.to("direct:location-header")
+                .send();
+
+        mockLocationHeaderResult.assertIsSatisfied();
+    }
+
+    //@Test
     void testStoreRoute() throws Exception {
         mockDataStoreResult.expectedMessageCount(1);
         mockMessagingResult.expectedMessageCount(1);
