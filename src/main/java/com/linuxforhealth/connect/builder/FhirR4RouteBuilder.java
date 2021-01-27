@@ -11,6 +11,8 @@ import org.apache.camel.Exchange;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.Base64;
+
 
 import java.util.Base64;
 
@@ -19,7 +21,7 @@ import java.util.Base64;
  */
 public class FhirR4RouteBuilder extends BaseRouteBuilder {
 
-     private final Logger logger = LoggerFactory.getLogger(FhirR4RouteBuilder.class);
+    private final Logger logger = LoggerFactory.getLogger(FhirR4RouteBuilder.class);
 
     public final static String ROUTE_ID = "fhir-r4";
     public final static String ROUTE_PRODUCER_ID = "fhir-r4-producer-store-and-notify";
