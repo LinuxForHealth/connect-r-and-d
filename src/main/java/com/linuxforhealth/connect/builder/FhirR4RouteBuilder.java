@@ -51,36 +51,28 @@ public class FhirR4RouteBuilder extends BaseRouteBuilder {
          * Use the Camel Recipient List EIP to optionally send data to one or more external fhir servers
          * when sending FHIR resources to LinuxForHealth.
          
-         * Set the lfh.connect.fhir-r4.externalservers property to a comma-delimited list of servers to 
+         * Set the lfh.connect.fhir-r4.externalserver property to a fhir server path to
          * enable this feature.  Example:
-         * lfh.connect.fhir-r4.externalservers=http://localhost:9081/fhir-server/api/v4,http://localhost:9083/fhir-server/api/v4
+         * lfh.connect.fhir-r4.externalserver=http://localhost:9081/fhir-server/api/v4
          *
-         * If lfh.connect.fhir-r4.externalservers does not exist or is not defined, no exception will be logged.
+         * If lfh.connect.fhir-r4.externalserver does not exist or is not defined, no exception will be logged.
          */ 
         from(EXTERNAL_FHIR_ROUTE_URI)
         .routeId(EXTERNAL_FHIR_ROUTE_ID)
         .choice()
-			.when(simple("${properties:lfh.connect.fhir-r4.externalservers:doesnotexist} == 'doesnotexist'"))
+			.when(simple("${properties:lfh.connect.fhir-r4.externalserver:doesnotexist} == 'doesnotexist'"))
 				.stop()
-            .when(simple("${properties:lfh.connect.fhir-r4.externalservers} == ''"))
+            .when(simple("${properties:lfh.connect.fhir-r4.externalserver} == ''"))
 				.stop()
         .end()
         .process(exchange -> {
-            String baseURIs = simple("{{lfh.connect.fhir-r4.externalservers}}").evaluate(exchange, String.class);
+            String baseURIs = simple("{{lfh.connect.fhir-r4.externalserver}}").evaluate(exchange, String.class);
             String resource = exchange.getIn().getHeader("resource", String.class);
             String[] uris = baseURIs.split(",");
             String headerStr = "";
 
             // Save off the existing result in a property
             exchange.setProperty("result", exchange.getIn().getBody(String.class));
-            
-            // Form the URIs for this resource type from the baseURIs
-            for (String uri : uris) {
-                if (!uri.endsWith("/")) uri += "/";
-                uri += resource;
-                if (!headerStr.equals("")) headerStr += ",";
-                headerStr += uri;
-            }
 
             // Decode the data and set as message body
             JSONObject msg = new JSONObject(exchange.getIn().getBody(String.class));
@@ -91,10 +83,8 @@ public class FhirR4RouteBuilder extends BaseRouteBuilder {
             exchange.getIn().removeHeaders("Camel*");
             exchange.getIn().setHeader(Exchange.HTTP_METHOD, "POST");
             exchange.getIn().setHeader("Prefer", "return=OperationOutcome");
-            logger.info("Sending message to recipientList {}", headerStr);
-            exchange.getIn().setHeader("recipientList", headerStr);
         })
-        .toD("${header[recipientList]}")
+        .toD("${properties:lfh.connect.fhir-r4.externalserver}/${header[resource]}")
         .id(EXTERNAL_FHIR_PRODUCER_ID);
     }
 }

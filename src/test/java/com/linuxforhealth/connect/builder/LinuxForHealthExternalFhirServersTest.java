@@ -33,7 +33,7 @@ public class LinuxForHealthExternalFhirServersTest extends RouteTestSupport {
         props.setProperty("lfh.connect.test.uri", "direct:test-notify");
         props.setProperty("lfh.connect.messaging.response.uri", "mock:messaging");
         props.setProperty("lfh.connect.datastore.remote-events.consumer.uri", "direct:remote-events");
-        props.setProperty("lfh.connect.fhir-r4.externalservers", "http://localhost:9081/fhir-server/api/v4");
+        props.setProperty("lfh.connect.fhir-r4.externalserver", "http://localhost:9081/fhir-server/api/v4");
         return props;
     }
 
@@ -85,7 +85,6 @@ public class LinuxForHealthExternalFhirServersTest extends RouteTestSupport {
         mockResult.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
         mockResult.expectedPropertyReceived("result", inputMessage);
         mockResult.expectedHeaderReceived("Prefer", "return=OperationOutcome");
-        mockResult.expectedHeaderReceived("recipientList", "http://localhost:9081/fhir-server/api/v4/Patient");
 
         fluentTemplate.to(FhirR4RouteBuilder.EXTERNAL_FHIR_ROUTE_URI)
             .withBody(inputMessage)
