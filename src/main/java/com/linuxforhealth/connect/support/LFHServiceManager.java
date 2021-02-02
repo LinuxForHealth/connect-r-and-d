@@ -46,6 +46,7 @@ public class LFHServiceManager {
         String truststorePwd = properties.getProperty("lfh.connect.ssl.truststore.password");
         String keystore = properties.getProperty("lfh.connect.ssl.keystore.filename");
         String keystorePwd = properties.getProperty("lfh.connect.ssl.keystore.password");
+        boolean isNATSSSLEnabled = properties.getProperty("lfh.connect.messaging.nats.ssl", "true").equalsIgnoreCase("true");
         long kafkaConsumerTimeout = Long.parseLong(properties.getProperty("lfh.connect.datastore.get.timeout.milliseconds"));
         producer = new LFHKafkaProducer();
         consumer = new LFHKafkaConsumer();
@@ -67,7 +68,7 @@ public class LFHServiceManager {
             producer.start(brokers);
             for (String host: hosts) {
                 NATSSubscriber subscriber = new NATSSubscriber(host, subject,
-                    createOptions(host, true, true), producer, properties);
+                    createOptions(host, true, isNATSSSLEnabled), producer, properties);
                 new Thread(subscriber).start();
             }
         } catch (Exception ex) {
