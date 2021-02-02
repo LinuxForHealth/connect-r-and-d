@@ -27,6 +27,8 @@
     <logger name="org.apache.camel" level="info" />
     <logger name="org.apache.camel.main" level="info" />
     <logger name="org.apache.camel.component" level="info" />
+    <logger name="org.apache.camel.component.http" level="debug" />
+    <logger name="org.apache.http" level="debug" />
     <logger name="org.apache.kafka.consumer" level="warn" />
     <logger name="org.apache.kafka.clients.producer" level="warn" />
     <logger name="org.apache.kafka.clients.consumer" level="warn" />
