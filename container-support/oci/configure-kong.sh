@@ -27,7 +27,7 @@ function add_http_route() {
 }
 
 if [ -z ${LFH_KONG_CONNECT_HOST} ]; then connect_host=${LFH_CONNECT_SERVICE_NAME}; else connect_host=${LFH_KONG_CONNECT_HOST}; fi
-if [ -z ${LFH_KONG_ORTHANC_HOST} ]; then connect_host=${LFH_ORTHANC_SERVICE_NAME}; else connect_host=${LFH_KONG_ORTHANC_HOST}; fi
+if [ -z ${LFH_KONG_ORTHANC_HOST} ]; then orthanc_host=${LFH_ORTHANC_SERVICE_NAME}; else orthanc_host=${LFH_KONG_ORTHANC_HOST}; fi
 
 echo "Adding a kong service for all LinuxForHealth http routes"
 curl $CURL_FLAGS https://localhost:8444/services \
