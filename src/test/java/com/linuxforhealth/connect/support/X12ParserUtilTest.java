@@ -40,6 +40,8 @@ public class X12ParserUtilTest {
         List<String> actualTransactions = x12ParserUtil.split(x12Data, "*", "~");
 
         Assertions.assertEquals(3, actualTransactions.size());
+        Assertions.assertEquals(expectedTransactions.get(0), actualTransactions.get(0));
+        Assertions.assertEquals(expectedTransactions.get(1), actualTransactions.get(1));
         Assertions.assertEquals(expectedTransactions.get(2), actualTransactions.get(2));
     }
 
