@@ -20,6 +20,9 @@ application {
 }
 
 configurations {
+    // excluding xerces transitive dependency which causes conflict with JDK/JRE
+    // https://bugs.java.com/bugdatabase/view_bug.do?bug_id=8016153
+    // https://bugs.java.com/bugdatabase/view_bug.do?bug_id=8015487
     runtime.exclude group: 'xerces', module: 'xercesImpl'
 }
 
