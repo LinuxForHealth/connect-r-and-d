@@ -19,6 +19,10 @@ application {
     mainClassName = 'com.linuxforhealth.connect.App'
 }
 
+configurations {
+    runtime.exclude group: 'xerces', module: 'xercesImpl'
+}
+
 dependencies {
     // camel libraries
     implementation group: 'org.apache.camel', name: 'camel-core', version: project.camelVersion
