@@ -12,15 +12,21 @@ import com.linuxforhealth.connect.support.TestUtils;
 import com.linuxforhealth.connect.support.etl.PractitionerCsvFormat;
 import com.linuxforhealth.connect.support.etl.PractitionerCsvTransform;
 
+import org.apache.camel.CamelContext;
+import org.apache.camel.CamelException;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
 
 /**
  * Tests {@link EtlRouteBuilder}
  */
+@TestInstance(Lifecycle.PER_CLASS)
 public class EtlRouteTest extends RouteTestSupport{
 
     private MockEndpoint mockError;
@@ -53,26 +59,29 @@ public class EtlRouteTest extends RouteTestSupport{
             };
     }
 
-    /**
-     * Configures mock endppoints for the ETLRoute and the supporting LinuxForHealthRoute error handling route.
-     * @throws Exception if an error occurs applying advice
-     */
-    @BeforeEach
     @Override
-    protected void configureContext() throws Exception {
+    protected CamelContext createCamelContext() throws Exception {
+        CamelContext context = super.createCamelContext();
         context.getRegistry().bind("LFHKafkaConsumer", new LFHKafkaConsumer());
         context.getRegistry().bind("practitionercsvformat", new PractitionerCsvFormat());
         context.getRegistry().bind("practitionercsvtransform", new PractitionerCsvTransform());
+        return context;
+    }
 
-        mockError = mockProducerEndpointById(LinuxForHealthRouteBuilder.ERROR_ROUTE_ID,
-                                            LinuxForHealthRouteBuilder.ERROR_PRODUCER_ID,
-                                            "mock:error");
+    @Override
+    public void beforeTestExecution(ExtensionContext context) throws Exception {
+        super.beforeTestExecution(context);
+        if (mockError == null) {
+            mockError = mockProducerEndpointById(LinuxForHealthRouteBuilder.ERROR_ROUTE_ID,
+                LinuxForHealthRouteBuilder.ERROR_PRODUCER_ID,
+                "mock:error");
+        }
 
-        mockPersist = mockProducerEndpointById(EtlRouteBuilder.ROUTE_ID,
-                            EtlRouteBuilder.DATA_PERSIST_PRODUCER_ID,
-                            "mock:dataPersist");
-
-        super.configureContext();
+        if (mockPersist == null) {
+            mockPersist = mockProducerEndpointById(EtlRouteBuilder.ROUTE_ID,
+                EtlRouteBuilder.DATA_PERSIST_PRODUCER_ID,
+                "mock:dataPersist");
+        }
     }
 
     /**
