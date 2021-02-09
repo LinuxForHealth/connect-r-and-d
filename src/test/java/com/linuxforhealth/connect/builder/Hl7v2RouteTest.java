@@ -25,7 +25,7 @@ import java.util.UUID;
  */
 public class Hl7v2RouteTest extends RouteTestSupport {
 
-    private MockEndpoint mockResult;
+    private MockEndpoint mockStoreAndNotify;
 
     @Override
     protected RoutesBuilder createRouteBuilder() throws Exception {
@@ -45,15 +45,11 @@ public class Hl7v2RouteTest extends RouteTestSupport {
         context.getRegistry().bind("hl7encoder", hl7encoder);
         context.getRegistry().bind("hl7decoder", hl7decoder);
 
-        mockProducerEndpointById(
-                Hl7v2RouteBuilder.ROUTE_ID,
-                Hl7v2RouteBuilder.ROUTE_PRODUCER_ID,
-                "mock:result"
-        );
+        mockStoreAndNotify = mockProducerEndpoint(Hl7v2RouteBuilder.ROUTE_ID,
+                             LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI,
+                             "mock:storeAndNotify");
 
         super.configureContext();
-
-        mockResult = MockEndpoint.resolve(context, "mock:result");
     }
 
     @Test
@@ -65,23 +61,24 @@ public class Hl7v2RouteTest extends RouteTestSupport {
 
         String expectedMessage = Base64.getEncoder().encodeToString(testMessage.getBytes(StandardCharsets.UTF_8));
 
-        mockResult.expectedMessageCount(1);
+        mockStoreAndNotify.expectedMessageCount(1);
         // the camel hl7 data format removes trailing delimiters from segments and fields
         // test files do not include trailing delimiters to simplify test assertions
         // the data format will include a terminating carriage return, \r, which is translated above from a new line \n
-        mockResult.expectedBodiesReceived(expectedMessage);
-        mockResult.expectedPropertyReceived("dataStoreUri", "kafka:HL7-V2_ADT?brokers=localhost:9094");
-        mockResult.expectedPropertyReceived("dataFormat", "HL7-V2");
-        mockResult.expectedPropertyReceived("messageType", "ADT");
-        mockResult.expectedPropertyReceived("routeId", "hl7-v2");
+        mockStoreAndNotify.expectedBodiesReceived(expectedMessage);
+        mockStoreAndNotify
+            .expectedPropertyReceived("dataStoreUri", "kafka:HL7-V2_ADT?brokers=localhost:9094");
+        mockStoreAndNotify.expectedPropertyReceived("dataFormat", "HL7-V2");
+        mockStoreAndNotify.expectedPropertyReceived("messageType", "ADT");
+        mockStoreAndNotify.expectedPropertyReceived("routeId", "hl7-v2");
 
         fluentTemplate.to("netty:tcp://localhost:2576?sync=true&encoders=#hl7encoder&decoders=#hl7decoder")
                 .withBody(testMessage)
                 .send();
 
-        mockResult.assertIsSatisfied();
+        mockStoreAndNotify.assertIsSatisfied();
 
-        Exchange mockExchange = mockResult.getExchanges().get(0);
+        Exchange mockExchange = mockStoreAndNotify.getExchanges().get(0);
         String expectedRouteUri = "netty://tcp://0.0.0.0:2576?sync=true&encoders=#hl7encoder&decoders=#hl7decoder";
         String actualRouteUri = mockExchange.getProperty("routeUri", String.class);
         LinuxForHealthAssertions.assertEndpointUriSame(expectedRouteUri, actualRouteUri);

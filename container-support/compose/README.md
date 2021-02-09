@@ -27,6 +27,7 @@ docker-compose down -v
 ## Supported Profiles
 | Profile Name | Profile Description |
 | :--- | :--- |
-| dev | For local development use. Runs LFH supporting services with port mappings. |
-| server | For deployment environments or integrated testing. Includes the LFH connect application and supporting services. |
+| dev | For local development use where LFH connect is running locally outside of a container. |
+| integration | For local testing. Includes LFH connect and external services for end-to-end testing. | 
+| server | For deployment environments. Includes the LFH connect application and supporting services. |
 | pi | Similar to the server stack. Optimized for arm64/Raspberry Pi usage. |

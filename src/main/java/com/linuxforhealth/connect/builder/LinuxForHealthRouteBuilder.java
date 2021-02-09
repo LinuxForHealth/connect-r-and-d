@@ -15,9 +15,11 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Defines the LinuxForHealth "internal" routes for data storage, notification, and error handling
@@ -28,7 +30,9 @@ public final class LinuxForHealthRouteBuilder extends RouteBuilder {
     public final static String STORE_CONSUMER_URI = "direct:store";
     public final static String NOTIFY_CONSUMER_URI = "direct:notify";
     public final static String ERROR_CONSUMER_URI = "direct:error";
-
+    public final static String LOCATION_HEADER_URI = "direct:location-header";
+    public final static String LOCATION_HEADER_ID = "location-header";
+    public final static String LOCATION_HEADER_PRODUCER_ID = "location-header-producer";
     public final static String STORE_AND_NOTIFY_ROUTE_ID = "store-and-notify";
     public final static String STORE_ROUTE_ID = "lfh-store";
     public final static String STORE_PRODUCER_ID = "lfh-store-producer";
@@ -39,9 +43,13 @@ public final class LinuxForHealthRouteBuilder extends RouteBuilder {
     public final static String REMOTE_EVENTS_ROUTE_ID = "lfh-remote-events";
     public final static String REMOTE_EVENTS_PRODUCER_ID = "lfh-remote-events-producer";
     public final static String GET_MESSAGE_ROUTE_ID = "lfh-get-message";
+    public final static String LFH_LOCATION_HEADER = "LFHMetadataLocation";
 
     private final Logger logger = LoggerFactory.getLogger(LinuxForHealthRouteBuilder.class);
     private LFHKafkaConsumer consumer;
+
+    // LFHMetadataLocation response header string template
+    public static final String lfhLocationHeaderTemplate = "/datastore/message?topic=%s&partition=%s&offset=%s";
 
     @Override
     public void configure() {
@@ -60,7 +68,35 @@ public final class LinuxForHealthRouteBuilder extends RouteBuilder {
             exchange.getIn().setBody(msg.toString());
         })
         .toD("${exchangeProperty[dataStoreUri]}")
-        .id(STORE_PRODUCER_ID);
+        .id(STORE_PRODUCER_ID)
+        .to(LOCATION_HEADER_URI)
+        ;
+
+        // Retrieve Kafka RecordMetadata object from header and generate LFH location response header
+        from(LOCATION_HEADER_URI)
+            .routeId(LOCATION_HEADER_ID)
+            .process(exchange -> {
+                List<RecordMetadata> recordMetadataList = exchange.getIn().getHeader(
+                    KafkaConstants.KAFKA_RECORDMETA,
+                    new ArrayList<RecordMetadata>(),
+                    ArrayList.class);
+
+                // Handle scenario where List<RecordMetadata> is unavailable
+                if (recordMetadataList == null || recordMetadataList.size() == 0) {
+                    logger.debug("List<RecordMetadata> not available, skipping lfh location response header");
+                    return;
+                }
+
+                Set<String> lfhLocationHeaderSet = new HashSet<String>();
+                recordMetadataList.forEach(rm -> {
+                    lfhLocationHeaderSet.add(String.format(lfhLocationHeaderTemplate,
+                            rm.topic(), rm.partition(), rm.offset()));
+                });
+                exchange.getIn().setHeader(LFH_LOCATION_HEADER, String.join(",", lfhLocationHeaderSet));
+            })
+            .log(LoggingLevel.DEBUG, logger, "LFH location header: ${header[LFHMetadataLocation]}")
+            .id(LOCATION_HEADER_PRODUCER_ID)
+        ;
 
         // Send a notification message based on the data storage results
         from(NOTIFY_CONSUMER_URI)
@@ -75,7 +111,7 @@ public final class LinuxForHealthRouteBuilder extends RouteBuilder {
             if(jsonMsg.has("data")) msg.setData(jsonMsg.getString("data"));
             exchange.getIn().setBody(msg.toString());
         })
-        .to("{{lfh.connect.messaging.uri}}")
+        .to("{{lfh.connect.messaging.response.uri}}")
         .id(NOTIFY_PRODUCER_ID);
 
         // Send an error notification message
@@ -88,7 +124,7 @@ public final class LinuxForHealthRouteBuilder extends RouteBuilder {
             exchange.getIn().setBody(msg.toString());
         })
         .log(LoggingLevel.ERROR, logger, exceptionMessage().toString())
-        .to("{{lfh.connect.messaging.uri}}")
+        .to("{{lfh.connect.messaging.error.uri}}")
         .id(ERROR_PRODUCER_ID);
 
         // Consume message from kafka lfh-remote-events topic and store in correct kafka topic

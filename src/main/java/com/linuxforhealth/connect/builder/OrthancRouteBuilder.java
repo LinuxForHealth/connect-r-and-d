@@ -7,15 +7,12 @@ package com.linuxforhealth.connect.builder;
 
 import com.linuxforhealth.connect.processor.LinuxForHealthMessage;
 import com.linuxforhealth.connect.processor.MetaDataProcessor;
-import com.linuxforhealth.connect.support.CamelContextSupport;
-import com.linuxforhealth.connect.support.LFHKafkaConsumer;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
-import java.util.List;
 import org.apache.camel.Exchange;
+import org.apache.camel.builder.SimpleBuilder;
 import org.apache.camel.component.kafka.KafkaConstants;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.json.JSONObject;
@@ -44,9 +41,6 @@ public class OrthancRouteBuilder extends BaseRouteBuilder {
 
     @Override
     protected void buildRoute(String routePropertyNamespace) {
-        CamelContextSupport contextSupport = new CamelContextSupport(getContext());
-        String orthancServerUri = contextSupport.getProperty("lfh.connect.orthanc_server.uri");
-        String orthancExternalUri = contextSupport.getProperty("lfh.connect.orthanc_server.external.uri");
 
        /**
         * Stores a DICOM image in Orthanc, converts it to .png and gets patient info for the image.
@@ -69,15 +63,19 @@ public class OrthancRouteBuilder extends BaseRouteBuilder {
         .marshal().mimeMultipart()
         .removeHeaders("Camel*")
         .removeHeaders("Host")
-        .to(orthancServerUri)
+        .to("{{lfh.connect.orthanc.server.uri}}")
         .id(ORTHANC_PRODUCER_POST_ID)
         .process(exchange -> {
+            String orthancServerUri = SimpleBuilder
+                .simple("${properties:lfh.connect.orthanc.server.uri}")
+                .evaluate(exchange, String.class);
+
             // Get the resulting image id & create uri for downstream image retrieval
             String body = exchange.getIn().getBody(String.class);
             JSONObject obj = new JSONObject(body);
             String id = obj.getString("ID");
             exchange.setProperty("imageId", id);
-            exchange.setProperty("dataUri", orthancExternalUri+"/"+id+"/preview");
+            exchange.setProperty("dataUri", "/instances/"+id+"/preview");
 
             // Set up for next call to get the .png image
             exchange.setProperty("location", orthancServerUri+"/"+id+"/preview");
@@ -88,6 +86,10 @@ public class OrthancRouteBuilder extends BaseRouteBuilder {
         .toD("${exchangeProperty[location]}")
         .id(ORTHANC_PRODUCER_GET_IMAGE_ID)
         .process(exchange -> {
+            String orthancServerUri = SimpleBuilder
+                .simple("${properties:lfh.connect.orthanc.server.uri}")
+                .evaluate(exchange, String.class);
+
             // Get the resulting image bytes
             byte[] body = exchange.getIn().getBody(byte[].class);
             exchange.setProperty("imageBody", Base64.getEncoder().encodeToString(body));

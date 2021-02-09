@@ -3,6 +3,8 @@ version: "3.7"
 services:
   kong-migration:
     image: ${LFH_KONG_IMAGE}
+    networks:
+      - main
     depends_on:
       - postgres
     environment:

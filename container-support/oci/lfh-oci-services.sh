@@ -125,8 +125,42 @@ function start() {
                 --network "${LFH_NETWORK_NAME}" \
                 --name "${LFH_NATS_SERVICE_NAME}" \
                 -p "${LFH_NATS_CLIENT_PORT}":"${LFH_NATS_CLIENT_PORT}" \
-                "${LFH_NATS_IMAGE}"
+                -v "$PWD/../certs:/certs" \
+                "${LFH_NATS_IMAGE}" \
+                server --tls \
+                --tlscert=/certs/nats-server.crt \
+                --tlskey=/certs/nats-server.key \
+                --tlscacert=/certs/rootCA.crt
   is_ready localhost "${LFH_NATS_CLIENT_PORT}"
+  echo "create NATS JetStream stream"
+  wait_for_cmd docker exec -it "${LFH_NATS_SERVICE_NAME}" \
+                nats --server="${LFH_NATS_SERVICE_NAME}":"${LFH_NATS_CLIENT_PORT}" \
+                --tlscert=../certs/server.crt \
+                --tlskey=../certs/server.key \
+                --tlsca=../certs/rootCA.crt \
+                str add EVENTS \
+                --subjects EVENTS.* \
+                --ack \
+                --max-msgs=-1 \
+                --max-bytes=-1 \
+                --max-age=1y \
+                --storage file \
+                --retention limits \
+                --max-msg-size=-1 \
+                --discard old \
+                --dupe-window=10s > /dev/null
+  echo "create NATS JetStream consumer"
+  docker exec -it "${LFH_NATS_SERVICE_NAME}" \
+                nats --server="${LFH_NATS_SERVICE_NAME}":"${LFH_NATS_CLIENT_PORT}" \
+                --tlscert=../certs/server.crt \
+                --tlskey=../certs/server.key \
+                --tlsca=../certs/rootCA.crt \
+                con add EVENTS SUBSCRIBER \
+                --ack none \
+                --target lfh-events \
+                --deliver last \
+                --replay instant \
+                --filter '' > /dev/null
 
   echo "launch zookeeper container"
   ${OCI_COMMAND} pull "${LFH_ZOOKEEPER_IMAGE}"
@@ -166,7 +200,8 @@ function start() {
                 --network "${LFH_NETWORK_NAME}" \
                 --name "${LFH_CONNECT_SERVICE_NAME}" \
                 --env LFH_CONNECT_DATASTORE_URI="kafka:<topicName>?brokers=kafka:9092" \
-                --env LFH_CONNECT_MESSAGING_URI="nats:lfh-events?servers=nats-server:4222" \
+                --env LFH_CONNECT_MESSAGING_RESPONSE_URI="nats:EVENTS.responses?servers=nats-server:4222&secure=true&sslContextParameters=#sslContextParameters" \
+                --env LFH_CONNECT_MESSAGING_ERROR_URI="nats:EVENTS.errors?servers=nats-server:4222&secure=true&sslContextParameters=#sslContextParameters" \
                 --env LFH_CONNECT_MESSAGING_SUBSCRIBE_HOSTS="nats-server:4222" \
                 --env LFH_CONNECT_ORTHANC_SERVER_URI="http://orthanc:8042/instances" \
                 --env LFH_CONNECT_DATASTORE_BROKERS="kafka:9092" \
@@ -200,7 +235,8 @@ function start() {
                 --env KONG_PG_PASSWORD="${LFH_PG_PASSWORD}" \
                 "${LFH_KONG_IMAGE}" \
                 kong migrations bootstrap -v
-  wait_for_log_msg ${LFH_KONG_MIGRATION_SERVICE_NAME} "Database is up-to-date"
+  { wait_for_log_msg ${LFH_KONG_MIGRATION_SERVICE_NAME} "Database is up-to-date"; } || \
+  { wait_for_log_msg ${LFH_KONG_MIGRATION_SERVICE_NAME} "Database already bootstrapped"; }
 
   echo "launch kong"
   ${OCI_COMMAND} pull "${LFH_KONG_IMAGE}"
@@ -237,6 +273,8 @@ function remove() {
   ${OCI_COMMAND} rm -f ${LFH_PG_SERVICE_NAME}
   ${OCI_COMMAND} rm -f ${LFH_KONG_SERVICE_NAME}
   ${OCI_COMMAND} rm -f ${LFH_KONG_MIGRATION_SERVICE_NAME}
+
+  ${OCI_COMMAND} volume rm pg_data
 
   ${OCI_COMMAND} network rm ${LFH_NETWORK_NAME}
 }
