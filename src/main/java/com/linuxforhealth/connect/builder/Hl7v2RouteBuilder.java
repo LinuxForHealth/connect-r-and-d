@@ -44,7 +44,8 @@ public class Hl7v2RouteBuilder extends BaseRouteBuilder {
                 .unmarshal().hl7()
                 .process(new MetaDataProcessor(routePropertyNamespace))
                 .multicast()
-                .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI, "direct:"+NAACCR_ROUTE_ID)
+        .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI, "direct:" + NAACCR_ROUTE_ID,
+            "direct:" + HL7_FHIR_ROUTE_ID)
                 .id(ROUTE_PRODUCER_ID);
 
         //Route for HTTP origin
