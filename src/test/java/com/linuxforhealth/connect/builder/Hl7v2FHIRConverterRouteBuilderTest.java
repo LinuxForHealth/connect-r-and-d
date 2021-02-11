@@ -6,7 +6,6 @@
 package com.linuxforhealth.connect.builder;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Properties;
@@ -14,7 +13,6 @@ import org.apache.camel.RoutesBuilder;
 import org.apache.camel.component.hl7.HL7MLLPNettyDecoderFactory;
 import org.apache.camel.component.hl7.HL7MLLPNettyEncoderFactory;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.thymeleaf.util.StringUtils;
@@ -28,6 +26,8 @@ public class Hl7v2FHIRConverterRouteBuilderTest extends RouteTestSupport {
 
   private MockEndpoint mockFHIREndpoint;
   private MockEndpoint mockStoreAndNotify;
+
+
   Properties props = null;
 
   @Override
@@ -61,13 +61,8 @@ public class Hl7v2FHIRConverterRouteBuilderTest extends RouteTestSupport {
   @Override
   protected Properties useOverridePropertiesWithPropertiesComponent() {
 
+    props = super.useOverridePropertiesWithPropertiesComponent();
 
-    try {
-      props = TestUtils.loadProperties("application.properties");
-
-    } catch (IOException ex) {
-      Assertions.fail(ex);
-    }
     return props;
 
   }
@@ -80,13 +75,12 @@ public class Hl7v2FHIRConverterRouteBuilderTest extends RouteTestSupport {
         .convertTo(String.class, TestUtils.getMessage("hl7", "ADT_A01.txt"))
         .replace(System.lineSeparator(), "\r");
 
-    String expectedHl7Message =
-        Base64.getEncoder().encodeToString(testMessage.getBytes(StandardCharsets.UTF_8));
 
-    mockStoreAndNotify.expectedMessageCount(1);
+    mockStoreAndNotify.expectedMessageCount(2);
     mockFHIREndpoint.expectedMessageCount(1);
-    mockStoreAndNotify.expectedBodiesReceived(expectedHl7Message);
-
+    mockStoreAndNotify.expectedPropertyReceived("dataFormat", "HL7-V2");
+    mockStoreAndNotify.expectedPropertyReceived("messageType", "ADT");
+    mockStoreAndNotify.expectedPropertyReceived("routeId", "hl7-v2");
     fluentTemplate
         .to("netty:tcp://localhost:2576?sync=true&encoders=#hl7encoder&decoders=#hl7decoder")
         .withBody(testMessage).send();
@@ -95,11 +89,21 @@ public class Hl7v2FHIRConverterRouteBuilderTest extends RouteTestSupport {
     String actualJson = mockFHIREndpoint.getExchanges().get(0).getIn().getBody(String.class);
     assertTrue(StringUtils.contains(actualJson, "\"resourceType\":\"Bundle\""),
         "Output not expected");
-    assertMockEndpointsSatisfied(); // Verifies if input is equal to output
+
+    assertTrue(!mockStoreAndNotify.getExchanges().isEmpty(),
+        "mockStoreAndNotify should not be empty");
+    String fhirResource = mockStoreAndNotify.getExchanges().get(1).getIn().getBody(String.class);
+    assertTrue(StringUtils.contains(fhirResource, "\"resourceType\":\"Bundle\""),
+        "Output not expected");
+
+    assertMockEndpointsSatisfied();
 
 
 
   }
+
+
+
 
   @Test
   void test_hl7_fhir_convert_Route_not_enabled() throws Exception {

@@ -54,7 +54,8 @@ public class Hl7v2RouteBuilder extends BaseRouteBuilder {
                 .unmarshal().hl7()
                 .process(new MetaDataProcessor(routePropertyNamespace))
                 .multicast()
-                .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI, "direct:"+NAACCR_ROUTE_ID)
+        .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI, "direct:" + NAACCR_ROUTE_ID,
+            "direct:" + HL7_FHIR_ROUTE_ID)
                 .id(HTTP_ROUTE_ID);
 
         //Route for NAACCR HL7 Subprotocol for Electronic Pathology Reports
@@ -71,15 +72,16 @@ public class Hl7v2RouteBuilder extends BaseRouteBuilder {
                 .end();
 
     // Route for HL7 to FHIR conversion
-
-    from("direct:" + HL7_FHIR_ROUTE_ID)//
-        .routeId(HL7_FHIR_ROUTE_ID)//
-        .choice()//
+    from("direct:" + HL7_FHIR_ROUTE_ID)
+        .routeId(HL7_FHIR_ROUTE_ID)
+        .choice()
         .when(simple("${properties:lfh.connect.hl7-v2.convertToFhir:false} == 'true'"))
-        .bean(FHIRConverter.class, "convert")//
-        .to(FhirR4RouteBuilder.EXTERNAL_FHIR_ROUTE_URI).id(HL7_FHIR_PRODUCER_ID)//
-        .otherwise()//
-        .log(LoggingLevel.INFO, LOGGER, "No FHIR conversion required")//
+        .bean(FHIRConverter.class, "convert")
+        .multicast()
+        .to(FhirR4RouteBuilder.EXTERNAL_FHIR_ROUTE_URI, LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI).id(HL7_FHIR_PRODUCER_ID)
+        .endChoice()
+        .otherwise()
+        .log(LoggingLevel.INFO, LOGGER, "No FHIR conversion required")
         .end();
 
 
