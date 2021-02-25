@@ -5,7 +5,7 @@
  */
 package com.linuxforhealth.connect.builder;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Assertions;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Properties;
@@ -26,6 +26,7 @@ public class Hl7v2FHIRConverterRouteBuilderTest extends RouteTestSupport {
 
   private MockEndpoint mockFHIREndpoint;
   private MockEndpoint mockStoreAndNotify;
+  private MockEndpoint mockErrorEndpoint;
 
 
   Properties props = null;
@@ -54,6 +55,9 @@ public class Hl7v2FHIRConverterRouteBuilderTest extends RouteTestSupport {
         FhirR4RouteBuilder.EXTERNAL_FHIR_ROUTE_URI, "mock:toExternalFhirServers");
     mockStoreAndNotify = mockProducerEndpoint(Hl7v2RouteBuilder.ROUTE_ID,
         LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI, "mock:storeAndNotify");
+    mockErrorEndpoint = mockProducerEndpoint(Hl7v2RouteBuilder.ROUTE_ID,
+        LinuxForHealthRouteBuilder.ERROR_CONSUMER_URI, "mock:error");
+
     super.configureContext();
   }
 
@@ -85,15 +89,15 @@ public class Hl7v2FHIRConverterRouteBuilderTest extends RouteTestSupport {
         .to("netty:tcp://localhost:2576?sync=true&encoders=#hl7encoder&decoders=#hl7decoder")
         .withBody(testMessage).send();
 
-    assertTrue(!mockFHIREndpoint.getExchanges().isEmpty(), "mockFHIREndpoint should not be empty");
-    String actualJson = mockFHIREndpoint.getExchanges().get(0).getIn().getBody(String.class);
-    assertTrue(StringUtils.contains(actualJson, "\"resourceType\":\"Bundle\""),
+    Assertions.assertFalse(mockFHIREndpoint.getExchanges().isEmpty(), "mockFHIREndpoint should not be empty");
+    String actualJson = (mockFHIREndpoint.getExchanges().get(0).getIn().getBody(String.class));
+    Assertions.assertTrue(StringUtils.contains(actualJson, "\"resourceType\":\"Bundle\""),
         "Output not expected");
 
-    assertTrue(!mockStoreAndNotify.getExchanges().isEmpty(),
+    Assertions.assertFalse(mockStoreAndNotify.getExchanges().isEmpty(),
         "mockStoreAndNotify should not be empty");
     String fhirResource = mockStoreAndNotify.getExchanges().get(1).getIn().getBody(String.class);
-    assertTrue(StringUtils.contains(fhirResource, "\"resourceType\":\"Bundle\""),
+    Assertions.assertTrue(StringUtils.contains(fhirResource, "\"resourceType\":\"Bundle\""),
         "Output not expected");
 
     assertMockEndpointsSatisfied();
@@ -123,7 +127,7 @@ public class Hl7v2FHIRConverterRouteBuilderTest extends RouteTestSupport {
         .to("netty:tcp://localhost:2576?sync=true&encoders=#hl7encoder&decoders=#hl7decoder")
         .withBody(testMessage).send();
 
-    assertTrue(mockFHIREndpoint.getExchanges().isEmpty(), "mockFHIREndpoint should  be empty");
+    Assertions.assertTrue(mockFHIREndpoint.getExchanges().isEmpty(), "mockFHIREndpoint should  be empty");
 
     assertMockEndpointsSatisfied(); // Verifies if input is equal to output
 
@@ -156,7 +160,7 @@ public class Hl7v2FHIRConverterRouteBuilderTest extends RouteTestSupport {
         .to("netty:tcp://localhost:2576?sync=true&encoders=#hl7encoder&decoders=#hl7decoder")
         .withBody(testMessage).send();
 
-    assertTrue(mockFHIREndpoint.getExchanges().isEmpty(), "mockFHIREndpoint should  be empty");
+    Assertions.assertTrue(mockFHIREndpoint.getExchanges().isEmpty(), "mockFHIREndpoint should  be empty");
 
     assertMockEndpointsSatisfied(); // Verifies if input is equal to output
 
