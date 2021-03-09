@@ -41,8 +41,8 @@ public class CareKitRouteBuilder extends BaseRouteBuilder {
         .setHeader(Exchange.HTTP_METHOD, constant("POST"))
         .setHeader(Exchange.CONTENT_TYPE, constant(ContentType.APPLICATION_JSON))
         .process(exchange -> {
-          JSONObject json = new JSONObject();
-          json.put("x12", exchange.getProperty(ORIGINAL_MESSAGE_PROPERTY, String.class));
+          String careKitMessage = exchange.getProperty(ORIGINAL_MESSAGE_PROPERTY, String.class);
+          JSONObject json = new JSONObject(careKitMessage);
           exchange.getIn().setBody(json.toString());
         })
         .to("{{lfh.connect.carekit.external.uri}}");
