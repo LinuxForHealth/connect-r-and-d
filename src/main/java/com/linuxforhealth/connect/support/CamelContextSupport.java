@@ -28,6 +28,27 @@ public class CamelContextSupport {
                 .resolveProperty(propertyName)
                 .orElseThrow(() -> new RuntimeException("property " + propertyName + " not found"));
     }
+    
+    /**
+     * Returns a component/bean from the Camel Registry.
+     * @param componentName The component name
+     * @param componentType The component type
+     * @return The component instance
+     */
+    public <T> T getComponent(String componentName, Class<T> componentType) {
+        return context.getRegistry()
+                .lookupByNameAndType(componentName, componentType);
+    }
+
+    /**
+     * Returns a component/bean from the Camel Registry.
+     * @param componentName The component name
+     * @return The component as an Object
+     */
+    public Object getComponent(String componentName) {
+        return context.getRegistry()
+                .lookupByName(componentName);
+    }
 
     public CamelContextSupport(CamelContext context) {
         this.context = context;

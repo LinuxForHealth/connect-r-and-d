@@ -11,16 +11,22 @@ services:
   postgres:
     image: ${LFH_PG_IMAGE}
     restart: "always"
+    networks:
+      - main
     environment:
       PGDATA: ${LFH_PG_DATA}
       POSTGRES_USER: ${LFH_PG_USER}
       POSTGRES_PASSWORD: ${LFH_PG_PASSWORD}
       POSTGRES_DB: ${LFH_KONG_DATABASE}
+    ports:
+      - ${LFH_PG_SERVER_PORT}:${LFH_PG_SERVER_PORT}
     volumes:
       - pg_data:${LFH_PG_DATA}
   kong:
     image: ${LFH_KONG_IMAGE}
     restart: always
+    networks:
+      - main
     depends_on:
       - postgres
     ports:

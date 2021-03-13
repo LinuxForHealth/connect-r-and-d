@@ -9,8 +9,11 @@ import com.linuxforhealth.connect.processor.MetaDataProcessor;
 import com.linuxforhealth.connect.support.CamelContextSupport;
 import com.linuxforhealth.connect.support.LFHMultiResultStrategy;
 import com.linuxforhealth.connect.support.X12ParserUtil;
+import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.model.dataformat.JsonLibrary;
+import org.apache.http.entity.ContentType;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +36,7 @@ public class X12RouteBuilder extends BaseRouteBuilder {
     public static final String X12_TRANSACTION_ROUTE_ID = "x12-transaction";
     public static final String PROCESS_X12_TRANSACTION_URI = "direct:x12-transaction";
     public static final String METADATA_PROCESSOR_ID = "metadata-processor";
+    private final static String ORIGINAL_MESSAGE_PROPERTY = "originalMessage";
 
     // x12 constants
     public static final int ISA_SEGMENT_LENGTH = 106;
@@ -48,7 +52,7 @@ public class X12RouteBuilder extends BaseRouteBuilder {
 
     /**
      * Accepts incoming X12 POST requests. Transactions are split and processed in parallel.
-     *
+     * Transactions are sent via HTTP/REST to the location specified by lfh.connect.x12.external.uri
      * @param routePropertyNamespace The property namespace for the route.
      */
     @Override
@@ -87,9 +91,21 @@ public class X12RouteBuilder extends BaseRouteBuilder {
         .setHeader("X12MessageType", bean(X12ParserUtil.class,
                 "getX12MessageType(${body}, ${exchangeProperty.fieldDelimiter}, ${exchangeProperty.lineSeparator})"))
         .log(LoggingLevel.DEBUG, logger, "Processing X12 Transaction ${header.X12MessageType}")
+        .setProperty(ORIGINAL_MESSAGE_PROPERTY, simple("${body}"))
         .process(new MetaDataProcessor(routePropertyNamespace))
         .id(METADATA_PROCESSOR_ID)
-        .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI);
-    }
+        .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
+        .removeHeaders("*")
+        .setHeader("Accept", constant("application/json"))
+        .setHeader(Exchange.HTTP_METHOD, constant("POST"))
+        .setHeader(Exchange.CONTENT_TYPE, constant(ContentType.APPLICATION_JSON))
+        .process(exchange -> {
+            JSONObject json = new JSONObject();
+            json.put("x12",
+                exchange.getProperty(ORIGINAL_MESSAGE_PROPERTY, String.class));
 
+            exchange.getIn().setBody(json.toString());
+        })
+        .to("{{lfh.connect.x12.external.uri}}");
+    }
 }

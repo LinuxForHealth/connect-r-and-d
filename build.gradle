@@ -13,10 +13,21 @@ repositories {
     maven {
         url "https://oss.sonatype.org/content/repositories/snapshots/"
     }
+    jcenter()
+    maven {
+     url "https://dl.bintray.com/ibm-watson-health/ibm-fhir-server-releases"
+     }
 }
 
 application {
     mainClassName = 'com.linuxforhealth.connect.App'
+}
+
+configurations {
+    // excluding xerces transitive dependency which causes conflict with JDK/JRE
+    // https://bugs.java.com/bugdatabase/view_bug.do?bug_id=8016153
+    // https://bugs.java.com/bugdatabase/view_bug.do?bug_id=8015487
+    runtime.exclude group: 'xerces', module: 'xercesImpl'
 }
 
 dependencies {
@@ -36,10 +47,15 @@ dependencies {
     implementation group: 'org.apache.camel', name: 'camel-nats', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-rest', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-support', version: project.camelVersion
+    implementation group: 'org.apache.camel', name: 'camel-jdbc', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-xpath', version: project.camelVersion
+    implementation group: 'org.apache.camel', name: 'camel-base64', version: project.camelVersion
+    implementation group: 'org.apache.camel', name: 'camel-tika', version: project.camelVersion
+    implementation group: 'org.apache.camel', name: 'camel-bindy', version: project.camelVersion
 
     // Java utils (OS type)
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: project.commonsLang3Version
+    implementation group: 'org.apache.commons', name: 'commons-dbcp2', version: project.commonsDbcp2Version
 
     // data format support
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: project.jacksonVersion
@@ -71,12 +87,18 @@ dependencies {
     implementation group: 'ca.uhn.hapi.fhir', name: 'hapi-fhir-client', version: project.hapiFhirVersion
     implementation group: 'ca.uhn.hapi.fhir', name: 'hapi-fhir-structures-dstu3', version: project.hapiFhirVersion
     implementation group: 'ca.uhn.hapi.fhir', name: 'hapi-fhir-converter', version: project.hapiFhirConvertorVersion
+    
+    // PostgreSQL
+    implementation group: 'org.postgresql', name: 'postgresql', version: project.postgresVersion
 
     // testing
     testImplementation group: 'org.apache.camel', name: 'camel-test-junit5', version: project.camelVersion
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.junitVersion
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: project.junitVersion
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.junitVersion
+    
+    // HL7 to FHIR converter
+    implementation group: 'io.github.linuxforhealth' , name:'hl7v2-fhir-converter', version:project.hl7v2FHIRConverterVersion
 }
 
 test {

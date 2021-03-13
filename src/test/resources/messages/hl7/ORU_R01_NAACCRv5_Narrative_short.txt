@@ -1,0 +1,10 @@
+MSH|^~\&||INDEPENDENT LAB SERVICES^33D1234567^CLIA|||200506021339||ORU^R01^ORU_R01|2005060213390045|P|2.5.1|||||||||VOL_V_50_ORU_R01^NAACCR_CP^^
+PID|1||123456789^^^^SS~00466144^^^^MR||Cane^Candy||19570706|F||2106- 3^White^HL70005|495 East Overshoot Drive^^Delmar^NY^12054^^H|||||M
+ORC|RE||||||||||||||||||||Albany Medical Center|43 New Scotland Ave.^^Albany^NY^12208||43 New Scotland Ave.^^Albany^NY^12208
+OBR|1||06-123456-MH|22049-1^Flow Cytometry Analysis^LN|||200505021212|||||||200505311130|^Bone marrow|^B.J.^Healing^^^^M.D.|2033271605|||||200505311332|||F|||||||109772&PATHOL OGIST&QUINCY&&&Dr.&MD&&NPI
+SPM|1|^06-123456-MH- 1&ILSPCID||TISS^Tissue^HL70487|||||||||||||200505021212|200505031200|||||||||||| 0704500123^^^33D1234567&INDEPENDENT LAB SERVICES
+OBX|1|TX|22633-2^nature of specimen^LN|1|Bone marrow.|||N|||F|||200505021212|33D1234567^Independent Lab Services^CLIA
+OBX|2|TX|22636-5^clinical history^LN|1|Evaluate for non-Hodgkin's lymphoma: ALL: myelodysplastic syndromes: chronic Lymphoproliferative disorders, CLL. Prior therapy: chemotherapy, Fludarabine more than one month ago. CBC report received.|||N|||F|||200505021212|33D1234567^Independent Lab Services^CLIA
+OBX|3|TX|22638-1^comments^LN|1|Correlation with a comprehensive bone marrow morphology examination, CBC data/blood smear, and other relevant clincial and laboratory data is recommended.|||N|||F|||200505021212|33D1234567^Independent Lab Services^CLIA
+OBX|4|TX|22637-3^final diagnosis^LN|1|A small population of monoclonal B-cells (Kappa) is present in the bone marrow. The antigenic profile is consistent with chronic lymphocytic leukemia/small lymphocytic lymphoma (CLL/SLL).|||N|||F|||200505021212|33D1234567^Independent Lab Services^CLIA
+OBX|5|TX|22049-1^phenotype^LN|1|1. A monoclonal kappa B-cell population co- expressing CD5 and CD23 is present. 2. -92% maturing myeloid elements are present.|||N|||F|||200505021212|33D1234567^Independent Lab Services^CLIA

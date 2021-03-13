@@ -7,15 +7,16 @@ package com.linuxforhealth.connect.support;
 
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Properties;
 
-import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,13 +28,14 @@ public class LFHKafkaConsumer {
     
     private final Logger logger = LoggerFactory.getLogger(LFHKafkaConsumer.class);
     private KafkaConsumer consumer = null;
+    private long timeout = 500L;
 
     public void LFHKafkaConsumer() { }
 
     /**
      * Start the Kafka consumer
      */
-    public void start(String brokers) {
+    public void start(String brokers, long timeout) {
         final Properties props = new Properties();
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "LFHKafkaConsumerGroup");
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokers);
@@ -41,6 +43,7 @@ public class LFHKafkaConsumer {
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        this.timeout = timeout;
 
         consumer = new KafkaConsumer(props);
      }
@@ -57,7 +60,7 @@ public class LFHKafkaConsumer {
         try {
             consumer.assign(Arrays.asList(topicPartition));  // subscribe
             consumer.seek(topicPartition, offset);
-            ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+            ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(timeout));
             logger.debug("received {} records", records.count());
             for (ConsumerRecord<String, String> record : records) {
                 // should only be 1 record
@@ -70,6 +73,39 @@ public class LFHKafkaConsumer {
         }
 
         return value;   
+    }
+
+    /**
+     * Get all messages from a Kafka topic and partition
+     */
+    public List<String> getAll(String topic, int partition) {
+        
+        List<String> resultList = new LinkedList<String>();
+
+        logger.debug("input: partition={} topic={}", partition, topic);
+        TopicPartition topicPartition = new TopicPartition(topic, partition);
+
+        try {
+            consumer.assign(Arrays.asList(topicPartition));  // subscribe
+  
+            consumer.seek(topicPartition, 0);
+            ConsumerRecords<String, String> records;
+
+            do {
+                records = consumer.poll(Duration.ofMillis(timeout));
+                logger.debug("received {} records", records.count());
+                for (ConsumerRecord<String, String> record : records) {
+                    resultList.add(record.value());
+                }
+            } while(!records.isEmpty());
+
+        } catch (Exception ex) {
+            logger.error("Exception: "+ex);
+        } finally {
+            consumer.assign(Arrays.asList());  // unsubscribe
+        }
+
+        return resultList;   
     }
 
     /**

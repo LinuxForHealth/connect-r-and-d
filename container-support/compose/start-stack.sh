@@ -30,13 +30,15 @@ echo "LFH compose profile is set to ${LFH_COMPOSE_PROFILE}"
 # configures the LFH Kong API Gateway for the dev, integration, and server profiles
 case "${LFH_COMPOSE_PROFILE}" in
   dev)
-    export LFH_KONG_LFHHOST="localhost"
-    [ "$(uname -s)" == "Darwin" ] && export LFH_KONG_LFHHOST="host.docker.internal"
+    export LFH_KONG_CONNECT_HOST="localhost"
+    [ "$(uname -s)" == "Darwin" ] && export LFH_KONG_CONNECT_HOST="host.docker.internal"
+    export LFH_KONG_ORTHANC_HOST=${LFH_KONG_CONNECT_HOST}
     export COMPOSE_FILE=docker-compose.yml:docker-compose.dev.yml:docker-compose.kong-migration.yml
     source ./configure-kong.sh
     ;;
   integration|pi|server)
-    export LFH_KONG_LFHHOST="compose_lfh_1"
+    export LFH_KONG_CONNECT_HOST="compose_lfh_1"
+    export LFH_KONG_ORTHANC_HOST="compose_orthanc_1"
     export COMPOSE_FILE=docker-compose.yml:docker-compose.server.yml:docker-compose.kong-migration.yml
     source ./configure-kong.sh
     ;;

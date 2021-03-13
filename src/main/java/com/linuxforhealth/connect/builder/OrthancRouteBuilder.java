@@ -66,9 +66,6 @@ public class OrthancRouteBuilder extends BaseRouteBuilder {
         .to("{{lfh.connect.orthanc.server.uri}}")
         .id(ORTHANC_PRODUCER_POST_ID)
         .process(exchange -> {
-            String orthancExternalUri = SimpleBuilder
-                .simple("${properties:lfh.connect.orthanc.server.external.uri}")
-                .evaluate(exchange, String.class);
             String orthancServerUri = SimpleBuilder
                 .simple("${properties:lfh.connect.orthanc.server.uri}")
                 .evaluate(exchange, String.class);
@@ -78,7 +75,7 @@ public class OrthancRouteBuilder extends BaseRouteBuilder {
             JSONObject obj = new JSONObject(body);
             String id = obj.getString("ID");
             exchange.setProperty("imageId", id);
-            exchange.setProperty("dataUri", orthancExternalUri+"/"+id+"/preview");
+            exchange.setProperty("dataUri", "/instances/"+id+"/preview");
 
             // Set up for next call to get the .png image
             exchange.setProperty("location", orthancServerUri+"/"+id+"/preview");
