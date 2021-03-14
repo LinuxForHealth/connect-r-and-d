@@ -30,7 +30,7 @@ echo "LFH compose profile is set to ${LFH_COMPOSE_PROFILE}"
 # configures the LFH Kong API Gateway for the dev, integration, and server profiles
 case "${LFH_COMPOSE_PROFILE}" in
   dev)
-    export LFH_KONG_LFHHOST="localhost"
+    export LFH_KONG_CONNECT_HOST="localhost"
     [ "$(uname -s)" == "Darwin" ] && export LFH_KONG_CONNECT_HOST="host.docker.internal"
     if [[ "$(uname -r)" == *"microsoft"* ]]; then
       export LFH_KONG_CONNECT_HOST="host.docker.internal"
