@@ -32,6 +32,10 @@ case "${LFH_COMPOSE_PROFILE}" in
   dev)
     export LFH_KONG_CONNECT_HOST="localhost"
     [ "$(uname -s)" == "Darwin" ] && export LFH_KONG_CONNECT_HOST="host.docker.internal"
+    if [[ "$(uname -r)" == *"microsoft"* ]]; then
+      export LFH_KONG_CONNECT_HOST="host.docker.internal"
+      export LFH_KONG_ADMIN_LISTEN="'${LFH_KONG_ADMIN_LISTEN}'"
+    fi
     export LFH_KONG_ORTHANC_HOST=${LFH_KONG_CONNECT_HOST}
     export COMPOSE_FILE=docker-compose.yml:docker-compose.dev.yml:docker-compose.kong-migration.yml
     source ./configure-kong.sh
