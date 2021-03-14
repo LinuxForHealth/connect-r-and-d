@@ -1,0 +1,16 @@
+{
+  "meta": {
+    "routeId": "fhir-r4",
+    "uuid": "e06acea4-7f7b-4bee-a6dc-f5bcce90b49b",
+    "routeUri": "jetty:http://0.0.0.0:8080/fhir/r4/DiagnosticReport?httpMethodRestrict=POST",
+    "dataFormat": "FHIR-R4",
+    "messageType": "DIAGNOSTICREPORT",
+    "timestamp": 1610679773,
+    "dataStoreUri": "kafka:FHIR-R4_DIAGNOSTICREPORT?brokers=localhost:9094",
+    "status": "success",
+    "dataRecordLocation": [
+      "FHIR-R4_DIAGNOSTICREPORT:0:7"
+    ]
+  },
+  "data": "eyJyZXNvdXJjZVR5cGUiOiJEaWFnbm9zdGljUmVwb3J0IiwiaWQiOiIxMDEiLCJzdGF0dXMiOiJmaW5hbCIsImNvZGUiOnsiY29kaW5nIjpbeyJzeXN0ZW0iOiJodHRwOi8vbG9pbmMub3JnIiwiY29kZSI6IjU4NDEwLTIiLCJkaXNwbGF5IjoiQ29tcGxldGUgYmxvb2QgY291bnQgKGhlbW9ncmFtKSBwYW5lbCAtIEJsb29kIGJ5IEF1dG9tYXRlZCBjb3VudCJ9XSwidGV4dCI6IkNvbXBsZXRlIEJsb29kIENvdW50In0sInN1YmplY3QiOnsicmVmZXJlbmNlIjoiUGF0aWVudC9wYXQyIn0sInByZXNlbnRlZEZvcm0iOlt7ImNvbnRlbnRUeXBlIjoidGV4dC9wbGFpbiIsImxhbmd1YWdlIjoiZW4tVVMiLCJkYXRhIjoiVkdobElIQmhkR2xsYm5RZ2NISmxjMlZ1ZEhNZ2QybDBhQ0JPVTBOTVF3PT0iLCJ0aXRsZSI6ImNvbnN1bHQudHh0In1dfQ=="
+}

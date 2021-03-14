@@ -3,20 +3,24 @@ services:
   lfh:
     image: ${LFH_CONNECT_IMAGE}
     restart: "always"
+    networks:
+      - main
     environment:
       LFH_CONNECT_DATASTORE_URI: "kafka:<topicName>?brokers=kafka:9092"
-      LFH_CONNECT_MESSAGING_RESPONSE_URI: "nats:EVENTS.responses?servers=nats-server:4222"
-      LFH_CONNECT_MESSAGING_ERROR_URI: "nats:EVENTS.errors?servers=nats-server:4222"
+      LFH_CONNECT_MESSAGING_RESPONSE_URI: "nats:EVENTS.responses?servers=nats-server:4222&secure=true&sslContextParameters=#sslContextParameters"
+      LFH_CONNECT_MESSAGING_ERROR_URI: "nats:EVENTS.errors?servers=nats-server:4222&secure=true&sslContextParameters=#sslContextParameters"
       LFH_CONNECT_MESSAGING_SUBSCRIBE_HOSTS: "nats-server:4222"
       LFH_CONNECT_ORTHANC_SERVER_URI: "http://orthanc:8042/instances"
       LFH_CONNECT_DATASTORE_BROKERS: "kafka:9092"
-      LFH_CONNECT_EXTERNAL_HOST_IP: "127.0.0.1"
+      LFH_CONNECT_X12_EXTERNAL_URI: "mock:x-12"
     depends_on:
       - "kafka"
       - "nats-server"
   postgres:
     image: ${LFH_PG_IMAGE}
     restart: "always"
+    networks:
+      - main
     environment:
       PGDATA: ${LFH_PG_DATA}
       POSTGRES_USER: ${LFH_PG_USER}
@@ -27,6 +31,8 @@ services:
   kong:
     image: ${LFH_KONG_IMAGE}
     restart: always
+    networks:
+      - main
     depends_on:
       - postgres
     ports:

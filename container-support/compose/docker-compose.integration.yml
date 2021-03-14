@@ -2,11 +2,15 @@ version: "3.7"
 services:
   ibm-fhir:
     image: ${IBM_FHIR_IMAGE}
+    networks:
+      - main
     ports:
       - ${IBM_FHIR_HTTPS_PORT}:${IBM_FHIR_HTTPS_PORT}
   msft-fhir:
     restart: on-failure
     image: ${MSFT_FHIR_IMAGE}
+    networks:
+      - main
     environment:
       FHIRServer__Security__Enabled: ${MSFT_FHIR_SECURITY_ENABLED}
       SqlServer__ConnectionString: ${MSFT_FHIR_SQL_CONNECTION_STRING}
@@ -20,6 +24,8 @@ services:
       - msft-fhir-sql
   msft-fhir-sql:
     image: ${MSFT_FHIR_SQL_IMAGE}
+    networks:
+      - main
     environment:
       SA_PASSWORD: ${MSFT_FHIR_SQL_SA_PASSWORD}
       ACCEPT_EULA: "Y"

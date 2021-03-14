@@ -8,14 +8,17 @@ package com.linuxforhealth.connect.builder;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.apache.camel.CamelContext;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.model.language.ConstantExpression;
 import org.apache.camel.test.junit5.CamelTestSupport;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 
 import com.linuxforhealth.connect.support.TestUtils;
@@ -96,9 +99,10 @@ abstract class RouteTestSupport extends CamelTestSupport {
      * @param routeId     The route id to update.
      * @param producerId The component id to mock.
      * @param mockUri     The mock uri which replaces the producer uri.
+     * @return           The {@link MockEndpoint} for the producer component.
      * @throws Exception If an error occurs during processing.
      */
-    protected void mockProducerEndpointById(String routeId, String producerId, String mockUri) throws Exception {
+    protected MockEndpoint mockProducerEndpointById(String routeId, String producerId, String mockUri) throws Exception {
 
         RouteDefinition routeDefinition = context.getRouteDefinition(routeId);
         AdviceWithRouteBuilder advice = new AdviceWithRouteBuilder() {
@@ -109,6 +113,7 @@ abstract class RouteTestSupport extends CamelTestSupport {
         };
 
         context.adviceWith(routeDefinition, advice);
+        return MockEndpoint.resolve(context, mockUri);
     }
 
     /**
@@ -227,12 +232,18 @@ abstract class RouteTestSupport extends CamelTestSupport {
      */
     @BeforeEach
     protected void configureContext() throws Exception {
+        if (isCreateCamelContextPerClass() && context.isStarted()) {
+            return;
+        }
         context.start();
         fluentTemplate.start();
     }
 
     @AfterEach
     protected void stopContext() {
+        if (isCreateCamelContextPerClass()) {
+            return;
+        }
         fluentTemplate.stop();
         context.stop();
     }

@@ -6,9 +6,8 @@
 package com.linuxforhealth.connect.builder;
 
 import com.linuxforhealth.connect.support.LFHKafkaConsumer;
-import com.linuxforhealth.connect.support.ExternalServerAggregationStrategy;
 import com.linuxforhealth.connect.support.TestUtils;
-import org.apache.camel.AggregationStrategy;
+import org.apache.camel.Exchange;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +33,7 @@ public class LinuxForHealthExternalFhirServersTest extends RouteTestSupport {
         props.setProperty("lfh.connect.test.uri", "direct:test-notify");
         props.setProperty("lfh.connect.messaging.response.uri", "mock:messaging");
         props.setProperty("lfh.connect.datastore.remote-events.consumer.uri", "direct:remote-events");
-        props.setProperty("lfh.connect.fhir-r4.externalservers", "http://localhost:9081/fhir-server/api/v4");
+        props.setProperty("lfh.connect.fhir-r4.externalserver", "http://localhost:9081/fhir-server/api/v4");
         return props;
     }
 
@@ -52,7 +51,7 @@ public class LinuxForHealthExternalFhirServersTest extends RouteTestSupport {
     protected void configureContext() throws Exception {
 
         setProducerResponseByToString(FhirR4RouteBuilder.EXTERNAL_FHIR_ROUTE_ID,
-                "recipientList*",
+                "DynamicTo*",
                 "fhir",
                 "ext-fhir-server-mock-result.json");
 
@@ -79,24 +78,19 @@ public class LinuxForHealthExternalFhirServersTest extends RouteTestSupport {
 
         String expectedMessage = context
             .getTypeConverter()
-            .convertTo(String.class, TestUtils.getMessage("fhir", "ext-fhir-server-expected-msg.json"))
-            .replace(System.lineSeparator(), "");
+            .convertTo(String.class, TestUtils.getMessage("fhir", "ext-fhir-server-mock-result.json"));
+
+        mockResult.expectedMessageCount(1);
+        mockResult.expectedBodiesReceived(expectedMessage);
+        mockResult.expectedHeaderReceived(Exchange.HTTP_METHOD, "POST");
+        mockResult.expectedPropertyReceived("result", inputMessage);
+        mockResult.expectedHeaderReceived("Prefer", "return=OperationOutcome");
 
         fluentTemplate.to(FhirR4RouteBuilder.EXTERNAL_FHIR_ROUTE_URI)
             .withBody(inputMessage)
             .withHeader("resource", "Patient")
             .send();
 
-        // Pass the resulting exchange to the aggregation strategy (not included in the mocked route)
-        AggregationStrategy as = new ExternalServerAggregationStrategy();
-        as.aggregate(null, mockResult.getExchanges().get(0));
-
-        mockResult.expectedMessageCount(1);
-        mockResult.expectedBodiesReceived(expectedMessage);
-        mockResult.expectedPropertyReceived("dataStoreUri", "kafka:FHIR-R4_PATIENT?brokers=localhost:9094");
-        mockResult.expectedPropertyReceived("dataFormat", "FHIR-R4");
-        mockResult.expectedPropertyReceived("messageType", "PATIENT");
-        mockResult.expectedPropertyReceived("routeId", "fhir-r4");
         mockResult.assertIsSatisfied();
     }
 }

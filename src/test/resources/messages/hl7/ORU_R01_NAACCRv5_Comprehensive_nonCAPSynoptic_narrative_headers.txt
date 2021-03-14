@@ -1,0 +1,101 @@
+MSH|^~\&||INDEPENDENT LAB SERVICES^33D1234567^CLIA|||200407281339||ORU^R01^ORU_R01|2004072813390045|P|2.5.1|||||||||VOL_V_50_ORU_R01^NAACCR_CP^^
+PID|1||123456789^^^^SS~00466144^^^^MR||Cane^Candy||19570706 |F||2106-3^White^HL70005|495 East Overshoot Drive^^Delmar^NY^12054^^H|||||M
+ORC|RE||||||||||||||||||||Albany Medical Center|43 New Scotland Ave.^^Albany^NY^12208||43 New Scotland Ave.^^Albany^NY^12208
+OBR|1||97 810430|60567-5^Comprehensive pathology report panel^LN|||200707251630|||123456^MYELOMUS^JOHN|||||TISS^Tissue^HL70487|594110NY^CARING^CA REN^^M.D.^^^^NY_PHYSICIANLICENSE^^^^MD|||||||||F|||||||109771&GLANCE&JUSTIN&&&&&&NY_PHYSI CIANLICENSE
+SPM|1|^3567829||TISS^Tissue^HL70487|K||||||||||||200407200930|200407211500||||||||||||97 810430^^^33D1234567&INDEPENDENT LAB SERVICES
+OBR|2||97 810430|11529-5^Surgical Pathology Study^LN|||200707251630|||123456^MYELOMUS^JOHN|||||TISS^Tissue^HL70487|594110NY^CARING^CA REN^^M.D.^^^^NY_PHYSICIANLICENSE^^^^MD|||||||||F|||||||109771&GLANCE&JUSTIN&&&&&&NY_PHYSI CIANLICENSE
+OBX|1|TX|22637-3^Path report.final diagnosis^LN||SKIN ELLIPSE AND UNDERLYING BREAST AND ADIPOSE TISSUE (LEFT), LUMPECTOMY: INVASIVE DUCTAL CARCINOMA – ADDENDUM ANDCONSULTATION REPORTS WITH RECEPTORSTATUS TO FOLLOW||||||F
+OBX|2|TX|22636-5^Path report.relevant Hx^LN||47-year old white female with (L) UOQ breast mass||||||F
+OBX|3|TX|22633-2^Path report.site of origin^LN|1|Left breast lesion – short stitch superior.||||||F
+OBX|4|TX|22633-2^Path report.site of origin^LN|2|Long stitch lateral.||||||F
+OBR|3||97 810430|60568-3^Synoptic report ^LN|||200707251630|||123456^MYELOMUS^JOHN|||||TISS^Tissue^HL70487|594110NY^CARING^CAREN^^ M.D.^^^^NY_PHYSICIANLICENSE^^^^MD|||||||||F|60567-5&Comprehensive pathology report panel&LN|||^97 810430|||109771&GLANCE&JUSTIN&&&&&&NY_PHYSICIANLICENSE
+OBX|1|ST|60573-3^Report template source^LN||New York State Synoptic Report Format||||||F OBX|2|ST|60572-5^Report template ID^LN||Protocol for the Examination of Specimens from Patients with Invasive Ductal Carcinoma of the Breast||||||F
+OBX|3|ST|60574-1^Report template version ID^LN||NYS- InvasiveCarcinomaRelease2.1||||||F
+OBX|4|TX|SPECIMEN SITE DESCRIBED ON CONTAINER:||left breast lesion||||||F
+OBX|5|TX|Header|1|SPECIMEN DESCRIPTION||||||F
+OBX|6|TX|Tissue/s:|1|consistent with breast lumpectomy, with attached skin ellipse||||||F
+OBX|7|TX|Handling Prior to Receipt in Lab: |1|specimen received intact||||||F
+OBX|8|TX|Clinical Orientation:||attached short suture, described on requisition as "superior" and attached long suture, described as "lateral" – used for the orientation of the specimen (below)||||||F
+OBX|9|TX|Header|2|Resection Margins:||||||F
+OBX|10|TX|Header|2.1|inked:||||||F
+OBX|11|TX|red|2.1|medial and lateral||||||F
+OBX|12|TX|blue|2.1|superior||||||F
+OBX|13|TX|green|2.1|inferior||||||F
+OBX|14|TX|black|2.1|deep||||||F
+OBX|15|TX|Other Handling in Lab:|2|sectioned and left for overnight fixation||||||F
+OBX|16|TX|Approximate Fixation Time:|2|> 48 hours/ < 7 days||||||F
+OBX|17|TX|Specimen Size:|2|breast 7.1 x 6.2 x 2.5 cm in greatest dimensions skinellipse 3.3 x 0.6 cm||||||F
+OBX|18|TX|Diagnostic Imaging for Identification of Suspect Area/s:|2|not required||||||F
+OBX|19|TX|Breast Tumor:|2|present – see below||||||F
+OBX|20|TX|Size:|3|difficult to measure accurately; a 0.6 cm area of hemorrhage immediately adjacent tumor, obscuring tumor margin approximately 2.0 x 1.2 cm in greatest
+dimensions||||||F
+OBX|21|TX|Location:|3|11 o'clock – as per prior clinical history||||||F
+OBX|22|TX|Appearance:|3|spiculated, ill-defined, firm, grey-white||||||F
+OBX|23|TX|Evidence of Spread or Complications:|3|none||||||F
+OBX|24|TX|Resection Lines:|4|0.3 cm from the closest resection margin – the deep 0.8 cm from the next closest resection margin – the junction of the superior and inferior (superficially) 1.2 cm from all remaining resection margins, the next closest being the medial||||||F
+OBX|25|TX|Other Breast:|4|moderately fibrous centrally, and surroundingtumor||||||F
+OBX|24|TX|Nipple:|4|not applicable – not included with specimen||||||F
+OBX|25|TX|Skin:|4|normal||||||F
+OBX|26|TX|Lymph Nodes:|4|none seen||||||F
+OBX|27|TX|Axillary Tissue:|5|not applicable – none included withspecimen||||||F
+OBX|28|TX|Other Abnormalities/ Comments:|5|none||||||F
+OBX|29|TX|MATERIAL SUBMITTED FOR HISTOLOGY:||entire tumor, and otherrepresentative sections||||||F
+OBX|30|TX|Header|6|BLOCKS SUBMITTED TO HISTOLOGY:||||||F
+OBX|31|TX|A,B|6|complete cross-section of tumor, in its largest dimension – split in two||||||F
+OBX|32|TX|C|6|tumor including closest (deep) resection margin||||||F
+OBX|33|TX|D-G|6|? tumor including deep margin||||||F
+OBX|34|TX|H|6|fibrous breast including inferior resection margin||||||F
+OBX|35|TX|I|7|breast including lateral resection margin||||||F
+OBX|36|TX|J|6|breast including medial resection margin||||||F
+OBX|37|TX|K|6|section immediately superficial, but perpendicular to that in A,Bincluding superior margin, and skin ellipse||||||F
+OBX|38|TX|Neoadjuvant Treatment:||unknown – not providedclinically||||||F
+OBX|39|TX|Specimen Type:||lumpectomy||||||F
+OBX|40|TX|Lymph Node Sampling:||sentinel lymph node biopsy||||||F
+OBX|41|TX|Header|7|Specimen Size:||||||F
+OBX|42|TX|Greatest Dimension (cm):|7|7.1||||||F
+OBX|43|TX|Comments:|7|as described grossly||||||F
+OBX|44|TX|Laterality:|8|left||||||F
+OBX|45|TX|Comments:|8|as described clinically||||||F
+OBX|46|TX|Header|9|Features of Malignancdy:||||||F
+OBX|47|TX|Tumor Site:|9.1|not specified clinically||||||F
+OBX|48|TX|Comments:|9.1|described as "11 o'clock" in the Clinical History for a previous core biopsy (S******) – likely the same site as the tumor in the specimenhere||||||F
+OBX|49|TX|Invasive Carcinoma:|9|present||||||F
+OBX|50|TX|Histologic Type:|9.2|invasive ductal carcinoma||||||F
+OBX|51|TX|Comments:|9.2|with prominent lobular differentiation; for instance, the carcinoma spreads as individual cells and small groups of cells at the edge of themain tumor mass||||||F
+OBX|52|TX|Tumor Distribution:|9.3|single focus only||||||F
+OBX|53|TX|Comments:|9.3|seen in the area described grossly||||||F
+OBX|54|TX|Size of Invasive Component:|9.4|Greatest Dimension (cm): 1.1||||||F
+OBX|55|TX|Comments:|9.4|exact size difficult to be certain of, because of the effectof previous biopsy, but appearing greater than 1.0 cm in largest dimension, from the microscopic slides||||||F
+OBX|56|TX|Header|9.5|Histologic Grade:||||||F
+OBX|57|TX|Tubule Formation:|9.5|3/3||||||F
+OBX|58|TX|Nuclear Pleomorphism:|9.5|2/3||||||F
+OBX|59|TX|Mitotic Count (40x):|9.5|1/3||||||F
+OBX|60|TX|Modified Nottingham Grade:|9.5|Grade II/III – moderately differentiated||||||F
+OBX|61|TX|Skin Involvement:||absent||||||F
+OBX|62|TX|Chest Wall Involvement:||not applicable – none included with the specimen||||||F
+OBX|63|TX|Venous/Lymphatic Invasion:||absent||||||F
+OBX|64|TX|Block(s) for Receptor Studies:|9.6|being sent to: LHO||||||F
+OBX|65|TX|Blocks Submitted:|9.6|G||||||F
+OBX|66|TX|In Situ Carcinoma:|9.7|absent||||||F
+OBX|67|TX|Comments:|9.7|except in some very minute foci in and around the invasive tumor||||||F
+OBX|68|TX|Header|10|Lymph Nodes:||||||F
+OBX|69|TX|Lymph Nodes Present:|10|yes||||||F
+OBX|70|TX|Number Examined:|10|1||||||F
+OBX|71|TX|Number Involved:|10|0||||||F
+OBX|72|TX|Header|11|AJCC Staging:||||||F
+OBX|73|TX|Additional pTNM Descriptors:|11|not applicable||||||F
+OBX|74|TX|Primary Tumor (pT):|11|pT1c – tumor more than 1.0 cm but not more than 2.0 cm in greatest dimension||||||F
+OBX|75|TX|Distant Metastasis (pM):|11|pMx – cannot be assessed||||||F
+OBX|76|TX|Header|12|Resection Margin(s):||||||F
+OBX|77|TX|Involvement by Invasive Carcinoma:|12|absent||||||F
+OBX|78|TX|Closest Margin(s):|12|deep, in a number of slides – and particularly close in Slide G||||||F
+OBX|79|TX|Distance to Closest Margin (mm):|12.1|1||||||F
+OBX|80|TX|Comments:|12.1|(0.1 cm)||||||F
+OBX|81|TX|^Correlation with IOC:||not applicable||||||F
+OBX|82|TX|^Additional Pathologic Findings:||reactive fibrosis aroundthe carcinoma||||||F
+OBX|83|TX|^Additional Pathologic Findings:||changes around the carcinoma consistentwith the effect of previous biopsy||||||F
+OBX|84|TX|^Additional Pathologic Findings:||some immunohistochemistry will be orderedto confirm some of the findings above – that will be reported in an Addendum Report to follow||||||F
+OBX|85|TX|^Additional Pathologic Findings:||fibrocystic change in the background||||||F
+OBX|86|TX|^Additional Pathologic Findings:||reactive changes in the lymphnode||||||F
+OBX|87|TX|22637-3^Pathology report final diagnosis^LN||SKIN ELLIPSE AND UNDERLYINGBREAST AND ADIPOSE TISSUE (LEFT), LUMPECTOMY: INVASIVE DUCTAL CARCINOMA – ADDENDUM AND CONSULTATION REPORTS WITH RECEPTORSTATUS TO FOLLOW||||||F
+
