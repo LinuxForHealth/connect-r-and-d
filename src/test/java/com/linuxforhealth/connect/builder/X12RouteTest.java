@@ -6,6 +6,7 @@
 package com.linuxforhealth.connect.builder;
 
 import com.linuxforhealth.connect.support.TestUtils;
+import java.util.Properties;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,10 +18,18 @@ import org.junit.jupiter.api.Test;
 public class X12RouteTest extends RouteTestSupport {
 
     private MockEndpoint mockResult;
+    private MockEndpoint mockProducer;
 
     @Override
     protected RoutesBuilder createRouteBuilder() throws Exception {
         return new X12RouteBuilder();
+    }
+
+    @Override
+    protected Properties useOverridePropertiesWithPropertiesComponent() {
+        Properties props = super.useOverridePropertiesWithPropertiesComponent();
+        props.setProperty("lfh.connect.x12.external.uri", "mock:x12");
+        return props;
     }
 
     /**
@@ -43,6 +52,7 @@ public class X12RouteTest extends RouteTestSupport {
         super.configureContext();
 
         mockResult = MockEndpoint.resolve(context, "mock:result");
+        mockProducer = MockEndpoint.resolve(context, "mock:x12");
     }
 
     @Test
@@ -55,14 +65,16 @@ public class X12RouteTest extends RouteTestSupport {
         mockResult.expectedPropertyReceived("repetitionCharacter", "|");
         mockResult.expectedPropertyReceived("componentSeparator", ":");
         mockResult.expectedPropertyReceived("lineSeparator", "~");
-
         mockResult.expectedHeaderReceived("X12MessageType", "270");
+
+        mockProducer.expectedMessageCount(1);
 
         fluentTemplate.to("http://0.0.0.0:8080/x12")
                 .withBody(testMessage)
                 .send();
 
         mockResult.assertIsSatisfied();
+        mockProducer.assertIsSatisfied();
     }
 
     @Test
@@ -77,11 +89,14 @@ public class X12RouteTest extends RouteTestSupport {
         mockResult.expectedPropertyReceived("lineSeparator", "~");
 
         mockResult.expectedMessageCount(3);
+        mockProducer.expectedMessageCount(3);
+
 
         fluentTemplate.to("http://0.0.0.0:8080/x12")
                 .withBody(testMessage)
                 .send();
 
         mockResult.assertIsSatisfied();
+        mockProducer.assertIsSatisfied();
     }
 }
