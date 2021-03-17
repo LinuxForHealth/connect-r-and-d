@@ -100,11 +100,11 @@ public class X12RouteBuilder extends BaseRouteBuilder {
         .setHeader(Exchange.HTTP_METHOD, constant("POST"))
         .setHeader(Exchange.CONTENT_TYPE, constant(ContentType.APPLICATION_JSON))
         .process(exchange -> {
+            String originalMessage = exchange.getProperty(ORIGINAL_MESSAGE_PROPERTY, String.class);
+            originalMessage = originalMessage.trim();
             JSONObject json = new JSONObject();
-            json.put("x12",
-                exchange.getProperty(ORIGINAL_MESSAGE_PROPERTY, String.class));
-
-            exchange.getIn().setBody(json.toString());
+            json.put("x12", originalMessage);
+            exchange.getIn().setBody(json.toString().trim());
         })
         .to("{{lfh.connect.x12.external.uri}}");
     }
