@@ -13,6 +13,10 @@ repositories {
     maven {
         url "https://oss.sonatype.org/content/repositories/snapshots/"
     }
+    jcenter()
+    maven {
+     url "https://dl.bintray.com/ibm-watson-health/ibm-fhir-server-releases"
+     }
 }
 
 application {
@@ -92,6 +96,9 @@ dependencies {
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.junitVersion
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: project.junitVersion
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.junitVersion
+    
+    // HL7 to FHIR converter
+    implementation group: 'io.github.linuxforhealth' , name:'hl7v2-fhir-converter', version:project.hl7v2FHIRConverterVersion
 }
 
 test {

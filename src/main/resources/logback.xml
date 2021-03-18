@@ -32,6 +32,7 @@
     <logger name="org.apache.kafka.consumer" level="warn" />
     <logger name="org.apache.kafka.clients.producer" level="warn" />
     <logger name="org.apache.kafka.clients.consumer" level="warn" />
+    <logger name="io.github.linuxforhealth.hl7" level="error" />
 
     <root level="warn">
         <appender-ref ref="STDOUT" />
