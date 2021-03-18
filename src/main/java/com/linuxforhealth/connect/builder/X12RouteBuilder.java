@@ -7,13 +7,11 @@ package com.linuxforhealth.connect.builder;
 
 import com.linuxforhealth.connect.processor.MetaDataProcessor;
 import com.linuxforhealth.connect.support.CamelContextSupport;
-import com.linuxforhealth.connect.support.LFHMultiResultStrategy;
 import com.linuxforhealth.connect.support.X12ParserUtil;
 import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.model.dataformat.JsonLibrary;
 import org.apache.http.entity.ContentType;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,6 +63,7 @@ public class X12RouteBuilder extends BaseRouteBuilder {
         .post()
         .route()
         .routeId(X12_REST_ROUTE_ID)
+        .setProperty(ORIGINAL_MESSAGE_PROPERTY, simple("${body}"))
         .unmarshal().json(JsonLibrary.Jackson)
         .setBody(jsonpath("x12"))
         .validate(e -> e.getIn().getBody(String.class).length() > ISA_SEGMENT_LENGTH)
@@ -78,34 +77,15 @@ public class X12RouteBuilder extends BaseRouteBuilder {
         .setProperty("lineSeparator", simple("${body.substring(105,106)}"))
         .log(LoggingLevel.DEBUG, logger, "Line Separator to ${exchangeProperty.lineSeparator}")
         .log(LoggingLevel.DEBUG, logger, "Completed parsing X12 Delimiters")
-        .split(bean(X12ParserUtil.class,
-                "split(${body}, ${exchangeProperty.fieldDelimiter}, ${exchangeProperty.lineSeparator})"),
-                new LFHMultiResultStrategy())
-            .stopOnException()
-            .streaming()
-            .to(PROCESS_X12_TRANSACTION_URI)
-        .end();
-
-        from(PROCESS_X12_TRANSACTION_URI)
-        .routeId(X12_TRANSACTION_ROUTE_ID)
         .setHeader("X12MessageType", bean(X12ParserUtil.class,
-                "getX12MessageType(${body}, ${exchangeProperty.fieldDelimiter}, ${exchangeProperty.lineSeparator})"))
-        .log(LoggingLevel.DEBUG, logger, "Processing X12 Transaction ${header.X12MessageType}")
-        .setProperty(ORIGINAL_MESSAGE_PROPERTY, simple("${body}"))
+            "getX12MessageType(${body}, ${exchangeProperty.fieldDelimiter}, ${exchangeProperty.lineSeparator})"))
         .process(new MetaDataProcessor(routePropertyNamespace))
-        .id(METADATA_PROCESSOR_ID)
         .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
         .removeHeaders("*")
         .setHeader("Accept", constant("application/json"))
         .setHeader(Exchange.HTTP_METHOD, constant("POST"))
         .setHeader(Exchange.CONTENT_TYPE, constant(ContentType.APPLICATION_JSON))
-        .process(exchange -> {
-            String originalMessage = exchange.getProperty(ORIGINAL_MESSAGE_PROPERTY, String.class);
-            originalMessage = originalMessage.trim();
-            JSONObject json = new JSONObject();
-            json.put("x12", originalMessage);
-            exchange.getIn().setBody(json.toString().trim());
-        })
+        .setBody(simple("${exchangeProperty.originalMessage}"))
         .to("{{lfh.connect.x12.external.uri}}");
     }
 }
