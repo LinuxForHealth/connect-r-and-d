@@ -27,14 +27,22 @@ public class LFHMultiResultStrategy implements AggregationStrategy {
     public Exchange aggregate(Exchange oldExchange, Exchange newExchange) {
 
         if (oldExchange == null) {
-            JSONObject newResult = new JSONObject(new String(newExchange.getIn().getBody(byte[].class)));
+            String body = new String(newExchange.getIn().getBody(byte[].class));
+            if (body.equals("")) {
+                body = "{}";
+            }
+            JSONObject newResult = new JSONObject(body);
             JSONArray results = new JSONArray(Collections.singletonList(newResult));
             newExchange.getIn().setBody(results.toString(), String.class);
             return newExchange;
         }
 
         JSONArray aggregatedResults = new JSONArray(oldExchange.getIn().getBody(String.class));
-        JSONObject newResult = new JSONObject(newExchange.getIn().getBody(String.class));
+        String body = new String(newExchange.getIn().getBody(byte[].class));
+        if (body.equals("")) {
+            body = "{}";
+        }
+        JSONObject newResult = new JSONObject(body);
         aggregatedResults.put(newResult);
         oldExchange.getIn().setBody(aggregatedResults.toString(), String.class);
         return oldExchange;
