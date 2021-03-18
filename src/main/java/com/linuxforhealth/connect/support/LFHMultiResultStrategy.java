@@ -27,7 +27,7 @@ public class LFHMultiResultStrategy implements AggregationStrategy {
     public Exchange aggregate(Exchange oldExchange, Exchange newExchange) {
 
         if (oldExchange == null) {
-            JSONObject newResult = new JSONObject(newExchange.getIn().getBody(String.class));
+            JSONObject newResult = new JSONObject(new String(newExchange.getIn().getBody(byte[].class)));
             JSONArray results = new JSONArray(Collections.singletonList(newResult));
             newExchange.getIn().setBody(results.toString(), String.class);
             return newExchange;
