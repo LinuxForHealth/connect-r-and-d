@@ -61,3 +61,14 @@ services:
       - main
     expose:
       - ${LFH_ORTHANC_HTTP_PORT}
+  swagger:
+    image: ${LFH_SWAGGER_IMAGE}
+    restart: "always"
+    networks:
+      - main
+    ports:
+      - ${LFH_SWAGGER_EXTERNAL_PORT}:${LFH_SWAGGER_INTERNAL_PORT}
+    environment:
+      SWAGGER_JSON: ${LFH_SWAGGER_JSON}
+    volumes:
+      - {LFH_SWAGGER_VOLUME}
