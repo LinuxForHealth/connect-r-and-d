@@ -1,0 +1,14 @@
+image: gitpod/workspace-full
+
+ports:
+  - port: 8443
+  - port: 9000
+  - port: 8081
+    onOpen: open-preview
+
+# List the start up tasks. You can start them in parallel in multiple terminals. See https://www.gitpod.io/docs/config-start-tasks/
+tasks:
+  - init: sudo docker-up
+  - init: ./gradlew build
+    command: ./gradlew run
+  - command: cd /workspace/connect/container-support/compose && sudo ./start-stack.sh
