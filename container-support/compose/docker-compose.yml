@@ -71,4 +71,4 @@ services:
     environment:
       SWAGGER_JSON: ${LFH_SWAGGER_JSON}
     volumes:
-      - {LFH_SWAGGER_VOLUME}
+      - ${LFH_SWAGGER_VOLUME}
