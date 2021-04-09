@@ -1,59 +1,46 @@
-/*
- * (C) Copyright IBM Corp. 2020
- *
- * SPDX-License-Identifier: Apache-2.0
- */
 package com.linuxforhealth.connect.builder;
 
-import com.linuxforhealth.connect.processor.LinuxForHealthMessage;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.linuxforhealth.connect.processor.MetaDataProcessor;
-
 import org.apache.camel.Exchange;
-import org.apache.camel.model.dataformat.JsonLibrary;
+import org.apache.camel.LoggingLevel;
+import org.apache.camel.Processor;
+import org.apache.camel.PropertyInject;
+import org.apache.http.entity.ContentType;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.linuxforhealth.connect.support.CamelContextSupport;
 
-/**
- * Defines example routes
- */
+import javax.ws.rs.HttpMethod;
+
 public class KaleidoRouteBuilder extends BaseRouteBuilder {
 
+    
     private final Logger logger = LoggerFactory.getLogger(KaleidoRouteBuilder.class);
 
     public final static String KALEIDO_ROUTE_ID = "kaleido";
-    public final static String KALEIDO_PRODUCER_ID = "kaleido_producer";
+    public final static String KALEIDO_ROUTE_PRODUCER_ID = "kaleido-producer-store-and-notify";
 
     @Override
-    protected String getRoutePropertyNamespace() {
-        return "lfh.connect.kaleido";
-    }
+    protected String getRoutePropertyNamespace() {return "lfh.connect.kaleido";}
 
+    
     @Override
+    // public void configure() throws Exception {
     protected void buildRoute(String routePropertyNamespace) {
+        CamelContextSupport ctxSupport = new CamelContextSupport(getContext());
+        String kaleidoUri = ctxSupport.getProperty("lfh.connect.kaleido.uri");
 
-        /**
-         * "Hello World" example route.
-         */
-        // from("{{lfh.connect.kaleido.uri}}")
-        //     .routeId(KALEIDO_ROUTE_ID)
-        //     .process(exchange -> {
-        //         String name = simple("${headers.name}").evaluate(exchange, String.class);
-        //         String result = "Hello Kaleido! It's "+name+".";
-        //         // Add your code here
-        //         exchange.getIn().setBody(result);
-        //     })
-        //     .process(new MetaDataProcessor(routePropertyNamespace))
-        //     .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
-        //     .id(KALEIDO_PRODUCER_ID);
-
-         rest("{{lfh.connect.kaleido.uri}}")
-            .post("/{resource}")
-            .route()
+        from(kaleidoUri)
+            .setHeader(Exchange.HTTP_METHOD,simple("GET"))
             .routeId(KALEIDO_ROUTE_ID)
-            .unmarshal().json(JsonLibrary.Jackson)
-            .marshal().json(JsonLibrary.Jackson)
+            .log("Routing to REST")
+            .to("https://jsonplaceholder.typicode.com/todos/1?bridgeEndpoint=true&throwExceptionOnFailure=false")
             .process(new MetaDataProcessor(routePropertyNamespace))
-            .to(LinuxForHealthRouteBuilder.STORE_AND_NOTIFY_CONSUMER_URI)
-            .id(KALEIDO_PRODUCER_ID);         
+            .id(KALEIDO_ROUTE_PRODUCER_ID)
+            .log(LoggingLevel.DEBUG, logger, "Response code: ${header.CamelHttpResponseCode}");
     }
+
 }
