@@ -86,7 +86,7 @@ public class FhirR4RouteBuilder extends BaseRouteBuilder {
             exchange.getIn().setHeader(Exchange.HTTP_METHOD, "POST");
             exchange.getIn().setHeader("Prefer", "return=OperationOutcome");
         })
-        .toD("${properties:lfh.connect.fhir-r4.externalserver}/${header[resource]}")
+        .toD("${properties:lfh.connect.fhir-r4.externalserver}/${header[resource]}${properties:lfh.connect.fhir-r4.params}")
         .id(EXTERNAL_FHIR_PRODUCER_ID);
     }
 }

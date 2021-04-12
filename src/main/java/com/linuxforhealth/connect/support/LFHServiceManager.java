@@ -5,6 +5,7 @@
  */
 package com.linuxforhealth.connect.support;
 
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.camel.main.Main;
 
 import javax.net.ssl.SSLContext;
@@ -63,6 +64,9 @@ public class LFHServiceManager {
 
             // To avoid turning on SSL for most Camel components, bind a second instance of SSLContextParameters
             SSLUtils.createSSLContext(properties, camelMain, "sslContextParametersGlobal");
+
+            // allow optional use of x509HostnameVerifier=#noopHostnameVerifier" for insecure https
+            camelMain.bind("noopHostnameVerifier", new NoopHostnameVerifier());
 
             consumer.start(brokers, kafkaConsumerTimeout);
             producer.start(brokers);
