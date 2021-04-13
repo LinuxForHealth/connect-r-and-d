@@ -8,6 +8,7 @@ package com.linuxforhealth.connect.builder;
 import com.linuxforhealth.connect.processor.MetaDataProcessor;
 import com.linuxforhealth.connect.support.CamelContextSupport;
 import org.apache.camel.Exchange;
+import org.apache.camel.LoggingLevel;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,14 +51,29 @@ public class FhirR4RouteBuilder extends BaseRouteBuilder {
             .to(EXTERNAL_FHIR_ROUTE_URI);
 
         /*
-         * Use the Camel Recipient List EIP to optionally send data to one or more external fhir servers
-         * when sending FHIR resources to LinuxForHealth.
-         
-         * Set the lfh.connect.fhir-r4.externalserver property to a fhir server path to
-         * enable this feature.  Example:
-         * lfh.connect.fhir-r4.externalserver=http://localhost:9081/fhir-server/api/v4
+         * Optionally send data to one or more external FHIR servers when sending FHIR resources to LinuxForHealth.
          *
+         * Set the lfh.connect.fhir-r4.externalserver property to a fhir server path to
+         * enable this feature.  Examples:
+         *     lfh.connect.fhir-r4.externalserver=http://localhost:9081/fhir-server/api/v4
+         *     lfh.connect.fhir-r4.externalserver=https://fhiruser:change-password@192.168.1.205:9443/fhir-server/api/v4
          * If lfh.connect.fhir-r4.externalserver does not exist or is not defined, no exception will be logged.
+         *
+         * If SSL is needed to connect to the FHIR server:
+         * 1. Use 'https' in your FHIR server URL.
+         * 2. Set lfh.connect.fhir-r4.verifycerts=false if using self signed certs.
+         * 3. Add the cert for your FHIR server to the LinuxForHealth truststore via the following steps:
+         *    - Obtain the FHIR server certificate:
+         *        cd connect/container-support/certs
+         *        echo | openssl s_client -connect 192.168.1.205:9443 -showcerts 2>/dev/null | openssl x509 > fhir-server.cer
+         *    - Import the FHIR server certificate into the LinuxForHealth truststore:
+         *        keytool -keystore lfhtruststore.jks -alias fhir-server -import -file ./fhir-server.cer \
+         *            -noprompt -storetype pkcs12 -storepass change-password
+         *        cp lfhtruststore.jks ../../src/main/resources
+         *    - If using the LinuxForHealth connect docker image, you'll need to rebuild and push the image:
+         *        docker buildx build --pull --push --platform linux/amd64,linux/s390x,linux/arm64 \
+         *            -t docker.io/<your_repo>/connect:<your_tag> .
+         *      then modify LFH_CONNECT_IMAGE in connect/container-support/compose/.env to use your new image.
          */ 
         from(EXTERNAL_FHIR_ROUTE_URI)
         .routeId(EXTERNAL_FHIR_ROUTE_ID)
@@ -68,11 +84,6 @@ public class FhirR4RouteBuilder extends BaseRouteBuilder {
 				.stop()
         .end()
         .process(exchange -> {
-            String baseURIs = simple("{{lfh.connect.fhir-r4.externalserver}}").evaluate(exchange, String.class);
-            String resource = exchange.getIn().getHeader("resource", String.class);
-            String[] uris = baseURIs.split(",");
-            String headerStr = "";
-
             // Save off the existing result in a property
             exchange.setProperty("result", exchange.getIn().getBody(String.class));
 
@@ -81,12 +92,23 @@ public class FhirR4RouteBuilder extends BaseRouteBuilder {
             byte[] body = Base64.getDecoder().decode(msg.getString("data"));
             exchange.getIn().setBody(body);
 
-            // Set up for the recipient list outbound calls
+            // Set headers for the outbound call
             exchange.getIn().removeHeaders("Camel*");
             exchange.getIn().setHeader(Exchange.HTTP_METHOD, "POST");
             exchange.getIn().setHeader("Prefer", "return=OperationOutcome");
+
+            // Set SSL params for the outbound call
+            String fhirURI = simple("${properties:lfh.connect.fhir-r4.externalserver}").evaluate(exchange, String.class);
+            Boolean verifyCerts = simple("${properties:lfh.connect.fhir-r4.verifycerts}").evaluate(exchange, Boolean.class);
+            String fhirParams = "?bridgeEndpoint=true&throwExceptionOnFailure=false";
+            if (fhirURI.contains("https")) {
+                fhirParams += "&sslContextParameters=#sslContextParameters";
+                if (!verifyCerts.booleanValue()) fhirParams += "&x509HostnameVerifier=#noopHostnameVerifier";
+            }
+            exchange.setProperty("fhir-params", fhirParams);
         })
-        .toD("${properties:lfh.connect.fhir-r4.externalserver}/${header[resource]}")
+        .log(LoggingLevel.DEBUG, logger, "Sending to external fhir server: ${properties:lfh.connect.fhir-r4.externalserver}/${header[resource]}${exchangeProperty[fhir-params]}")
+        .toD("${properties:lfh.connect.fhir-r4.externalserver}/${header[resource]}${exchangeProperty[fhir-params]}")
         .id(EXTERNAL_FHIR_PRODUCER_ID);
     }
 }

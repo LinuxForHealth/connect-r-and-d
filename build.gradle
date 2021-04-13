@@ -53,6 +53,9 @@ dependencies {
     implementation group: 'org.apache.camel', name: 'camel-tika', version: project.camelVersion
     implementation group: 'org.apache.camel', name: 'camel-bindy', version: project.camelVersion
 
+    // HTTP utils
+    implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: project.httpVersion
+
     // Java utils (OS type)
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: project.commonsLang3Version
     implementation group: 'org.apache.commons', name: 'commons-dbcp2', version: project.commonsDbcp2Version
