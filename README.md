@@ -1,8 +1,6 @@
-![LinuxForHealth CI](https://github.com/LinuxForHealth/connect/workflows/Linux%20for%20Health%20CI/badge.svg?branch=master)
-
 LinuxForHealth Connectors for Inbound Data Processing
 
-Powered by [Apache Camel](https://camel.apache.org/)
+Note: The LinuxForHealth Connect application has migrated to Python. This repository is archived and is not accepting updates. The current repository is located [here](https://github.com/LinuxForHealth/connect).  
 
 ## Documentation
 Online documentation is available [here](https://linuxforhealth.github.io/docs).
